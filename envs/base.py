@@ -38,6 +38,28 @@ class BaseEnv():
         self.create_env()
         self.enable_viewer_sync = True
         self.create_buffer()
+
+        self.imgs_dir = f"./output/{self.__class__.__name__}"
+        if not os.path.exists(self.imgs_dir):
+            os.makedirs(self.imgs_dir)
+        self.save_img_count = 0
+
+    
+    def save_imgs(self):
+        # render frame if we're saving video
+        # if self.save_video and self.viewer is not None:
+        #     num = str(self.save_img_count)
+        #     num = '0' * (6 - len(num)) + num
+        #     self.gym.write_viewer_image_to_file(self.viewer, f"{self.save_video_dir}/frame_{num}.png")
+        #     self.save_img_count += 1
+        # el
+        if self.save_img_count < 100000 and self.cfg.record == True: 
+            num = str(self.save_img_count)
+            num = '0' * (6 - len(num)) + num
+            rgb_filename = os.path.join(self.imgs_dir, f"frame{num}.png")
+            self.gym.write_camera_image_to_file(self.sim, self.env_handle[0], self.camera, gymapi.IMAGE_COLOR, rgb_filename)
+            self.save_img_count += 1 
+        return
     
     def create_env():
         raise NotImplementedError
@@ -146,6 +168,7 @@ class BaseEnv():
 
         # compute observations, rewards, resets, ...
         self.post_physics_step()
+        self.save_imgs()
         return self.step_output()
 
     def reset(self):

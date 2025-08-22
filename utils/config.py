@@ -23,6 +23,7 @@ def build_args():
         {"name": "--debug",         "action": "store_true", "default": False},
         {"name": "--eval",          "action": "store_true", "default": False},
         {"name": "--test",          "action": "store_true", "default": False},
+        {"name": "--record",       "action": "store_true", "default": False},
     ]
 
     # parse arguments
@@ -99,4 +100,5 @@ def build_config(args):
     cfg.debug = cfg.env.debug = args.debug
     cfg.eval = cfg.env.eval = args.eval
     cfg.test = cfg.env.test = args.test
+    cfg.record = cfg.env.record = args.record
     return cfg

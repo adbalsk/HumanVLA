@@ -106,13 +106,17 @@ class HITRCarryEnv(HITREnv):
 
             init_pos = self.init_trans[self.movetask_rootid[env_ids]]
             init_rot = self.init_rot[self.movetask_rootid[env_ids]]   
-
+            
+            #geom_object_pcd 是物体的几何点云模板。通过 transform_pcd 把它分别变换到 当前状态 和 初始状态。
             geom_object_pcd = self.asset_pcd[self.object2asset[self.movetask_objectid[env_ids]]] * self.object2scale[self.movetask_objectid[env_ids]].unsqueeze(-1).unsqueeze(-1)
             global_object_pcd = torch_utils.transform_pcd(geom_object_pcd, pos = object_pos, rot = object_rot)
             init_object_pcd = torch_utils.transform_pcd(geom_object_pcd, pos = init_pos, rot = init_rot)
+
+            #取物体底部最低点的 z 坐标
             init_z_pt = init_object_pcd[..., -1].min(1)[0]
             object_z_pt = global_object_pcd[...,-1].min(1)[0]
 
+            #判断物体是否被抬高了 0.2 米以上, 作为成功的标准
             success = (object_z_pt - init_z_pt) > 0.2        
             self.last_carry_success[env_ids] = success.float()
 

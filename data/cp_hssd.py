@@ -1,7 +1,7 @@
 
 
-HSSD_ROOT = '/home/allenxyxu/dataset/HSSD'
-HITR_ASSET_ROOT = './data/assets'
+HSSD_ROOT = './data'
+HITR_ASSET_ROOT = './HITR/assets'
 
 cp_src_dst = [
     ("hssd-models/objects/0/01362ea241206b5668fb03f345c4637fd9386c8a.glb", "01362ea241206b5668fb03f345c4637fd9386c8a/01362ea241206b5668fb03f345c4637fd9386c8a.glb"),
