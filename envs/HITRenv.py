@@ -266,7 +266,6 @@ class HITREnv(HumanoidEnv):
                 self.num_rigid_body += 1 
                 self.num_object += 1
 
-
         assert self.num_robot == self.num_envs
         assert self.num_robot + self.num_object == self.num_root
         assert self.num_robot * self.num_body + self.num_object == self.num_rigid_body
@@ -352,6 +351,23 @@ class HITREnv(HumanoidEnv):
         self.movenow_preguidecomplete = torch.zeros(self.num_envs, dtype=torch.bool,device=self.device)
         self.movenow_guideidx = torch.zeros(self.num_envs, dtype=torch.long,device=self.device)
         self.movenow_guide = self.preguide_full[:,0,:].clone()
+
+        # added # position the camera
+        if self.up_axis == 'z':
+            cam_pos = gymapi.Vec3(6.0, 8.0, 3.0) #(20.0, 25.0, 3.0)
+            cam_target = gymapi.Vec3(0, 0, 2.0) # (10.0, 15.0, 2.0)
+        else:
+            cam_pos = gymapi.Vec3(6.0, 3.0, 8.0) #(20.0, 3.0, 25.0)
+            cam_target = gymapi.Vec3(0, 2.0, 0) # (10.0, 2.0, 15.0)
+        camera_properties = gymapi.CameraProperties()
+        camera_properties.width = 1000
+        camera_properties.height = 750
+        # position the camera
+        self.camera = self.gym.create_camera_sensor(self.env_handle[0], camera_properties)
+        self.gym.set_camera_location(self.camera, self.env_handle[0], cam_pos, cam_target)
+
+        self.gym.viewer_camera_look_at(
+            self.viewer, None, cam_pos, cam_target)
         
     def reset(self):
         reset = torch.logical_or(self.reset_termination_buf == 1, self.reset_timeout_buf == 1)
