@@ -12,6 +12,17 @@ import imageio
 class SitEnv(HumanoidEnv):
     def __init__(self, cfg) -> None:
         self.num_pcd = cfg.num_pcd
+
+        # added：calculate obs size
+        self.num_prop_obs = 15 * (3 + 6 + 3 + 3) - 2
+        self.num_obj_obs = 3 + 6 + 2 + 8*3  #object position + 6d rot + object 2d facing dir + object bps #todo: 根据humanvla环境修改维度
+        self.num_goal_obs = 3 #target sit position #todo: 根据humanvla环境修改维度
+        #self.num_guidance_obs = 3
+        self.num_obs = self.num_prop_obs + self.num_obj_obs + self.num_goal_obs #+ self.num_guidance_obs
+
+        self.num_ref_obs_frames = cfg.num_ref_obs_frames
+        self.num_ref_obs_per_frame = cfg.num_ref_obs_per_frame
+        self.num_bps = cfg.num_bps
         
         if cfg.debug:
             self.tasks = self.tasks[:5]
@@ -75,6 +86,15 @@ class SitEnv(HumanoidEnv):
         self.timeout_limit          = torch.zeros(self.num_envs, device=self.device, dtype=torch.long).fill_(self.cfg.max_episode_length)
         self.success_steps          = torch.zeros(self.num_envs, device=self.device, dtype=torch.long).fill_(self.cfg.max_episode_length)
         #self.guide_buf  = torch.zeros((self.num_envs, self.num_guidance_obs), device=self.device, dtype=torch.float32)
+
+        #from HITR_carry
+        self.prop_buf   = torch.zeros((self.num_envs, self.num_prop_obs), device=self.device, dtype=torch.float32)
+        self.obj_buf    = torch.zeros((self.num_envs, self.num_obj_obs), device=self.device, dtype=torch.float32)
+        self.goal_buf   = torch.zeros((self.num_envs, self.num_goal_obs), device=self.device, dtype=torch.float32)
+        self.amp_obs_buf = torch.zeros((self.num_envs, self.num_ref_obs_frames, self.num_ref_obs_per_frame), device=self.device,dtype=torch.float32)
+        
+        self.consecutive_success = torch.zeros(self.num_envs, device=self.device, dtype=torch.float32)
+        self.last_carry_success = torch.zeros(self.num_envs, device=self.device, dtype=torch.float32)
 
     def load_asset(self):
         super().load_asset()
@@ -381,20 +401,105 @@ class SitEnv(HumanoidEnv):
         )
         self.movenow_guide[postguide_alldone_envs] = self.goal_trans[self.movetask_rootid[postguide_alldone_envs]]
     
-    def eval_last_runs(self,env_ids):
-        pass
-    
-    def reset_output(self):
-        raise NotImplementedError
+    def eval_last_runs(self,env_ids): #finish modified
+        root_pos = self._root_states[self.robot2root, 0:3],
+        root_rot = self._root_states[self.robot2root, 3:7],
+        tar_pos_sit = self._tar_pos #todo: target pos是什么
 
-    def step_output(self):
-        raise NotImplementedError    
+        pos_diff = self.calc_diff_pos(root_pos, tar_pos_sit)
+        success = pos_diff <= self._success_threshold
+        self.last_success[env_ids] = success.float()
+
+        return
+    
+    def reset_output(self): #finish modified
+        obs = torch.cat([self.prop_buf, self.task_buf], dim=-1)
+        bps = self.asset_bps[self.object2asset[self.movetask_objectid]] #todo: 这里的物体点云是什么
+        obs_buf = {
+            'obs' : obs,
+            'bps' : bps
+        }
+        return obs_buf
+
+    def step_output(self): #from HITR_carry
+        obs = torch.cat([self.prop_buf, self.task_buf], dim=-1)
+        bps = self.asset_bps[self.object2asset[self.movetask_objectid]] #todo: 这里的物体点云是什么
+        obs_buf = {
+            'obs' : obs,
+            'bps' : bps
+        }
+        extra = {
+            'amp_obs' : self.amp_obs_buf.reshape(self.num_envs, self.num_ref_obs_frames * self.num_ref_obs_per_frame)
+        }
+
+        return obs_buf, self.reward_buf, self.reset_termination_buf, self.reset_timeout_buf, extra
     
     def compute_observation(self,env_ids = None):
-        raise NotImplementedError
+        if env_ids is None:
+            env_ids = torch.arange(self.num_envs).to(self.device)
+        n = len(env_ids)
+        robot_rb_state = self._rigid_body_state[self.robot2rb[env_ids]].view(n, self.num_body, 13)
+        object_state = self._root_states[self.movetask_rootid[env_ids]]
+        self.prop_buf[env_ids] = self.compute_prop_obs(
+            body_pos    =robot_rb_state[:, :, 0:3],
+            body_rot    =robot_rb_state[:, :, 3:7],
+            body_vel    =robot_rb_state[:, :, 7:10],
+            body_ang_vel=robot_rb_state[:, :, 10:13],
+        )
+        self.obj_buf[env_ids] = self.compute_object_obs( #todo: 待修改
+            root_pos    =robot_rb_state[:, 0, 0:3],
+            root_rot    =robot_rb_state[:, 0, 3:7],
+            obj_pos     =object_state[:, 0:3],
+            obj_rot     =object_state[:, 3:7],
+            obj_vel     =object_state[:, 7:10],
+            obj_anv     =object_state[:, 10:13],
+        )
+        self.goal_buf[env_ids]=self.compute_goal_obs( #todo: 待修改
+            root_pos    =robot_rb_state[:, 0, 0:3],
+            root_rot    =robot_rb_state[:, 0, 3:7],
+            goal_pos    =self.goal_trans[self.movetask_rootid[env_ids]],
+            goal_rot    =self.goal_rot[self.movetask_rootid[env_ids]],
+        )
+        self.goal_buf[env_ids]=self.compute_goal_obs(
+            root_pos    =robot_rb_state[:, 0, 0:3],
+            root_rot    =robot_rb_state[:, 0, 3:7],
+            goal_pos    =self.goal_trans[self.movetask_rootid[env_ids]],
+            goal_rot    =self.goal_rot[self.movetask_rootid[env_ids]],
+        )
+        # self.guide_buf[env_ids]=self.compute_guide_obs(
+        #     root_pos    =robot_rb_state[:, 0, 0:3],
+        #     root_rot    =robot_rb_state[:, 0, 3:7],
+        #     guide_pos   =self.movenow_guide[env_ids]
+        # )
     
     def compute_termination(self):
-        raise NotImplementedError
+        if self.enable_early_termination:
+            force       = self._contact_force_state[self.robot2rb].view(self.num_envs, self.num_body, 3)
+            fall_force  = torch.any(torch.abs(force) > 0.1, dim = -1)
+            height      = self._rigid_body_state[self.robot2rb].view(self.num_envs, self.num_body, 13)[:,:,2]
+            fall        = torch.logical_and(fall_force, height < self.fall_thresh)
+            fall[:, self.ignore_contact_idx] = False
+            fall = torch.any(fall, dim= -1)
+            terminate = fall
+        else:
+            terminate = torch.zeros(self.num_envs, device=self.device, dtype=torch.bool)
+
+        terminate[self.progress_buf <= 2] = False
+        timeout = self.progress_buf >= self.timeout_limit
+        
+        
+        reward_height = self.stats_step['reward_height_pt'] 
+        movenow_success = reward_height > 0.8
+        self.consecutive_success[~movenow_success] = 0
+        self.consecutive_success[movenow_success] += 1
+
+        if self.enable_early_termination:
+            timeout = torch.logical_or(timeout, self.consecutive_success > self.consecutive_success_thresh)
+
+
+        
+        self.reset_timeout_buf[:] = timeout[:].float()
+        self.reset_termination_buf[:] = terminate[:].float()
 
     def compute_reward(self):
         raise NotImplementedError
