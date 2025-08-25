@@ -69,7 +69,7 @@ class HITRRearrangementVLAEnv(HITRRearrangementEnv):
             'last_action' : self.last_action,
         }
         return obs_buf
-    
+     
     def step_output(self):
         obs = torch.cat([self.prop_buf, self.obj_buf, self.goal_buf, self.guide_buf], dim=-1)
         bps = self.asset_bps[self.object2asset[self.movetask_objectid]]
