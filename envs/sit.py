@@ -68,6 +68,25 @@ class SitEnv(HumanoidEnv):
         print(f'#Num Objects {self.num_object}')
         print(f'#Num RigidBodys {self.num_rigid_body}')
 
+        #from HITR_carry
+        self.fall_thresh = cfg.fall_thresh
+        self.ignore_contact_name = cfg.ignore_contact_name
+        self.ignore_contact_idx = [self.body2index[n] for n in self.ignore_contact_name]
+        self.stats_step = {}
+
+        #from tokenhsi
+        self.sit_vel_penalty = cfg["env"]["sit_vel_penalty"]
+        self.sit_vel_pen_coeff = cfg["env"]["sit_vel_pen_coeff"]
+        self.sit_vel_pen_thre = cfg["env"]["sit_vel_pen_threshold"]
+        self.sit_ang_vel_pen_coeff = cfg["env"]["sit_ang_vel_pen_coeff"]
+        self.sit_ang_vel_pen_thre = cfg["env"]["sit_ang_vel_pen_threshold"]
+
+        self._power_reward = cfg["env"]["power_reward"]
+        self._power_coefficient = cfg["env"]["power_coefficient"]
+
+        dof_force_tensor = self.gym.acquire_dof_force_tensor(self.sim)
+        self.dof_force_tensor = gymtorch.wrap_tensor(dof_force_tensor).view(self.num_envs, self.num_dof)
+
     def create_sim(self):
         if self.enable_camera:
             self.graphics_device_id = self.sim_device_id
@@ -95,6 +114,9 @@ class SitEnv(HumanoidEnv):
         
         self.consecutive_success = torch.zeros(self.num_envs, device=self.device, dtype=torch.float32)
         self.last_carry_success = torch.zeros(self.num_envs, device=self.device, dtype=torch.float32)
+
+        self.prev_root_pos = torch.zeros([self.num_envs, 3], device=self.device, dtype=torch.float)
+        self.prev_root_rot = torch.zeros([self.num_envs, 4], device=self.device, dtype=torch.float)
 
     def load_asset(self):
         super().load_asset()
@@ -344,6 +366,11 @@ class SitEnv(HumanoidEnv):
         #todo:按照tokenhsi，这边需要计算坐下来的target位置
         return self.reset_output()
 
+    def pre_physics_step(self, actions):
+        super().pre_physics_step(actions)
+        self._prev_root_pos[:] = self._humanoid_root_states[..., 0:3]
+        self._prev_root_rot[:] = self._humanoid_root_states[..., 3:7]
+        return
         
     def post_physics_step(self):
         self.progress_buf[:] += 1
@@ -355,7 +382,7 @@ class SitEnv(HumanoidEnv):
 
     def compute_success_steps(self):
         dist = torch.norm(
-            self._root_states[self.movetask_rootid,0:3] - self.goal_trans[self.movetask_rootid], 
+            self._root_states[self.movetask_rootid,0:3] - self.goal_trans[self.movetask_rootid], # todo: goal_trans即目标位置，确定目标位置的表示形式并将所有的goal_trans改掉
             p=2, dim=-1)
         success_mask = dist < self.eval_success_thresh
         self.success_steps[success_mask] = torch.min(
@@ -472,7 +499,7 @@ class SitEnv(HumanoidEnv):
         #     guide_pos   =self.movenow_guide[env_ids]
         # )
     
-    def compute_termination(self):
+    def compute_termination(self): #finish modified
         if self.enable_early_termination:
             force       = self._contact_force_state[self.robot2rb].view(self.num_envs, self.num_body, 3)
             fall_force  = torch.any(torch.abs(force) > 0.1, dim = -1)
@@ -487,22 +514,44 @@ class SitEnv(HumanoidEnv):
         terminate[self.progress_buf <= 2] = False
         timeout = self.progress_buf >= self.timeout_limit
         
-        
-        reward_height = self.stats_step['reward_height_pt'] 
-        movenow_success = reward_height > 0.8
+        #判断任务是否提前完成
+        root_pos = self._root_states[self.robot2root, 0:3],
+        root_rot = self._root_states[self.robot2root, 3:7],
+        goal_trans = self.goal_trans[self.movetask_rootid]
+        pos_diff = self.calc_diff_pos(root_pos, goal_trans)    
+        movenow_success = pos_diff < (self.eval_success_thresh * 0.5)   
         self.consecutive_success[~movenow_success] = 0
         self.consecutive_success[movenow_success] += 1
 
         if self.enable_early_termination:
             timeout = torch.logical_or(timeout, self.consecutive_success > self.consecutive_success_thresh)
 
-
         
         self.reset_timeout_buf[:] = timeout[:].float()
         self.reset_termination_buf[:] = terminate[:].float()
 
     def compute_reward(self):
-        raise NotImplementedError
+        robot_rb_state = self._rigid_body_state[self.robot2rb].view(self.num_envs, self.num_body, 13)
+        root_pos = self._root_states[self.robot2root, 0:3],
+        root_rot = self._root_states[self.robot2root, 3:7],
+        object_state = self._root_states[self.movetask_rootid] #todo：object state是什么
+        object_pos = object_state[:,0:3]
+        object_rot = object_state[:,3:7]
+
+        goal_pos = self.goal_trans[self.movetask_rootid]
+        goal_rot = self.goal_rot[self.movetask_rootid]   
+
+        location_reward = self.compute_location_reward(root_pos, self.prev_root_pos, root_rot, self.prev_root_rot, object_pos, goal_pos, 1.5, self.dt,
+                                            self.sit_vel_penalty, self.sit_vel_pen_coeff, self.sit_vel_pen_thre, self.sit_ang_vel_pen_coeff, self.sit_ang_vel_pen_thre)
+
+        power = torch.abs(torch.multiply(self.dof_force_tensor, self._robot_dof_vel)).sum(dim = -1)
+        power_reward = -self._power_coefficient * power
+
+        if self._power_reward:
+            self.reward_buf[:] = location_reward + power_reward
+        else:
+            self.reward_buf[:] = location_reward
+
 
     def export_stats(self):
         raise NotImplementedError
@@ -657,3 +706,87 @@ class SitEnv(HumanoidEnv):
             ),    
         dim = -1)
         return obs
+
+    ######################## added
+    
+    @torch.jit.script #编译成 TorchScript，从而在 PyTorch 运行时之外加速或导出模型
+    def compute_location_reward(self, root_pos, prev_root_pos, root_rot, prev_root_rot, object_root_pos, tar_pos, tar_speed, dt,
+                                sit_vel_penalty, sit_vel_pen_coeff, sit_vel_penalty_thre, sit_ang_vel_pen_coeff, sit_ang_vel_penalty_thre):
+        # type: (Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, float, float, bool, float, float, float, float) -> Tensor
+        # tar_speed: desired speed toward the target
+        # sit_vel_penalty: whether to enable the velocity penalty when close to the object
+
+        # when humanoid is far from the object
+        # 靠近奖励
+        d_obj2human_xy = torch.sum((object_root_pos[..., 0:2] - root_pos[..., 0:2]) ** 2, dim=-1) #机器人和物体在 XY平面 的平方距离
+        reward_far_pos = torch.exp(-0.5 * d_obj2human_xy)
+
+        # 方向奖励
+        delta_root_pos = root_pos - prev_root_pos
+        root_vel = delta_root_pos / dt
+        tar_dir = object_root_pos[..., 0:2] - root_pos[..., 0:2] # d* is a horizontal unit vector pointing from the root to the object's location
+        tar_dir = torch.nn.functional.normalize(tar_dir, dim=-1)
+        tar_dir_speed = torch.sum(tar_dir * root_vel[..., :2], dim=-1)
+        tar_vel_err = tar_speed - tar_dir_speed
+        reward_far_vel = torch.exp(-2.0 * tar_vel_err * tar_vel_err)
+
+        reward_far_final = 0.0 * reward_far_pos + 1.0 * reward_far_vel
+        dist_mask = (d_obj2human_xy <= 0.5 ** 2)
+        reward_far_final[dist_mask] = 1.0 #如果机器人离物体非常近（0.5 米以内），奖励直接设为 1
+
+        # when humanoid is close to the object
+        # 靠近奖励
+        reward_near = torch.exp(-10.0 * torch.sum((tar_pos - root_pos) ** 2, dim=-1))
+
+        reward = 0.7 * reward_near + 0.3 * reward_far_final
+
+        if sit_vel_penalty:
+            # 平移速度惩罚
+            min_speed_penalty = sit_vel_penalty_thre
+            root_vel_norm = torch.norm(root_vel, p=2, dim=-1)
+            root_vel_norm = torch.clamp_min(root_vel_norm, min_speed_penalty)
+            root_vel_err = min_speed_penalty - root_vel_norm
+            root_vel_penalty = -1 * sit_vel_pen_coeff * (1 - torch.exp(-2.0 * (root_vel_err * root_vel_err)))
+            dist_mask = (d_obj2human_xy <= 1.5 ** 2)
+            root_vel_penalty[~dist_mask] = 0.0
+            reward += root_vel_penalty
+            
+            # Z轴角速度惩罚
+            root_z_ang_vel = torch.abs((self.get_euler_xyz(root_rot)[2] - self.get_euler_xyz(prev_root_rot)[2]) / dt)
+            root_z_ang_vel = torch.clamp_min(root_z_ang_vel, sit_ang_vel_penalty_thre)
+            root_z_ang_vel_err = sit_ang_vel_penalty_thre - root_z_ang_vel
+            root_z_ang_vel_penalty = -1 * sit_ang_vel_pen_coeff * (1 - torch.exp(-0.5 * (root_z_ang_vel_err ** 2)))
+            root_z_ang_vel_penalty[~dist_mask] = 0.0
+            reward += root_z_ang_vel_penalty
+        
+        self.stats_step['robot2object_dist'] = d_obj2human_xy
+
+        return reward
+    
+    @torch.jit.script
+    def get_euler_xyz(self, q):
+        qx, qy, qz, qw = 0, 1, 2, 3
+        # roll (x-axis rotation)
+        sinr_cosp = 2.0 * (q[:, qw] * q[:, qx] + q[:, qy] * q[:, qz])
+        cosr_cosp = q[:, qw] * q[:, qw] - q[:, qx] * \
+            q[:, qx] - q[:, qy] * q[:, qy] + q[:, qz] * q[:, qz]
+        roll = torch.atan2(sinr_cosp, cosr_cosp)
+
+        # pitch (y-axis rotation)
+        sinp = 2.0 * (q[:, qw] * q[:, qy] - q[:, qz] * q[:, qx])
+        pitch = torch.where(torch.abs(sinp) >= 1, self.copysign(
+            np.pi / 2.0, sinp), torch.asin(sinp))
+
+        # yaw (z-axis rotation)
+        siny_cosp = 2.0 * (q[:, qw] * q[:, qz] + q[:, qx] * q[:, qy])
+        cosy_cosp = q[:, qw] * q[:, qw] + q[:, qx] * \
+            q[:, qx] - q[:, qy] * q[:, qy] - q[:, qz] * q[:, qz]
+        yaw = torch.atan2(siny_cosp, cosy_cosp)
+
+        return roll % (2*np.pi), pitch % (2*np.pi), yaw % (2*np.pi)
+    
+    @torch.jit.script
+    def copysign(self, a, b):
+        # type: (float, Tensor) -> Tensor
+        a = torch.tensor(a, device=b.device, dtype=torch.float).repeat(b.shape[0])
+        return torch.abs(a) * torch.sign(b)

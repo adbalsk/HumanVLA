@@ -100,10 +100,12 @@ class HITRCarryEnv(HITREnv):
     
     def eval_last_runs(self,env_ids):
         if env_ids is not None and len(env_ids) > 0:
+            #计算目标物体当前位置朝向
             object_state = self._root_states[self.movetask_rootid[env_ids]]
             object_pos = object_state[:,0:3]
             object_rot = object_state[:,3:7]
 
+            #取目标物体初始位置朝向
             init_pos = self.init_trans[self.movetask_rootid[env_ids]]
             init_rot = self.init_rot[self.movetask_rootid[env_ids]]   
             
