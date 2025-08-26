@@ -287,8 +287,8 @@ class HumanoidEnv(BaseEnv):
 
     def sample_motion_ids(self, n, samp = False):
         if samp:
-            is_samp = self.motion['is_samp'].bool()
-            weight = self.motion['weight']
+            is_samp = self.motion['is_samp'].bool() #is_samp 是一个布尔 mask，表示哪些 motion 可以被采样
+            weight = self.motion['weight'] #weight 是每个 motion 的采样权重
             ids = torch.arange(len(weight), device=self.device)
             weight = weight[is_samp]
             ids = ids[is_samp]
@@ -297,14 +297,14 @@ class HumanoidEnv(BaseEnv):
             ids = torch.arange(len(weight), device=self.device)
                 
         weight = weight / weight.sum()
-        sample_ids = torch.multinomial(weight, num_samples=n, replacement=True)
+        sample_ids = torch.multinomial(weight, num_samples=n, replacement=True) #按照权重采样n个id，可重复
         ids = ids[sample_ids]
         return ids
 
     def sample_motion_time(self, motion_ids, min_phase = 0., max_phase = 1., truncate_time = 0.):
-        phase = torch.rand(len(motion_ids)).to(self.device)
-        phase = min_phase + phase * (max_phase - min_phase)
+        phase = torch.rand(len(motion_ids)).to(self.device) # 采样len(motion_ids)个随机相位 ∈ [0,1)
+        phase = min_phase + phase * (max_phase - min_phase)  # 把这个相位缩放到 [min_phase, max_phase] 范围内
         timelength = self.motion['time_length'] - truncate_time
-        timelength = timelength[motion_ids]
-        return phase * timelength
+        timelength = timelength[motion_ids] 
+        return phase * timelength # 得到一个具体的随机时间戳
         

@@ -113,7 +113,7 @@ class SitEnv(HumanoidEnv):
         self.amp_obs_buf = torch.zeros((self.num_envs, self.num_ref_obs_frames, self.num_ref_obs_per_frame), device=self.device,dtype=torch.float32)
         
         self.consecutive_success = torch.zeros(self.num_envs, device=self.device, dtype=torch.float32)
-        self.last_carry_success = torch.zeros(self.num_envs, device=self.device, dtype=torch.float32)
+        self.last_success = torch.zeros(self.num_envs, device=self.device, dtype=torch.float32)
 
         self.prev_root_pos = torch.zeros([self.num_envs, 3], device=self.device, dtype=torch.float)
         self.prev_root_rot = torch.zeros([self.num_envs, 4], device=self.device, dtype=torch.float)
@@ -366,6 +366,100 @@ class SitEnv(HumanoidEnv):
         #todo:按照tokenhsi，这边需要计算坐下来的target位置
         return self.reset_output()
 
+    def reset_env(self, env_ids):
+        if env_ids is not None and len(env_ids) > 0:
+            n = len(env_ids)
+            rootmask = torch.isin(self.root2env, env_ids) #返回一个和self.num_root一样长的布尔向量，表示哪些root属于要reset的env
+            objmask = torch.isin(self.object2env, env_ids)
+            # reset root states
+            self._root_states[rootmask, 0:3] = self.init_trans[rootmask]
+            self._root_states[rootmask, 3:7] = self.init_rot[rootmask]
+            self._root_states[rootmask, 7:] = 0.
+
+            ############# 设置amp参考动作
+            motion_ids = self.sample_motion_ids(n, samp=True)
+            ref_motion_end_frame = torch.randint(90,size=env_ids.shape).to(self.device).float()
+            ref_motion_end_time = ref_motion_end_frame / self.query_motion_fps(motion_ids)
+            ref_motion_time = ref_motion_end_time.unsqueeze(1).tile(self.num_ref_obs_frames) - torch.arange(self.num_ref_obs_frames).to(self.device) * self.dt
+                #生成倒叙的参考动作的时间点，shape (n, num_ref_obs_frames)
+            ref_motion_time = ref_motion_time.flatten()
+            motion_ids = torch.repeat_interleave(motion_ids, self.num_ref_obs_frames,)
+            state_info = self.query_motion_state(motion_ids, ref_motion_time)
+            
+            ## transform state #把参考动作对齐到仿真环境
+            state_info['rigid_body_pos'] = state_info['rigid_body_pos'].view(n, self.num_ref_obs_frames, self.num_body, 3)
+            state_info['rigid_body_rot'] = state_info['rigid_body_rot'].view(n, self.num_ref_obs_frames, self.num_body, 4)
+            state_info['rigid_body_vel'] = state_info['rigid_body_vel'].view(n, self.num_ref_obs_frames, self.num_body, 3)
+            state_info['rigid_body_anv'] = state_info['rigid_body_anv'].view(n, self.num_ref_obs_frames, self.num_body, 3)
+            now_pos = self._root_states[self.robot2root[env_ids], :3]
+            now_pos[:,2] = state_info['rigid_body_pos'][:,0,0,2]
+            delta_rot = torch_utils.quat_mul( #把 motion 的参考根姿态旋转到当前环境的朝向
+                self._root_states[self.robot2root[env_ids], 3:7], 
+                torch_utils.calc_heading_quat_inv(state_info['rigid_body_rot'][:,0,0,:])
+                )
+            #记录初始状态
+            now_rot = torch_utils.quat_mul(delta_rot, state_info['rigid_body_rot'][:,0,0,:])
+            now_vel = torch_utils.quat_apply(delta_rot, state_info['rigid_body_vel'][:,0,0,:])
+            now_anv = torch_utils.quat_apply(delta_rot, state_info['rigid_body_anv'][:,0,0,:])
+            #用delta rot变换整个身体
+            delta_rot_exp = delta_rot.unsqueeze(1).unsqueeze(1).tile(1,self.num_ref_obs_frames, self.num_body,1)
+            state_info['rigid_body_pos'] = torch_utils.quat_rotate(delta_rot_exp, state_info['rigid_body_pos'])
+            state_info['rigid_body_rot'] = torch_utils.quat_mul(delta_rot_exp, state_info['rigid_body_rot'])
+            state_info['rigid_body_vel'] = torch_utils.quat_rotate(delta_rot_exp, state_info['rigid_body_vel'])
+            state_info['rigid_body_anv'] = torch_utils.quat_rotate(delta_rot_exp, state_info['rigid_body_anv'])
+            delta_pos = now_pos - state_info['rigid_body_pos'][:,0,0,:]
+            state_info['rigid_body_pos'] = state_info['rigid_body_pos'] + delta_pos.unsqueeze(1).unsqueeze(1)
+            
+            ## reset sim state
+            self._root_states[self.robot2root[env_ids], 0:3] = now_pos
+            self._root_states[self.robot2root[env_ids], 3:7] = now_rot
+            self._root_states[self.robot2root[env_ids], 7:10] = now_vel
+            self._root_states[self.robot2root[env_ids], 10:13] = now_anv
+            self._robot_dof_pos[env_ids,:] = state_info['dof_pos'].view(n, self.num_ref_obs_frames, self.num_dof)[:, 0, :]
+            self._robot_dof_vel[env_ids,:] = state_info['dof_vel'].view(n, self.num_ref_obs_frames, self.num_dof)[:, 0, :]
+            #把状态更新到物理引擎
+            self.gym.set_actor_root_state_tensor(self.sim,gymtorch.unwrap_tensor(self._root_states))
+            self.gym.set_dof_state_tensor(self.sim,gymtorch.unwrap_tensor(self._dof_state))
+            self.gym.fetch_results(self.sim, True)
+            self._refresh_sim_tensors()
+
+
+            ############# reset tensors
+            self.progress_buf[env_ids]  = 0 
+            self.reset_termination_buf[env_ids] = 0.
+            self.reset_timeout_buf[env_ids] = 0.
+            self.timeout_limit[env_ids] = self.cfg.max_episode_length
+            self.consecutive_success[env_ids] = 0.
+
+            # self.movenow_guideidx[env_ids] = 0.
+            # self.movenow_preguidecomplete[env_ids] = False
+            # self.movenow_guide[env_ids] = self.preguide_full[env_ids, 0,]
+
+            ## Note: RB buffer is not flushed without phy step
+            rb_state = torch.cat([
+                state_info['rigid_body_pos'][:,0],
+                state_info['rigid_body_rot'][:,0],
+                state_info['rigid_body_vel'][:,0],
+                state_info['rigid_body_anv'][:,0],
+            ], dim=-1)
+            self._rigid_body_state[self.robot2rb[env_ids]] = rb_state
+            self.compute_observation(env_ids)
+            
+
+            ############# reset AMP #生成基础的amp obs
+            obj_pos = torch.repeat_interleave(self._root_states[self.movetask_rootid[env_ids], 0:3], self.num_ref_obs_frames, dim=0)
+            amp_demo_obs = self.compute_ref_frame_obs(
+                root_pos=state_info['rigid_body_pos'][:,:,0,:].view(-1,3),
+                root_rot=state_info['rigid_body_rot'][:,:,0,:].view(-1,4),
+                root_vel=state_info['rigid_body_vel'][:,:,0,:].view(-1,3),
+                root_anv=state_info['rigid_body_anv'][:,:,0,:].view(-1,3),
+                dof_pos=state_info['dof_pos'],
+                dof_vel=state_info['dof_vel'],
+                key_body_pos=state_info['rigid_body_pos'].view(-1,self.num_body,3)[:,self.amp_body_idx,:],
+                obj_pos=obj_pos
+            ).view(n, self.num_ref_obs_frames, self.num_ref_obs_per_frame)
+            self.amp_obs_buf[env_ids] = amp_demo_obs
+
     def pre_physics_step(self, actions):
         super().pre_physics_step(actions)
         self._prev_root_pos[:] = self._humanoid_root_states[..., 0:3]
@@ -379,6 +473,27 @@ class SitEnv(HumanoidEnv):
         self.compute_reward()
         self.compute_termination()
         self.compute_success_steps()
+
+        #from HITR_carry
+        self.update_amp_obs()
+    
+    #from HITR_carry
+    def update_amp_obs(self):
+        for j in range(self.num_ref_obs_frames - 1, 0, - 1):
+            self.amp_obs_buf[:, j, :] = self.amp_obs_buf[:, j - 1, :]
+        robot_rb_state = self._rigid_body_state[self.robot2rb].view(self.num_envs, self.num_body, 13)
+        object_state = self._root_states[self.movetask_rootid]
+        amp_obs = self.compute_ref_frame_obs(
+            root_pos=robot_rb_state[:, 0, 0:3],
+            root_rot=robot_rb_state[:, 0, 3:7],
+            root_vel=robot_rb_state[:, 0, 7:10],
+            root_anv=robot_rb_state[:, 0, 10:13],
+            dof_pos=self._robot_dof_pos,
+            dof_vel=self._robot_dof_vel,
+            key_body_pos=robot_rb_state[:,self.amp_body_idx,:3],
+            obj_pos     =object_state[:, 0:3],
+        )
+        self.amp_obs_buf[:, 0, :] = amp_obs
 
     def compute_success_steps(self):
         dist = torch.norm(
@@ -552,15 +667,23 @@ class SitEnv(HumanoidEnv):
         else:
             self.reward_buf[:] = location_reward
 
-
     def export_stats(self):
-        raise NotImplementedError
+        stats = {}
+        stats['env/progress'] = self.progress_buf.float().mean().item()
+        stats['env/termination'] = self.reset_termination_buf.float().mean().item()
+        stats['env/success'] = self.last_success.float().mean().item()
+        for k,v in self.stats_step.items():
+            stats[f'env/{k}'] = v.mean().item()
+        return stats
     
     def export_logging_stats(self):
-        raise NotImplementedError
+        stats = {}
+        stats['progress'] = self.progress_buf.float().mean().item()
+        stats['success'] = self.last_success.float().mean().item()
+        return stats
     
     def export_evaluation(self,):
-        object_state = self._root_states[self.movetask_rootid]
+        object_state = self._root_states[self.movetask_rootid] #todo: 获取object state
         object_pos = object_state[:,0:3]
         goal_pos = self.goal_trans[self.movetask_rootid]
         dist = torch.norm(goal_pos - object_pos, p=2, dim=-1)
@@ -580,21 +703,21 @@ class SitEnv(HumanoidEnv):
     ######################### prepare feats
     def dof_to_obs(self, dof_pos):
         dof_obs = []
-        for offset in self.revolute_dof_offset:
+        for offset in self.revolute_dof_offset: # 1D dof
             angle = dof_pos[:, offset]
             axis = torch.tensor([0.0, 1.0, 0.0], dtype=angle.dtype, device=self.device)
             q = torch_utils.quat_from_angle_axis(angle, axis)
-            obs  = torch_utils.quat_to_tan_norm(q)
+            obs  = torch_utils.quat_to_tan_norm(q) # 归一化，防止pai和-pai不一致
             dof_obs.append(obs)
-        for offset in self.sphere_dof_offset:
+        for offset in self.sphere_dof_offset: # 3D dof
             angle = dof_pos[:,offset : offset + 3]
             q = torch_utils.exp_map_to_quat(angle)
             obs = torch_utils.quat_to_tan_norm(q)
             dof_obs.append(obs)
-        dof_obs = torch.cat(dof_obs,1)
+        dof_obs = torch.cat(dof_obs,1) # 在1维上拼接成为 (bz, ndof*2)
         return dof_obs
     
-    def compute_ref_frame_obs(
+    def compute_ref_frame_obs( #把环境中的物理状态转换成一个以机器人朝向为参考系的观测向量 obs
             self, root_pos, root_rot, root_vel, root_anv, dof_pos, dof_vel, key_body_pos, obj_pos):
         root_h = root_pos[:, 2:3]
         heading_rot = torch_utils.calc_heading_quat_inv(root_rot)
@@ -619,7 +742,7 @@ class SitEnv(HumanoidEnv):
 
         local_obj_pos = torch_utils.quat_rotate(heading_rot, obj_pos - root_pos)
         local_obj_pos[:,2] = 0.
-        obs = torch.cat((
+        obs = torch.cat(( #todo：我们需要什么obs
             root_h_obs, 
             root_rot_obs, 
             local_root_vel, 
@@ -706,13 +829,38 @@ class SitEnv(HumanoidEnv):
             ),    
         dim = -1)
         return obs
+    
+    ####################### added from HITR_carry
+    def fetch_amp_demo(self,n):
+        assert self.motion is not None
+        motion_ids = self.sample_motion_ids(n)
 
-    ######################## added
+        motion_times = self.sample_motion_time(motion_ids = motion_ids)
+        motion_times = motion_times.unsqueeze(1).tile(self.num_ref_obs_frames)
+        motion_times -= torch.arange(self.num_ref_obs_frames).to(motion_times.device) * self.dt # 根据 num_ref_obs_frames（比如说 4 帧），往前/往后取一段动作片段
+        motion_times = motion_times.flatten()
+        motion_ids = torch.repeat_interleave(motion_ids, self.num_ref_obs_frames,)
+        
+        state_info = self.query_motion_state(motion_ids, motion_times)
+        amp_demo_obs = self.compute_ref_frame_obs(
+            root_pos=state_info['rigid_body_pos'][:,0,:],
+            root_rot=state_info['rigid_body_rot'][:,0,:],
+            root_vel=state_info['rigid_body_vel'][:,0,:],
+            root_anv=state_info['rigid_body_anv'][:,0,:],
+            dof_pos=state_info['dof_pos'],
+            dof_vel=state_info['dof_vel'],
+            key_body_pos=state_info['rigid_body_pos'][:,self.amp_body_idx,:],
+            obj_pos=state_info['object_pos'],
+        )
+        amp_demo_obs = amp_demo_obs.reshape((n, self.num_ref_obs_frames * self.num_ref_obs_per_frame))
+        return amp_demo_obs
+
+    ######################## added from tokenhsi
     
     @torch.jit.script #编译成 TorchScript，从而在 PyTorch 运行时之外加速或导出模型
     def compute_location_reward(self, root_pos, prev_root_pos, root_rot, prev_root_rot, object_root_pos, tar_pos, tar_speed, dt,
                                 sit_vel_penalty, sit_vel_pen_coeff, sit_vel_penalty_thre, sit_ang_vel_pen_coeff, sit_ang_vel_penalty_thre):
-        # type: (Tensor, Tensor, Tensor, Tensor, Tensor, Tensor, float, float, bool, float, float, float, float) -> Tensor
+        # type: (torch.tensor, torch.tensor, torch.tensor, torch.tensor, torch.tensor, torch.tensor, float, float, bool, float, float, float, float) -> torch.tensor
         # tar_speed: desired speed toward the target
         # sit_vel_penalty: whether to enable the velocity penalty when close to the object
 
@@ -787,6 +935,6 @@ class SitEnv(HumanoidEnv):
     
     @torch.jit.script
     def copysign(self, a, b):
-        # type: (float, Tensor) -> Tensor
+        # type: (float, torch.tensor) -> torch.tensor
         a = torch.tensor(a, device=b.device, dtype=torch.float).repeat(b.shape[0])
         return torch.abs(a) * torch.sign(b)
