@@ -15,8 +15,8 @@ class SitEnv(HumanoidEnv):
 
         # added：calculate obs size
         self.num_prop_obs = 15 * (3 + 6 + 3 + 3) - 2
-        self.num_obj_obs = 3 + 6 + 2 + 8*3  #object position + 6d rot + object 2d facing dir + object bps #todo: 根据humanvla环境修改维度
-        self.num_goal_obs = 3 #target sit position #todo: 根据humanvla环境修改维度
+        self.num_obj_obs = 15 #tokenhsi是3 + 6 + 2 + 8*3  #object position + 6d rot + object 2d facing dir + object bps #todo: 根据humanvla环境修改维度
+        self.num_goal_obs = 9 #tokenhsi是3 #target sit position #todo: 根据humanvla环境修改维度
         #self.num_guidance_obs = 3
         self.num_obs = self.num_prop_obs + self.num_obj_obs + self.num_goal_obs #+ self.num_guidance_obs
 
@@ -24,6 +24,7 @@ class SitEnv(HumanoidEnv):
         self.num_ref_obs_per_frame = cfg.num_ref_obs_per_frame
         self.num_bps = cfg.num_bps
         
+        self.tasks = json.load(open(os.path.join(cfg.data_prefix, cfg.task_json))) #todo: 任务文件
         if cfg.debug:
             self.tasks = self.tasks[:5]
         
@@ -74,18 +75,26 @@ class SitEnv(HumanoidEnv):
         self.ignore_contact_idx = [self.body2index[n] for n in self.ignore_contact_name]
         self.stats_step = {}
 
-        #from tokenhsi
-        self.sit_vel_penalty = cfg["env"]["sit_vel_penalty"]
-        self.sit_vel_pen_coeff = cfg["env"]["sit_vel_pen_coeff"]
-        self.sit_vel_pen_thre = cfg["env"]["sit_vel_pen_threshold"]
-        self.sit_ang_vel_pen_coeff = cfg["env"]["sit_ang_vel_pen_coeff"]
-        self.sit_ang_vel_pen_thre = cfg["env"]["sit_ang_vel_pen_threshold"]
+        self.amp_body_name = cfg.amp_body_name
+        self.amp_body_idx = [self.body2index[n] for n in self.amp_body_name]
 
-        self._power_reward = cfg["env"]["power_reward"]
-        self._power_coefficient = cfg["env"]["power_coefficient"]
+        #from tokenhsi
+        self.sit_vel_penalty = cfg["sit_vel_penalty"]
+        self.sit_vel_pen_coeff = cfg["sit_vel_pen_coeff"]
+        self.sit_vel_pen_thre = cfg["sit_vel_pen_threshold"]
+        self.sit_ang_vel_pen_coeff = cfg["sit_ang_vel_pen_coeff"]
+        self.sit_ang_vel_pen_thre = cfg["sit_ang_vel_pen_threshold"]
+
+        self._power_reward = cfg["power_reward"]
+        self._power_coefficient = cfg["power_coefficient"]
 
         dof_force_tensor = self.gym.acquire_dof_force_tensor(self.sim)
         self.dof_force_tensor = gymtorch.wrap_tensor(dof_force_tensor).view(self.num_envs, self.num_dof)
+
+        self._prev_root_pos = torch.zeros([self.num_envs, 3], device=self.device, dtype=torch.float)
+        self._prev_root_rot = torch.zeros([self.num_envs, 4], device=self.device, dtype=torch.float)
+        self._tar_pos = torch.zeros([self.num_envs, 3], device=self.device, dtype=torch.float) # target location of the object, 3d xyz
+            #todo: 是否要用这个来表示target location
 
     def create_sim(self):
         if self.enable_camera:
@@ -93,8 +102,11 @@ class SitEnv(HumanoidEnv):
         return super().create_sim()
 
     @property
-    def obs_space(self):
-        raise NotImplementedError
+    def obs_space(self): #todo: 设置obs_space
+        return {
+            'obs' : self.num_prop_obs + self.num_goal_obs + self.num_obj_obs,
+            'bps' : (self.num_bps, 3)
+        }
     
     def create_buffer(self):
         self.last_action = torch.zeros((self.num_envs, self.num_action), device=self.device, dtype=torch.float32)
@@ -118,12 +130,64 @@ class SitEnv(HumanoidEnv):
         self.prev_root_pos = torch.zeros([self.num_envs, 3], device=self.device, dtype=torch.float)
         self.prev_root_rot = torch.zeros([self.num_envs, 4], device=self.device, dtype=torch.float)
 
-    def load_asset(self):
+    def load_asset(self): #todo: load object assets
         super().load_asset()
-        #todo: load object assets
+        filefix_keys = []
+        self.asset_files = []
+        self.file2asset = {}
+
+        for env_id, task_id in enumerate(self.env2task):
+            task = self.tasks[task_id]
+            for name, obj in task['object'].items():
+                file = obj['file']
+                fix = obj['fix_base_link']
+                key = (file, fix)
+                if file in self.file2asset:
+                    pass
+                else:
+                    self.file2asset[file] = len(self.asset_files)
+                    self.asset_files.append(file)
+                if key not in filefix_keys:
+                    filefix_keys.append(key)
+        
+        self.object_assets = {}
+        for file, fix in filefix_keys:
+            object_asset_options = gymapi.AssetOptions()
+            object_asset_options.use_mesh_materials = True
+            object_asset_options.fix_base_link = fix
+            object_asset_options.armature = 0.01
+            object_asset_options.vhacd_enabled = True
+            object_asset_options.vhacd_params = gymapi.VhacdParams()
+            #object_asset_options.vhacd_params.resolution = 3000000 if file in self.high_vhacd_resolution_assets else 100000
+            object_asset_options.vhacd_params.max_num_vertices_per_ch = 512
+            object_asset_root = os.path.join(self.cfg.data_prefix, self.cfg.object.asset_root, file)
+            object_asset_file = f'{file}.urdf'
+            object_asset = self.gym.load_asset(self.sim, object_asset_root, object_asset_file, object_asset_options)
+            self.object_assets[(file,fix)] = object_asset
+    
+        self.asset_pcd = []
+        for idx, file in enumerate(self.asset_files):
+            pcdpath = os.path.join(self.cfg.data_prefix, self.cfg.object.asset_root, file, f'{file}_pcd1000.xyz')
+            pcd = np.loadtxt(pcdpath)
+            pcd = torch.from_numpy(pcd).float().to(self.device)
+            self.asset_pcd.append(pcd)
+        self.asset_pcd = torch.stack(self.asset_pcd, 0)
+        centrioids, self.asset_pcd = torch_utils.farthest_point_sample(self.asset_pcd, self.num_pcd)
+
+        #from HITR_carry
+        bps_path = os.path.join(self.cfg.data_prefix, self.cfg.object.asset_root, f'bps_{self.num_bps:d}.pkl')
+        bps_dict = pkl.load(open(bps_path, 'rb'))
+        self.bps_points = torch.from_numpy(bps_dict['bps_points']).to(self.device)
+        self.asset_bps = []
+
+        for idx, file in enumerate(self.asset_files):
+            bps = bps_dict[file]
+            bps = torch.from_numpy(bps).float().to(self.device)
+            self.asset_bps.append(bps)
+        self.asset_bps = torch.stack(self.asset_bps, 0)
         
 
-    def create_scene(self):
+    def create_scene(self): #todo: create scene
         lower = gymapi.Vec3(-self.cfg.spacing, -self.cfg.spacing, 0.0)
         upper = gymapi.Vec3(self.cfg.spacing, self.cfg.spacing, self.cfg.spacing)
         
@@ -156,6 +220,10 @@ class SitEnv(HumanoidEnv):
         self.object2scale       = [] # (num_object)
         
         for env_id in range(self.num_envs):
+            ##### load task #todo: what task
+            task_id = self.env2task[env_id]
+            task = self.tasks[task_id]
+
             ##### spawn env
             env_ptr = self.gym.create_env(self.sim, lower, upper, round(self.num_envs ** 0.5))
             self.env_handle.append(env_ptr)
@@ -316,7 +384,8 @@ class SitEnv(HumanoidEnv):
             
             init_z = self.init_trans[root_id,2].item()
             goal_z = self.goal_trans[root_id,2].item()
-            guide_z = max(init_z, goal_z) + self.cfg.carry_height if init_z > 0.1 or goal_z > 0.1 else goal_z
+            #guide_z = max(init_z, goal_z) + self.cfg.carry_height if init_z > 0.1 or goal_z > 0.1 else goal_z
+            guide_z = goal_z + 0.1
 
             for guide_id, p in enumerate(plan['pre_waypoint']):
                 p[2] = guide_z
@@ -333,13 +402,15 @@ class SitEnv(HumanoidEnv):
         self.movenow_guideidx = torch.zeros(self.num_envs, dtype=torch.long,device=self.device)
         self.movenow_guide = self.preguide_full[:,0,:].clone()
 
-        # added # position the camera
+        #added # position the camera
         if self.up_axis == 'z':
             cam_pos = gymapi.Vec3(6.0, 8.0, 3.0) #(20.0, 25.0, 3.0)
             cam_target = gymapi.Vec3(0, 0, 2.0) # (10.0, 15.0, 2.0)
         else:
             cam_pos = gymapi.Vec3(6.0, 3.0, 8.0) #(20.0, 3.0, 25.0)
             cam_target = gymapi.Vec3(0, 2.0, 0) # (10.0, 2.0, 15.0)
+        # cam_pos = gymapi.Vec3(*self.cfg.camera.pos)
+        # cam_target = gymapi.Vec3(*self.cfg.camera.tgt)
         camera_properties = gymapi.CameraProperties()
         camera_properties.width = 1000
         camera_properties.height = 750
@@ -462,8 +533,8 @@ class SitEnv(HumanoidEnv):
 
     def pre_physics_step(self, actions):
         super().pre_physics_step(actions)
-        self._prev_root_pos[:] = self._humanoid_root_states[..., 0:3]
-        self._prev_root_rot[:] = self._humanoid_root_states[..., 3:7]
+        self._prev_root_pos[:] = self._root_states[self.robot2root, 0:3]
+        self._prev_root_rot[:] = self._root_states[self.robot2root, 3:7]
         return
         
     def post_physics_step(self):
@@ -543,19 +614,23 @@ class SitEnv(HumanoidEnv):
         )
         self.movenow_guide[postguide_alldone_envs] = self.goal_trans[self.movetask_rootid[postguide_alldone_envs]]
     
-    def eval_last_runs(self,env_ids): #finish modified
-        root_pos = self._root_states[self.robot2root, 0:3],
-        root_rot = self._root_states[self.robot2root, 3:7],
-        tar_pos_sit = self._tar_pos #todo: target pos是什么
+    def eval_last_runs(self,env_ids): #modified
+        if env_ids is not None and len(env_ids) > 0:
+            root_pos = self._root_states[self.robot2root, 0:3],
+            root_rot = self._root_states[self.robot2root, 3:7],
+            tar_pos_sit = self.goal_trans[self.movetask_rootid] #todo: target pos是什么
 
-        pos_diff = self.calc_diff_pos(root_pos, tar_pos_sit)
-        success = pos_diff <= self._success_threshold
-        self.last_success[env_ids] = success.float()
+            root_pos = root_pos[0] #这样使两者都是torch.Size([4, 3])的tensor
+
+            pos_diff = self.calc_diff_pos(root_pos, tar_pos_sit)
+            success = pos_diff <= self.eval_success_thresh
+            #print(root_pos.shape, tar_pos_sit.shape, pos_diff.shape, success.shape)
+            self.last_success[env_ids] = success[env_ids].float()
 
         return
     
-    def reset_output(self): #finish modified
-        obs = torch.cat([self.prop_buf, self.task_buf], dim=-1)
+    def reset_output(self): #modified
+        obs = torch.cat([self.prop_buf, self.obj_buf, self.goal_buf], dim=-1)
         bps = self.asset_bps[self.object2asset[self.movetask_objectid]] #todo: 这里的物体点云是什么
         obs_buf = {
             'obs' : obs,
@@ -564,7 +639,7 @@ class SitEnv(HumanoidEnv):
         return obs_buf
 
     def step_output(self): #from HITR_carry
-        obs = torch.cat([self.prop_buf, self.task_buf], dim=-1)
+        obs = torch.cat([self.prop_buf, self.obj_buf, self.goal_buf], dim=-1)
         bps = self.asset_bps[self.object2asset[self.movetask_objectid]] #todo: 这里的物体点云是什么
         obs_buf = {
             'obs' : obs,
@@ -630,8 +705,9 @@ class SitEnv(HumanoidEnv):
         timeout = self.progress_buf >= self.timeout_limit
         
         #判断任务是否提前完成
-        root_pos = self._root_states[self.robot2root, 0:3],
-        root_rot = self._root_states[self.robot2root, 3:7],
+        root_pos = self._root_states[self.robot2root, 0:3]
+        root_pos = root_pos[0] #打补丁
+        root_rot = self._root_states[self.robot2root, 3:7]
         goal_trans = self.goal_trans[self.movetask_rootid]
         pos_diff = self.calc_diff_pos(root_pos, goal_trans)    
         movenow_success = pos_diff < (self.eval_success_thresh * 0.5)   
@@ -647,8 +723,9 @@ class SitEnv(HumanoidEnv):
 
     def compute_reward(self):
         robot_rb_state = self._rigid_body_state[self.robot2rb].view(self.num_envs, self.num_body, 13)
-        root_pos = self._root_states[self.robot2root, 0:3],
-        root_rot = self._root_states[self.robot2root, 3:7],
+        root_pos = self._root_states[self.robot2root, 0:3]
+        root_pos = root_pos[0] #打补丁
+        root_rot = self._root_states[self.robot2root, 3:7]
         object_state = self._root_states[self.movetask_rootid] #todo：object state是什么
         object_pos = object_state[:,0:3]
         object_rot = object_state[:,3:7]
@@ -857,7 +934,7 @@ class SitEnv(HumanoidEnv):
 
     ######################## added from tokenhsi
     
-    @torch.jit.script #编译成 TorchScript，从而在 PyTorch 运行时之外加速或导出模型
+    #@torch.jit.script #编译成 TorchScript，从而在 PyTorch 运行时之外加速或导出模型
     def compute_location_reward(self, root_pos, prev_root_pos, root_rot, prev_root_rot, object_root_pos, tar_pos, tar_speed, dt,
                                 sit_vel_penalty, sit_vel_pen_coeff, sit_vel_penalty_thre, sit_ang_vel_pen_coeff, sit_ang_vel_penalty_thre):
         # type: (torch.tensor, torch.tensor, torch.tensor, torch.tensor, torch.tensor, torch.tensor, float, float, bool, float, float, float, float) -> torch.tensor
@@ -911,7 +988,7 @@ class SitEnv(HumanoidEnv):
 
         return reward
     
-    @torch.jit.script
+    #@torch.jit.script
     def get_euler_xyz(self, q):
         qx, qy, qz, qw = 0, 1, 2, 3
         # roll (x-axis rotation)
@@ -933,7 +1010,7 @@ class SitEnv(HumanoidEnv):
 
         return roll % (2*np.pi), pitch % (2*np.pi), yaw % (2*np.pi)
     
-    @torch.jit.script
+    #@torch.jit.script
     def copysign(self, a, b):
         # type: (float, torch.tensor) -> torch.tensor
         a = torch.tensor(a, device=b.device, dtype=torch.float).repeat(b.shape[0])

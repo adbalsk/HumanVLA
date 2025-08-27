@@ -72,8 +72,8 @@ def build_config(args):
     cfg.env.sim_device_type = args.sim_device_type
     cfg.env.compute_device_id = args.compute_device_id
     cfg.env.graphics_device_id = args.graphics_device_id
-    if args.headless or args.nographics:
-        cfg.env.graphics_device_id = -1
+    # if args.headless or args.nographics:
+    #     cfg.env.graphics_device_id = -1
 
     ####
     # if cfg.env.graphics_device_id != -1:
