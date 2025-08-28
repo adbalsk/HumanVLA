@@ -83,8 +83,9 @@ env:
   guide_proceed_dist : 0.5
 
   num_ref_obs_frames: 10
-  num_ref_obs_per_frame : 131
+  num_ref_obs_per_frame : 131 
   
+  carry_height : 0.3
   fall_thresh : 0.15
   enable_early_termination : True
   

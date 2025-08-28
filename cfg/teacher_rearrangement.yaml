@@ -17,7 +17,7 @@ gamma : 0.98
 tau : 0.95
 epsilon_clip : 0.2
 
-truncate_grads : False
+truncate_grads : True #False
 grad_norm : 5.0
 
 save_epoch : 500
@@ -72,7 +72,7 @@ env:
   name : 'HITRRearrangementEnv'
   eval_success_thresh : 0.2
   consecutive_success_thresh : 20
-  num_envs : 16384
+  num_envs : 512 #16384
 
   num_pcd : 50
   num_bps : 200

@@ -7,7 +7,7 @@ action_clip : 1
 obs_clip : 5.
 num_iters : 8
 
-amp_buffer_size : 400000
+amp_buffer_size : 400000 #400000
 amp_fetch_demo_bz : 512 
 amp_replay_keep_prob : 0.03
 amp_replay_rate : 1
@@ -75,7 +75,7 @@ env:
   eval_success_thresh : 0.2
   consecutive_success_thresh : 20
 
-  num_envs : 16384
+  num_envs : 4 #16384
 
   num_pcd : 50
   num_bps : 200

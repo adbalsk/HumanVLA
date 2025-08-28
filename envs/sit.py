@@ -403,14 +403,14 @@ class SitEnv(HumanoidEnv):
         self.movenow_guide = self.preguide_full[:,0,:].clone()
 
         #added # position the camera
-        if self.up_axis == 'z':
-            cam_pos = gymapi.Vec3(6.0, 8.0, 3.0) #(20.0, 25.0, 3.0)
-            cam_target = gymapi.Vec3(0, 0, 2.0) # (10.0, 15.0, 2.0)
-        else:
-            cam_pos = gymapi.Vec3(6.0, 3.0, 8.0) #(20.0, 3.0, 25.0)
-            cam_target = gymapi.Vec3(0, 2.0, 0) # (10.0, 2.0, 15.0)
-        # cam_pos = gymapi.Vec3(*self.cfg.camera.pos)
-        # cam_target = gymapi.Vec3(*self.cfg.camera.tgt)
+        # if self.up_axis == 'z':
+        #     cam_pos = gymapi.Vec3(6.0, 8.0, 3.0) #(20.0, 25.0, 3.0)
+        #     cam_target = gymapi.Vec3(0, 0, 2.0) # (10.0, 15.0, 2.0)
+        # else:
+        #     cam_pos = gymapi.Vec3(6.0, 3.0, 8.0) #(20.0, 3.0, 25.0)
+        #     cam_target = gymapi.Vec3(0, 2.0, 0) # (10.0, 2.0, 15.0)
+        cam_pos = gymapi.Vec3(*self.cfg.camera.pos)
+        cam_target = gymapi.Vec3(*self.cfg.camera.tgt)
         camera_properties = gymapi.CameraProperties()
         camera_properties.width = 1000
         camera_properties.height = 750

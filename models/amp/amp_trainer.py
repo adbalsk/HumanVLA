@@ -379,8 +379,15 @@ class AMPTrainer:
 
                 self.optimizer.zero_grad()
                 self.scaler.scale(loss).backward()
+
                 if self.cfg.truncate_grads:
                     nn.utils.clip_grad_norm_(self.ddp_network.parameters(), self.cfg.grad_norm)
+                
+                #  # 打印梯度 norm
+                # max_grad_norm = max(p.grad.norm().item() for p in self.ddp_network.parameters() if p.grad is not None)
+                # mean_grad_norm = np.mean([p.grad.norm().item() for p in self.ddp_network.parameters() if p.grad is not None])
+                # print(f"Step {batch_idx}, max grad norm: {max_grad_norm:.4f}, mean grad norm: {mean_grad_norm:.4f}")
+
                 self.scaler.step(self.optimizer)
                 self.scaler.update()
 

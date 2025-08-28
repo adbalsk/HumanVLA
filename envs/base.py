@@ -204,8 +204,12 @@ class BaseEnv():
             if self.enable_viewer_sync:
                 self.gym.step_graphics(self.sim)
                 self.gym.draw_viewer(self.viewer, self.sim, True)
+                self.gym.render_all_camera_sensors(self.sim)
             else:
                 self.gym.poll_viewer_events(self.viewer)
+        elif self.cfg.record:
+            self.gym.step_graphics(self.sim)
+            self.gym.render_all_camera_sensors(self.sim)
 
     def pre_physics_step(self, actions):
         raise NotImplementedError

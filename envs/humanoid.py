@@ -169,6 +169,13 @@ class HumanoidEnv(BaseEnv):
         if hasattr(self,'last_action'):
             self.last_action[:] = actions[:]
         actions = actions.to(self.device).clone()
+        
+        # # ---------- 计算 action norm ----------
+        # action_norm = torch.norm(actions, dim=-1)  # 每个环境的动作范数
+        # max_norm = action_norm.max().item()
+        # mean_norm = action_norm.mean().item()
+        # print(f"Action norm - max: {max_norm:.4f}, mean: {mean_norm:.4f}")
+
         pd_target =  actions * self.pd_scale + self.pd_offset
         pd_tar_tensor = gymtorch.unwrap_tensor(pd_target)
         self.gym.set_dof_position_target_tensor(self.sim, pd_tar_tensor)
