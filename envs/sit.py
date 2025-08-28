@@ -15,8 +15,8 @@ class SitEnv(HumanoidEnv):
 
         # added：calculate obs size
         self.num_prop_obs = 15 * (3 + 6 + 3 + 3) - 2
-        self.num_obj_obs = 15 #tokenhsi是3 + 6 + 2 + 8*3  #object position + 6d rot + object 2d facing dir + object bps #todo: 根据humanvla环境修改维度
-        self.num_goal_obs = 9 #tokenhsi是3 #target sit position #todo: 根据humanvla环境修改维度
+        self.num_obj_obs = 15 #tokenhsi是3 + 6 + 2 + 8*3  #object position + 6d rot + object 2d facing dir + object bps #modified: 根据humanvla环境修改维度
+        self.num_goal_obs = 9 #tokenhsi是3 #target sit position #modified: 根据humanvla环境修改维度
         #self.num_guidance_obs = 3
         self.num_obs = self.num_prop_obs + self.num_obj_obs + self.num_goal_obs #+ self.num_guidance_obs
 
@@ -24,7 +24,7 @@ class SitEnv(HumanoidEnv):
         self.num_ref_obs_per_frame = cfg.num_ref_obs_per_frame
         self.num_bps = cfg.num_bps
         
-        self.tasks = json.load(open(os.path.join(cfg.data_prefix, cfg.task_json))) #todo: 任务文件
+        self.tasks = json.load(open(os.path.join(cfg.data_prefix, cfg.task_json)))
         if cfg.debug:
             self.tasks = self.tasks[:5]
         
@@ -93,8 +93,6 @@ class SitEnv(HumanoidEnv):
 
         self._prev_root_pos = torch.zeros([self.num_envs, 3], device=self.device, dtype=torch.float)
         self._prev_root_rot = torch.zeros([self.num_envs, 4], device=self.device, dtype=torch.float)
-        self._tar_pos = torch.zeros([self.num_envs, 3], device=self.device, dtype=torch.float) # target location of the object, 3d xyz
-            #todo: 是否要用这个来表示target location
 
     def create_sim(self):
         if self.enable_camera:
@@ -116,7 +114,7 @@ class SitEnv(HumanoidEnv):
         self.reset_timeout_buf      = torch.ones(self.num_envs, device=self.device, dtype=torch.float32)
         self.timeout_limit          = torch.zeros(self.num_envs, device=self.device, dtype=torch.long).fill_(self.cfg.max_episode_length)
         self.success_steps          = torch.zeros(self.num_envs, device=self.device, dtype=torch.long).fill_(self.cfg.max_episode_length)
-        #self.guide_buf  = torch.zeros((self.num_envs, self.num_guidance_obs), device=self.device, dtype=torch.float32)
+        self.guide_buf  = torch.zeros((self.num_envs, self.num_guidance_obs), device=self.device, dtype=torch.float32)
 
         #from HITR_carry
         self.prop_buf   = torch.zeros((self.num_envs, self.num_prop_obs), device=self.device, dtype=torch.float32)
@@ -131,7 +129,7 @@ class SitEnv(HumanoidEnv):
         self.prev_root_rot = torch.zeros([self.num_envs, 4], device=self.device, dtype=torch.float)
 
     def load_asset(self): #todo: load object assets
-        super().load_asset()
+        super().load_asset() #load humanoid asset
         filefix_keys = []
         self.asset_files = []
         self.file2asset = {}
@@ -150,7 +148,7 @@ class SitEnv(HumanoidEnv):
                 if key not in filefix_keys:
                     filefix_keys.append(key)
         
-        self.object_assets = {}
+        self.object_assets = {} #加载urdf
         for file, fix in filefix_keys:
             object_asset_options = gymapi.AssetOptions()
             object_asset_options.use_mesh_materials = True
@@ -165,7 +163,7 @@ class SitEnv(HumanoidEnv):
             object_asset = self.gym.load_asset(self.sim, object_asset_root, object_asset_file, object_asset_options)
             self.object_assets[(file,fix)] = object_asset
     
-        self.asset_pcd = []
+        self.asset_pcd = [] #加载点云
         for idx, file in enumerate(self.asset_files):
             pcdpath = os.path.join(self.cfg.data_prefix, self.cfg.object.asset_root, file, f'{file}_pcd1000.xyz')
             pcd = np.loadtxt(pcdpath)
@@ -174,7 +172,7 @@ class SitEnv(HumanoidEnv):
         self.asset_pcd = torch.stack(self.asset_pcd, 0)
         centrioids, self.asset_pcd = torch_utils.farthest_point_sample(self.asset_pcd, self.num_pcd)
 
-        #from HITR_carry
+        #from HITR_carry #加载bps
         bps_path = os.path.join(self.cfg.data_prefix, self.cfg.object.asset_root, f'bps_{self.num_bps:d}.pkl')
         bps_dict = pkl.load(open(bps_path, 'rb'))
         self.bps_points = torch.from_numpy(bps_dict['bps_points']).to(self.device)
@@ -220,7 +218,7 @@ class SitEnv(HumanoidEnv):
         self.object2scale       = [] # (num_object)
         
         for env_id in range(self.num_envs):
-            ##### load task #todo: what task
+            ##### load task
             task_id = self.env2task[env_id]
             task = self.tasks[task_id]
 
@@ -361,8 +359,8 @@ class SitEnv(HumanoidEnv):
         ##################### todo tasks
         self.envname2object = {(env_id.item(), name) : obj_id for obj_id, (env_id, name) in enumerate(zip(self.object2env, self.object2name))}
 
-        self.movetask_objectid = torch.zeros((self.num_envs,), dtype=torch.long,device=self.device)
-        self.movetask_rootid = torch.zeros((self.num_envs,), dtype=torch.long,device=self.device)
+        self.task_objectid = torch.zeros((self.num_envs,), dtype=torch.long,device=self.device)
+        self.task_rootid = torch.zeros((self.num_envs,), dtype=torch.long,device=self.device)
 
         self.preguide_full = torch.zeros((self.num_envs, self.max_guide, 3), dtype=torch.float32, device=self.device)        
         self.preguide_length = torch.zeros((self.num_envs, ), dtype=torch.long, device=self.device)
@@ -373,29 +371,29 @@ class SitEnv(HumanoidEnv):
             task_id = self.env2task[env_id]
             task = self.tasks[task_id]
             
-            object_name = task['move']
+            object_name = task['move'] #全是chair
             object_id = self.envname2object[(env_id, object_name)]
             root_id = self.object2root[object_id].item()
             
-            self.movetask_objectid[env_id] = object_id
-            self.movetask_rootid[env_id] = root_id
+            self.task_objectid[env_id] = object_id
+            self.task_rootid[env_id] = root_id
 
-            plan = task['plan']
+            #plan = task['plan']
             
             init_z = self.init_trans[root_id,2].item()
             goal_z = self.goal_trans[root_id,2].item()
             #guide_z = max(init_z, goal_z) + self.cfg.carry_height if init_z > 0.1 or goal_z > 0.1 else goal_z
             guide_z = goal_z + 0.1
 
-            for guide_id, p in enumerate(plan['pre_waypoint']):
-                p[2] = guide_z
-                self.preguide_full[env_id, guide_id] = torch.tensor(p, dtype=torch.float32, device=self.device)
-                self.preguide_length[env_id] += 1
+            # for guide_id, p in enumerate(plan['pre_waypoint']):
+            #     p[2] = guide_z
+            #     self.preguide_full[env_id, guide_id] = torch.tensor(p, dtype=torch.float32, device=self.device)
+            #     self.preguide_length[env_id] += 1
                 
-            for guide_id, p in enumerate(plan['post_waypoint']):
-                p[2] = guide_z
-                self.postguide_full[env_id, guide_id] = torch.tensor(p, dtype=torch.float32, device=self.device)
-                self.postguide_length[env_id] += 1
+            # for guide_id, p in enumerate(plan['post_waypoint']):
+            #     p[2] = guide_z
+            #     self.postguide_full[env_id, guide_id] = torch.tensor(p, dtype=torch.float32, device=self.device)
+            #     self.postguide_length[env_id] += 1
         
         ########### running time buffer
         self.movenow_preguidecomplete = torch.zeros(self.num_envs, dtype=torch.bool,device=self.device)
@@ -428,11 +426,11 @@ class SitEnv(HumanoidEnv):
         self.reset_env(reset_env_ids)
         self.success_steps[reset_env_ids] = self.cfg.max_episode_length
         self.compute_guidance()
-        # self.guide_buf[:]=self.compute_guide_obs(
-        #     self._root_states[self.robot2root, 0:3],
-        #     self._root_states[self.robot2root, 3:7],
-        #     self.movenow_guide,
-        # )
+        self.guide_buf[:]=self.compute_guide_obs(
+            self._root_states[self.robot2root, 0:3],
+            self._root_states[self.robot2root, 3:7],
+            self.movenow_guide,
+        )
 
         #todo:按照tokenhsi，这边需要计算坐下来的target位置
         return self.reset_output()
@@ -502,9 +500,9 @@ class SitEnv(HumanoidEnv):
             self.timeout_limit[env_ids] = self.cfg.max_episode_length
             self.consecutive_success[env_ids] = 0.
 
-            # self.movenow_guideidx[env_ids] = 0.
-            # self.movenow_preguidecomplete[env_ids] = False
-            # self.movenow_guide[env_ids] = self.preguide_full[env_ids, 0,]
+            self.movenow_guideidx[env_ids] = 0.
+            self.movenow_preguidecomplete[env_ids] = False
+            self.movenow_guide[env_ids] = self.preguide_full[env_ids, 0,]
 
             ## Note: RB buffer is not flushed without phy step
             rb_state = torch.cat([
@@ -518,7 +516,7 @@ class SitEnv(HumanoidEnv):
             
 
             ############# reset AMP #生成基础的amp obs
-            obj_pos = torch.repeat_interleave(self._root_states[self.movetask_rootid[env_ids], 0:3], self.num_ref_obs_frames, dim=0)
+            obj_pos = torch.repeat_interleave(self._root_states[self.task_rootid[env_ids], 0:3], self.num_ref_obs_frames, dim=0)
             amp_demo_obs = self.compute_ref_frame_obs(
                 root_pos=state_info['rigid_body_pos'][:,:,0,:].view(-1,3),
                 root_rot=state_info['rigid_body_rot'][:,:,0,:].view(-1,4),
@@ -553,7 +551,7 @@ class SitEnv(HumanoidEnv):
         for j in range(self.num_ref_obs_frames - 1, 0, - 1):
             self.amp_obs_buf[:, j, :] = self.amp_obs_buf[:, j - 1, :]
         robot_rb_state = self._rigid_body_state[self.robot2rb].view(self.num_envs, self.num_body, 13)
-        object_state = self._root_states[self.movetask_rootid]
+        object_state = self._root_states[self.task_rootid]
         amp_obs = self.compute_ref_frame_obs(
             root_pos=robot_rb_state[:, 0, 0:3],
             root_rot=robot_rb_state[:, 0, 3:7],
@@ -568,7 +566,7 @@ class SitEnv(HumanoidEnv):
 
     def compute_success_steps(self):
         dist = torch.norm(
-            self._root_states[self.movetask_rootid,0:3] - self.goal_trans[self.movetask_rootid], # todo: goal_trans即目标位置，确定目标位置的表示形式并将所有的goal_trans改掉
+            self._root_states[self.task_rootid,0:3] - self.goal_trans[self.task_rootid], #goal_trans即目标位置
             p=2, dim=-1)
         success_mask = dist < self.eval_success_thresh
         self.success_steps[success_mask] = torch.min(
@@ -612,13 +610,13 @@ class SitEnv(HumanoidEnv):
             self.postguide_full[env_ids, self.movenow_guideidx[env_ids]],
             self.preguide_full[env_ids, self.movenow_guideidx[env_ids]]
         )
-        self.movenow_guide[postguide_alldone_envs] = self.goal_trans[self.movetask_rootid[postguide_alldone_envs]]
+        self.movenow_guide[postguide_alldone_envs] = self.goal_trans[self.task_rootid[postguide_alldone_envs]]
     
     def eval_last_runs(self,env_ids): #modified
         if env_ids is not None and len(env_ids) > 0:
             root_pos = self._root_states[self.robot2root, 0:3],
             root_rot = self._root_states[self.robot2root, 3:7],
-            tar_pos_sit = self.goal_trans[self.movetask_rootid] #todo: target pos是什么
+            tar_pos_sit = self.goal_trans[self.task_rootid]
 
             root_pos = root_pos[0] #这样使两者都是torch.Size([4, 3])的tensor
 
@@ -631,7 +629,7 @@ class SitEnv(HumanoidEnv):
     
     def reset_output(self): #modified
         obs = torch.cat([self.prop_buf, self.obj_buf, self.goal_buf], dim=-1)
-        bps = self.asset_bps[self.object2asset[self.movetask_objectid]] #todo: 这里的物体点云是什么
+        bps = self.asset_bps[self.object2asset[self.task_objectid]] #todo: 这里的物体点云是什么
         obs_buf = {
             'obs' : obs,
             'bps' : bps
@@ -640,7 +638,7 @@ class SitEnv(HumanoidEnv):
 
     def step_output(self): #from HITR_carry
         obs = torch.cat([self.prop_buf, self.obj_buf, self.goal_buf], dim=-1)
-        bps = self.asset_bps[self.object2asset[self.movetask_objectid]] #todo: 这里的物体点云是什么
+        bps = self.asset_bps[self.object2asset[self.task_objectid]] #todo: 这里的物体点云是什么
         obs_buf = {
             'obs' : obs,
             'bps' : bps
@@ -656,7 +654,7 @@ class SitEnv(HumanoidEnv):
             env_ids = torch.arange(self.num_envs).to(self.device)
         n = len(env_ids)
         robot_rb_state = self._rigid_body_state[self.robot2rb[env_ids]].view(n, self.num_body, 13)
-        object_state = self._root_states[self.movetask_rootid[env_ids]]
+        object_state = self._root_states[self.task_rootid[env_ids]]
         self.prop_buf[env_ids] = self.compute_prop_obs(
             body_pos    =robot_rb_state[:, :, 0:3],
             body_rot    =robot_rb_state[:, :, 3:7],
@@ -674,20 +672,20 @@ class SitEnv(HumanoidEnv):
         self.goal_buf[env_ids]=self.compute_goal_obs( #todo: 待修改
             root_pos    =robot_rb_state[:, 0, 0:3],
             root_rot    =robot_rb_state[:, 0, 3:7],
-            goal_pos    =self.goal_trans[self.movetask_rootid[env_ids]],
-            goal_rot    =self.goal_rot[self.movetask_rootid[env_ids]],
+            goal_pos    =self.goal_trans[self.task_rootid[env_ids]],
+            goal_rot    =self.goal_rot[self.task_rootid[env_ids]],
         )
         self.goal_buf[env_ids]=self.compute_goal_obs(
             root_pos    =robot_rb_state[:, 0, 0:3],
             root_rot    =robot_rb_state[:, 0, 3:7],
-            goal_pos    =self.goal_trans[self.movetask_rootid[env_ids]],
-            goal_rot    =self.goal_rot[self.movetask_rootid[env_ids]],
+            goal_pos    =self.goal_trans[self.task_rootid[env_ids]],
+            goal_rot    =self.goal_rot[self.task_rootid[env_ids]],
         )
-        # self.guide_buf[env_ids]=self.compute_guide_obs(
-        #     root_pos    =robot_rb_state[:, 0, 0:3],
-        #     root_rot    =robot_rb_state[:, 0, 3:7],
-        #     guide_pos   =self.movenow_guide[env_ids]
-        # )
+        self.guide_buf[env_ids]=self.compute_guide_obs(
+            root_pos    =robot_rb_state[:, 0, 0:3],
+            root_rot    =robot_rb_state[:, 0, 3:7],
+            guide_pos   =self.movenow_guide[env_ids]
+        )
     
     def compute_termination(self): #finish modified
         if self.enable_early_termination:
@@ -708,7 +706,7 @@ class SitEnv(HumanoidEnv):
         root_pos = self._root_states[self.robot2root, 0:3]
         root_pos = root_pos[0] #打补丁
         root_rot = self._root_states[self.robot2root, 3:7]
-        goal_trans = self.goal_trans[self.movetask_rootid]
+        goal_trans = self.goal_trans[self.task_rootid]
         pos_diff = self.calc_diff_pos(root_pos, goal_trans)    
         movenow_success = pos_diff < (self.eval_success_thresh * 0.5)   
         self.consecutive_success[~movenow_success] = 0
@@ -726,12 +724,12 @@ class SitEnv(HumanoidEnv):
         root_pos = self._root_states[self.robot2root, 0:3]
         root_pos = root_pos[0] #打补丁
         root_rot = self._root_states[self.robot2root, 3:7]
-        object_state = self._root_states[self.movetask_rootid] #todo：object state是什么
+        object_state = self._root_states[self.task_rootid] #todo：object state是什么
         object_pos = object_state[:,0:3]
         object_rot = object_state[:,3:7]
 
-        goal_pos = self.goal_trans[self.movetask_rootid]
-        goal_rot = self.goal_rot[self.movetask_rootid]   
+        goal_pos = self.goal_trans[self.task_rootid]
+        goal_rot = self.goal_rot[self.task_rootid]   
 
         location_reward = self.compute_location_reward(root_pos, self.prev_root_pos, root_rot, self.prev_root_rot, object_pos, goal_pos, 1.5, self.dt,
                                             self.sit_vel_penalty, self.sit_vel_pen_coeff, self.sit_vel_pen_thre, self.sit_ang_vel_pen_coeff, self.sit_ang_vel_pen_thre)
@@ -760,9 +758,9 @@ class SitEnv(HumanoidEnv):
         return stats
     
     def export_evaluation(self,):
-        object_state = self._root_states[self.movetask_rootid] #todo: 获取object state
+        object_state = self._root_states[self.task_rootid]
         object_pos = object_state[:,0:3]
-        goal_pos = self.goal_trans[self.movetask_rootid]
+        goal_pos = self.goal_trans[self.task_rootid]
         dist = torch.norm(goal_pos - object_pos, p=2, dim=-1)
         result = {
             'l2_dist' : dist.mean().item(),
