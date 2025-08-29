@@ -39,7 +39,7 @@ class BaseEnv():
         self.enable_viewer_sync = True
         self.create_buffer()
 
-        self.imgs_dir = f"./output/{self.__class__.__name__}"
+        self.imgs_dir = f"./output/{self.cfg.savename}"
         if not os.path.exists(self.imgs_dir):
             os.makedirs(self.imgs_dir)
         self.save_img_count = 0
@@ -54,10 +54,14 @@ class BaseEnv():
         #     self.save_img_count += 1
         # el
         if self.save_img_count < 100000 and self.cfg.record == True: 
-            num = str(self.save_img_count)
-            num = '0' * (6 - len(num)) + num
-            rgb_filename = os.path.join(self.imgs_dir, f"frame{num}.png")
-            self.gym.write_camera_image_to_file(self.sim, self.env_handle[0], self.camera, gymapi.IMAGE_COLOR, rgb_filename)
+            for i in range(4): #save 4 env videos
+                num = str(self.save_img_count)
+                num = '0' * (6 - len(num)) + num
+                dir = os.path.join(self.imgs_dir, str(i))
+                if not os.path.exists(dir):
+                    os.makedirs(dir)
+                rgb_filename = os.path.join(dir, f"frame{num}.png")
+                self.gym.write_camera_image_to_file(self.sim, self.env_handle[i], self.camera[i], gymapi.IMAGE_COLOR, rgb_filename)
             self.save_img_count += 1 
         return
     

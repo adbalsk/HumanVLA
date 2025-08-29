@@ -41,7 +41,7 @@ def build_config(args):
         cfg = yaml.load(f, Loader=yaml.SafeLoader)
 
     cfg = EasyDict(cfg)
-    cfg.name = args.name
+    cfg.name = cfg.env.savename = args.name
     if args.name is None:
         cfg.root = None
     else:

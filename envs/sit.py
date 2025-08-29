@@ -197,6 +197,7 @@ class SitEnv(HumanoidEnv):
         self.env_handle     = [] # [<handle>, ...] (num_envs)
         self.robot_handle   = [] # [<handle>, ...] (num_envs)
         self.object_handle  = [] # [{'bed': <handle>, ...} ,...]
+        self.camera = []
         self.camera_handle  = []
         self.camera_tensors = []
 
@@ -413,8 +414,9 @@ class SitEnv(HumanoidEnv):
         camera_properties.width = 1000
         camera_properties.height = 750
         # position the camera
-        self.camera = self.gym.create_camera_sensor(self.env_handle[0], camera_properties)
-        self.gym.set_camera_location(self.camera, self.env_handle[0], cam_pos, cam_target)
+        for i in range(self.num_envs):
+            self.camera.append(self.gym.create_camera_sensor(self.env_handle[i], camera_properties))
+            self.gym.set_camera_location(self.camera[i], self.env_handle[i], cam_pos, cam_target)
 
         self.gym.viewer_camera_look_at(
             self.viewer, None, cam_pos, cam_target)
@@ -426,11 +428,11 @@ class SitEnv(HumanoidEnv):
         self.reset_env(reset_env_ids)
         self.success_steps[reset_env_ids] = self.cfg.max_episode_length
         self.compute_guidance()
-        self.guide_buf[:]=self.compute_guide_obs(
-            self._root_states[self.robot2root, 0:3],
-            self._root_states[self.robot2root, 3:7],
-            self.movenow_guide,
-        )
+        # self.guide_buf[:]=self.compute_guide_obs(
+        #     self._root_states[self.robot2root, 0:3],
+        #     self._root_states[self.robot2root, 3:7],
+        #     self.movenow_guide,
+        # )
 
         #todo:按照tokenhsi，这边需要计算坐下来的target位置
         return self.reset_output()
@@ -588,6 +590,11 @@ class SitEnv(HumanoidEnv):
     def compute_guidance(self, env_ids=None):
         if env_ids is None:
             env_ids = torch.arange(self.num_envs, device=self.device, dtype=torch.long)
+
+        #added
+        self.movenow_guide[env_ids] = self.goal_trans[self.task_rootid[env_ids]]
+        return
+
         n = len(env_ids)
         robot_rb_state = self._rigid_body_state[self.robot2rb[env_ids]].view(n, self.num_body, 13)
 
@@ -670,12 +677,6 @@ class SitEnv(HumanoidEnv):
             obj_anv     =object_state[:, 10:13],
         )
         self.goal_buf[env_ids]=self.compute_goal_obs( #todo: 待修改
-            root_pos    =robot_rb_state[:, 0, 0:3],
-            root_rot    =robot_rb_state[:, 0, 3:7],
-            goal_pos    =self.goal_trans[self.task_rootid[env_ids]],
-            goal_rot    =self.goal_rot[self.task_rootid[env_ids]],
-        )
-        self.goal_buf[env_ids]=self.compute_goal_obs(
             root_pos    =robot_rb_state[:, 0, 0:3],
             root_rot    =robot_rb_state[:, 0, 3:7],
             goal_pos    =self.goal_trans[self.task_rootid[env_ids]],
