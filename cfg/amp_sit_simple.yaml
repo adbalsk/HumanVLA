@@ -91,7 +91,7 @@ env:
   
   task_json : 'data/HITR_tasks/HITR_sit_only.json' #modified 环境的json文件
   # task_json : 'data/HITR_tasks/HITR_test.json'
-  motion : './data/motions2/motion.yaml' #modified motion的yaml文件
+  motion : './data/motions_simple/motion.yaml' #modified motion的yaml文件
 
   amp_body_name : ['left_hand', 'right_hand', 'left_foot', 'right_foot', 'head']
   ignore_contact_name : ['left_foot', 'right_foot', 'left_hand', 'right_hand', 'right_lower_arm', 'left_lower_arm']
