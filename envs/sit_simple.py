@@ -199,6 +199,7 @@ class SitSimpleEnv(HumanoidEnv):
         self.object_handle  = [] # [{'bed': <handle>, ...} ,...]
         self.camera_handle  = []
         self.camera_tensors = []
+        self.camera = []
 
         self.init_trans = [] # (num_root, 3) 
         self.init_rot   = [] # (num_root, 4)
@@ -413,8 +414,9 @@ class SitSimpleEnv(HumanoidEnv):
         camera_properties.width = 1000
         camera_properties.height = 750
         # position the camera
-        self.camera = self.gym.create_camera_sensor(self.env_handle[0], camera_properties)
-        self.gym.set_camera_location(self.camera, self.env_handle[0], cam_pos, cam_target)
+        for i in range(4):
+            self.camera.append(self.gym.create_camera_sensor(self.env_handle[i], camera_properties))
+            self.gym.set_camera_location(self.camera[i], self.env_handle[i], cam_pos, cam_target)
 
         self.gym.viewer_camera_look_at(
             self.viewer, None, cam_pos, cam_target)
@@ -723,6 +725,7 @@ class SitSimpleEnv(HumanoidEnv):
         robot_rb_state = self._rigid_body_state[self.robot2rb].view(self.num_envs, self.num_body, 13)
         root_pos = self._root_states[self.robot2root, 0:3]
         root_pos = root_pos[0] #打补丁
+        #print("root_pos:", root_pos)
         root_rot = self._root_states[self.robot2root, 3:7]
         object_state = self._root_states[self.task_rootid] #todo：object state是什么
         object_pos = object_state[:,0:3]
@@ -941,19 +944,19 @@ class SitSimpleEnv(HumanoidEnv):
 
         # when humanoid is far from the object
         # 靠近奖励
-        d_obj2human_xy = torch.sum((object_root_pos[..., 0:2] - root_pos[..., 0:2]) ** 2, dim=-1) #机器人和物体在 XY平面 的平方距离
+        d_obj2human_xy = torch.sum((tar_pos[..., 0:2] - root_pos[..., 0:2]) ** 2, dim=-1) #机器人和物体在 XY平面 的平方距离
         reward_far_pos = torch.exp(-0.5 * d_obj2human_xy)
 
         # 方向奖励
         delta_root_pos = root_pos - prev_root_pos
         root_vel = delta_root_pos / dt
-        tar_dir = object_root_pos[..., 0:2] - root_pos[..., 0:2] # d* is a horizontal unit vector pointing from the root to the object's location
+        tar_dir = tar_pos[..., 0:2] - root_pos[..., 0:2] # d* is a horizontal unit vector pointing from the root to the object's location
         tar_dir = torch.nn.functional.normalize(tar_dir, dim=-1)
         tar_dir_speed = torch.sum(tar_dir * root_vel[..., :2], dim=-1)
         tar_vel_err = tar_speed - tar_dir_speed
         reward_far_vel = torch.exp(-2.0 * tar_vel_err * tar_vel_err)
 
-        reward_far_final = 0.0 * reward_far_pos + 1.0 * reward_far_vel
+        reward_far_final = 0.5 * reward_far_pos + 0.5 * reward_far_vel #modified #0.0, 1.0
         dist_mask = (d_obj2human_xy <= 0.5 ** 2)
         reward_far_final[dist_mask] = 1.0 #如果机器人离物体非常近（0.5 米以内），奖励直接设为 1
 
@@ -963,24 +966,24 @@ class SitSimpleEnv(HumanoidEnv):
 
         reward = 0.7 * reward_near + 0.3 * reward_far_final
 
-        if sit_vel_penalty:
-            # 平移速度惩罚
-            min_speed_penalty = sit_vel_penalty_thre
-            root_vel_norm = torch.norm(root_vel, p=2, dim=-1)
-            root_vel_norm = torch.clamp_min(root_vel_norm, min_speed_penalty)
-            root_vel_err = min_speed_penalty - root_vel_norm
-            root_vel_penalty = -1 * sit_vel_pen_coeff * (1 - torch.exp(-2.0 * (root_vel_err * root_vel_err)))
-            dist_mask = (d_obj2human_xy <= 1.5 ** 2)
-            root_vel_penalty[~dist_mask] = 0.0
-            reward += root_vel_penalty
+        # if sit_vel_penalty:
+        #     # 平移速度惩罚
+        #     min_speed_penalty = sit_vel_penalty_thre
+        #     root_vel_norm = torch.norm(root_vel, p=2, dim=-1)
+        #     root_vel_norm = torch.clamp_min(root_vel_norm, min_speed_penalty)
+        #     root_vel_err = min_speed_penalty - root_vel_norm
+        #     root_vel_penalty = -1 * sit_vel_pen_coeff * (1 - torch.exp(-2.0 * (root_vel_err * root_vel_err)))
+        #     dist_mask = (d_obj2human_xy <= 1.5 ** 2)
+        #     root_vel_penalty[~dist_mask] = 0.0
+        #     reward += root_vel_penalty
             
-            # Z轴角速度惩罚
-            root_z_ang_vel = torch.abs((self.get_euler_xyz(root_rot)[2] - self.get_euler_xyz(prev_root_rot)[2]) / dt)
-            root_z_ang_vel = torch.clamp_min(root_z_ang_vel, sit_ang_vel_penalty_thre)
-            root_z_ang_vel_err = sit_ang_vel_penalty_thre - root_z_ang_vel
-            root_z_ang_vel_penalty = -1 * sit_ang_vel_pen_coeff * (1 - torch.exp(-0.5 * (root_z_ang_vel_err ** 2)))
-            root_z_ang_vel_penalty[~dist_mask] = 0.0
-            reward += root_z_ang_vel_penalty
+        #     # Z轴角速度惩罚
+        #     root_z_ang_vel = torch.abs((self.get_euler_xyz(root_rot)[2] - self.get_euler_xyz(prev_root_rot)[2]) / dt)
+        #     root_z_ang_vel = torch.clamp_min(root_z_ang_vel, sit_ang_vel_penalty_thre)
+        #     root_z_ang_vel_err = sit_ang_vel_penalty_thre - root_z_ang_vel
+        #     root_z_ang_vel_penalty = -1 * sit_ang_vel_pen_coeff * (1 - torch.exp(-0.5 * (root_z_ang_vel_err ** 2)))
+        #     root_z_ang_vel_penalty[~dist_mask] = 0.0
+        #     reward += root_z_ang_vel_penalty
         
         self.stats_step['robot2object_dist'] = d_obj2human_xy
 
