@@ -723,9 +723,8 @@ class SitSimpleEnv(HumanoidEnv):
 
     def compute_reward(self):
         robot_rb_state = self._rigid_body_state[self.robot2rb].view(self.num_envs, self.num_body, 13)
-        root_pos = self._root_states[self.robot2root, 0:3]
-        root_pos = root_pos[0] #打补丁
-        #print("root_pos:", root_pos)
+        #root_pos = self._root_states[self.robot2root, 0:3]
+        #root_pos = root_pos[0] #打补丁
         root_rot = self._root_states[self.robot2root, 3:7]
         object_state = self._root_states[self.task_rootid] #todo：object state是什么
         object_pos = object_state[:,0:3]
@@ -734,16 +733,69 @@ class SitSimpleEnv(HumanoidEnv):
         goal_pos = self.goal_trans[self.task_rootid]
         goal_rot = self.goal_rot[self.task_rootid]   
 
-        location_reward = self.compute_location_reward(root_pos, self.prev_root_pos, root_rot, self.prev_root_rot, object_pos, goal_pos, 1.5, self.dt,
-                                            self.sit_vel_penalty, self.sit_vel_pen_coeff, self.sit_vel_pen_thre, self.sit_ang_vel_pen_coeff, self.sit_ang_vel_pen_thre)
+        # robot2guide_dir = self.movenow_guide[:, :2] - robot_rb_state[:, 0, :2]
+        # robot2guide_dist = torch.norm(robot2guide_dir, dim=-1)
+        robot2object_dir = object_pos[:,:2] - robot_rb_state[:, 0, :2]
+        robot2object_dist = torch.norm(robot2object_dir, dim=-1)
 
-        power = torch.abs(torch.multiply(self.dof_force_tensor, self._robot_dof_vel)).sum(dim = -1)
-        power_reward = -self._power_coefficient * power
+        geom_object_pcd = self.asset_pcd[self.object2asset[self.task_objectid]] * self.object2scale[self.task_objectid].unsqueeze(-1).unsqueeze(-1)
+        global_object_pcd = torch_utils.transform_pcd(geom_object_pcd, pos = object_pos, rot = object_rot)
+        # init_object_pcd = torch_utils.transform_pcd(geom_object_pcd, pos = init_pos, rot = init_rot)
+        # init_z_pt = init_object_pcd[..., -1].min(1)[0]
+        # goal_object_pcd = torch_utils.transform_pcd(geom_object_pcd, pos = goal_pos, rot = goal_rot)
+        # goal_z_pt = goal_object_pcd[..., -1].min(1)[0]
+        # object_z_pt = global_object_pcd[...,-1].min(1)[0]
+        
+        root_pos = robot_rb_state[:, 0, :3]
+        #print(root_pos.shape, global_object_pcd.shape)
+        root2object_dist = root_pos.unsqueeze(1) - global_object_pcd
+        root2object_dist = torch.norm(root2object_dist, p=2, dim = -1)
+        root2object_dist = torch.min(root2object_dist, dim=-1)[0]
 
-        if self._power_reward:
-            self.reward_buf[:] = location_reward + power_reward
-        else:
-            self.reward_buf[:] = location_reward
+        thresh_robot2object = 0.5
+
+        ######## approach object
+        robot_vel_xy = robot_rb_state[:, 0, 7:9]
+        robot2target_dir = robot2object_dir #torch_utils.normalize(torch.where(self.movenow_preguidecomplete.unsqueeze(-1).tile(2), robot2object_dir, robot2guide_dir))
+        robot2target_speed = 1.5
+        reward_robot2object_vel = torch.exp(-2 * torch.square(robot2target_speed - torch.sum(robot2target_dir * robot_vel_xy, dim=-1)))
+        reward_robot2object_pos = torch.exp(-0.5 * robot2object_dist)
+
+        reward_robot2object_vel[robot2object_dist < thresh_robot2object] = 1
+        reward_robot2object_pos[robot2object_dist < thresh_robot2object] = 1
+
+        ######## sit down
+        reward_root2object = torch.exp(- 5 *  root2object_dist)#.mean(-1)
+        reward_root2object[robot2object_dist > 0.5] = 0.
+        
+        # reward_vel = 1 - (torch.clamp(torch.norm(object_vel, dim=-1),0,1) / 1 - 1) ** 2
+        # reward_vel[reward_height_pt > 0.3] = 1.
+
+        reward_items = [
+            [0.4,   reward_robot2object_vel],
+            [0.3,   reward_robot2object_pos],
+            [0.3,   reward_root2object],
+        ]
+
+        reward = sum([a * b for a,b in reward_items])
+        self.reward_buf[:] = reward
+
+        self.stats_step['robot2object_dist'] = robot2object_dist
+        self.stats_step['reward_robot2object_vel'] = reward_robot2object_vel
+        self.stats_step['reward_robot2object_pos'] = reward_robot2object_pos
+        self.stats_step['reward_hand2object'] = reward_root2object
+
+
+        # location_reward = self.compute_location_reward(root_pos, self.prev_root_pos, root_rot, self.prev_root_rot, object_pos, goal_pos, 1.5, self.dt,
+        #                                     self.sit_vel_penalty, self.sit_vel_pen_coeff, self.sit_vel_pen_thre, self.sit_ang_vel_pen_coeff, self.sit_ang_vel_pen_thre)
+
+        # power = torch.abs(torch.multiply(self.dof_force_tensor, self._robot_dof_vel)).sum(dim = -1)
+        # power_reward = -self._power_coefficient * power
+
+        # if self._power_reward:
+        #     self.reward_buf[:] = location_reward + power_reward
+        # else:
+        #     self.reward_buf[:] = location_reward
 
     def export_stats(self):
         stats = {}

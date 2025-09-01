@@ -7,6 +7,6 @@ python main.py --test --name test \
         --cfg cfg/amp_sit_simple.yaml \
         --device 4 \
         --record \
-        --ckpt logs/sit_simple/epoch_15000.pth
+        --ckpt logs/sit_simple/best.pth
 
  # --ckpt weights/humanvla.pth \

@@ -8,7 +8,7 @@ python main.py --name sit_simple \
         --force --num_envs 4096 \
         --cfg cfg/amp_sit_simple.yaml \
         --device 7 --headless \
-        --ckpt logs/sit_simple0830/best.pth
+        --ckpt logs/sit_simple0831/best.pth
 
 # python main.py --name sit \
 #         --force --num_envs 4 \
