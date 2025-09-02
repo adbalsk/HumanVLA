@@ -519,6 +519,7 @@ class SitSimpleEnv(HumanoidEnv):
 
             ############# reset AMP #生成基础的amp obs
             obj_pos = torch.repeat_interleave(self._root_states[self.task_rootid[env_ids], 0:3], self.num_ref_obs_frames, dim=0)
+            obj_rot = torch.repeat_interleave(self._root_states[self.task_rootid[env_ids], 3:7], self.num_ref_obs_frames, dim=0)
             amp_demo_obs = self.compute_ref_frame_obs(
                 root_pos=state_info['rigid_body_pos'][:,:,0,:].view(-1,3),
                 root_rot=state_info['rigid_body_rot'][:,:,0,:].view(-1,4),
@@ -527,7 +528,7 @@ class SitSimpleEnv(HumanoidEnv):
                 dof_pos=state_info['dof_pos'],
                 dof_vel=state_info['dof_vel'],
                 key_body_pos=state_info['rigid_body_pos'].view(-1,self.num_body,3)[:,self.amp_body_idx,:],
-                obj_pos=obj_pos
+                obj_pos=obj_pos,
             ).view(n, self.num_ref_obs_frames, self.num_ref_obs_per_frame)
             self.amp_obs_buf[env_ids] = amp_demo_obs
 
@@ -672,12 +673,6 @@ class SitSimpleEnv(HumanoidEnv):
             obj_anv     =object_state[:, 10:13],
         )
         self.goal_buf[env_ids]=self.compute_goal_obs( #todo: 待修改
-            root_pos    =robot_rb_state[:, 0, 0:3],
-            root_rot    =robot_rb_state[:, 0, 3:7],
-            goal_pos    =self.goal_trans[self.task_rootid[env_ids]],
-            goal_rot    =self.goal_rot[self.task_rootid[env_ids]],
-        )
-        self.goal_buf[env_ids]=self.compute_goal_obs(
             root_pos    =robot_rb_state[:, 0, 0:3],
             root_rot    =robot_rb_state[:, 0, 3:7],
             goal_pos    =self.goal_trans[self.task_rootid[env_ids]],

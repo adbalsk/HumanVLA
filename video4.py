@@ -12,7 +12,8 @@ def images_to_video(imgs_dir, fps=30, keep_imgs=False):
 
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     size = imgs[0].shape[:2]  # (h, w)
-    video_path = os.path.join(imgs_dir, "video.mp4")
+    folder_name = os.path.basename(imgs_dir.rstrip("/\\"))  # 去掉末尾斜杠再取名字
+    video_path = os.path.join(imgs_dir, f"{folder_name}.mp4")
     videoWriter = cv2.VideoWriter(video_path, fourcc, fps, (size[1], size[0]))
 
     for img in imgs:
