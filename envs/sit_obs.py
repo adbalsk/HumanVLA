@@ -230,8 +230,10 @@ class SitNewEnv(HumanoidEnv):
             ##### spawn robot
             init_trans = task['robot']['init_pos']
             init_rot = task['robot']['init_rot']
+            #init_rot = (0.0,0.0,0.0,1.0)
                 
             init_robot_pose = gymapi.Transform(p=gymapi.Vec3(*init_trans), r=gymapi.Quat(*init_rot))
+            #init_robot_pose = gymapi.Transform(p=gymapi.Vec3(*init_trans), r=gymapi.Quat(0.0,0.0,0.0,1.0))
             robot = self.gym.create_actor(env_ptr, self.humanoid_asset, init_robot_pose, "robot", env_id, 0, 0)
             for j in range(self.num_body):
                 self.gym.set_rigid_body_color(env_ptr, robot, j, gymapi.MESH_VISUAL, gymapi.Vec3(0.54, 0.85, 0.2))
@@ -284,8 +286,11 @@ class SitNewEnv(HumanoidEnv):
                 object_info = task['object'][name]
                 
                 init_trans  = object_info['init_pos']
+                init_trans[-1] = -0.1
                 init_rot    = object_info['init_rot']
+                #init_rot = (0.0, 0.0, 0.0, 1.0)
                 goal_trans  = object_info['goal_pos']
+                goal_trans[-1] = 0.4
                 goal_rot    = object_info['goal_rot']
                 self.init_trans.append(init_trans)
                 self.init_rot.append(init_rot)
@@ -412,9 +417,9 @@ class SitNewEnv(HumanoidEnv):
         camera_properties.width = 1000
         camera_properties.height = 750
         # position the camera
-        for i in range(4):
+        for i in range(12, 16):
             self.camera.append(self.gym.create_camera_sensor(self.env_handle[i], camera_properties))
-            self.gym.set_camera_location(self.camera[i], self.env_handle[i], cam_pos, cam_target)
+            self.gym.set_camera_location(self.camera[i-12], self.env_handle[i], cam_pos, cam_target)
 
         self.gym.viewer_camera_look_at(
             self.viewer, None, cam_pos, cam_target)
@@ -432,7 +437,6 @@ class SitNewEnv(HumanoidEnv):
         #     self.movenow_guide,
         # )
 
-        #todo:按照tokenhsi，这边需要计算坐下来的target位置
         return self.reset_output()
 
     def reset_env(self, env_ids):
@@ -448,6 +452,18 @@ class SitNewEnv(HumanoidEnv):
             ############# 设置amp参考动作
             motion_ids = self.sample_motion_ids(n, samp=True)
             ref_motion_end_frame = torch.randint(90,size=env_ids.shape).to(self.device).float()
+            
+            # 对 env_id % 10 == 0 的环境，强制设为最后一帧
+            mask1 = (env_ids % 11 == 0)
+            mask2 = (env_ids % 5 == 1)
+            mask = torch.logical_or(mask1, mask2)
+            if mask.any() and not self.cfg.eval:
+                # 这里假设 motion 长度 >= 400，可以直接取最后一帧索引 (num_frame-1)
+                num_frames = self.motion['num_frame'][motion_ids[mask1]]
+                ref_motion_end_frame[mask1] = (num_frames - 1).float().to(self.device)
+                num_frames = self.motion['num_frame'][motion_ids[mask2]]
+                ref_motion_end_frame[mask2] = (num_frames-num_frames+2).float().to(self.device)
+
             ref_motion_end_time = ref_motion_end_frame / self.query_motion_fps(motion_ids)
             ref_motion_time = ref_motion_end_time.unsqueeze(1).tile(self.num_ref_obs_frames) - torch.arange(self.num_ref_obs_frames).to(self.device) * self.dt
                 #生成倒叙的参考动作的时间点，shape (n, num_ref_obs_frames)
@@ -461,11 +477,31 @@ class SitNewEnv(HumanoidEnv):
             state_info['rigid_body_vel'] = state_info['rigid_body_vel'].view(n, self.num_ref_obs_frames, self.num_body, 3)
             state_info['rigid_body_anv'] = state_info['rigid_body_anv'].view(n, self.num_ref_obs_frames, self.num_body, 3)
             now_pos = self._root_states[self.robot2root[env_ids], :3]
-            now_pos[:,2] = state_info['rigid_body_pos'][:,0,0,2]
+            # goal_trans = self.goal_trans[self.task_rootid][env_ids]
+            #print("nowpos, goaltrans", now_pos.shape, self.goal_trans.shape, self.goal_trans[self.task_rootid].shape)
+            now_pos[mask1] = self.goal_trans[self.task_rootid[env_ids]][mask1] #added
+            now_pos[mask2] = self.goal_trans[self.task_rootid[env_ids]][mask2]
+            #print(now_pos[mask2].shape)
+            now_pos[mask2, 0] += 0.5
+            #print(now_pos.shape)
+            now_pos[~mask1,2] = state_info['rigid_body_pos'][~mask1,0,0,2]
             delta_rot = torch_utils.quat_mul( #把 motion 的参考根姿态旋转到当前环境的朝向
                 self._root_states[self.robot2root[env_ids], 3:7], 
                 torch_utils.calc_heading_quat_inv(state_info['rigid_body_rot'][:,0,0,:])
                 )
+            
+            obj_rot = self._root_states[self.task_rootid[env_ids], 3:7]
+            #print(delta_rot.shape, obj_rot.shape)
+            delta_rot[mask] = torch_utils.quat_mul( #把 motion 的参考根姿态旋转到当前环境的朝向
+                obj_rot[mask], torch_utils.calc_heading_quat_inv(state_info['rigid_body_rot'][mask][:,0,0,:])
+            )
+            tensor90 = torch.tensor([-0.5,-0.5,-0.5,0.5],dtype=torch.float32,device=self.device).unsqueeze(0).expand(delta_rot.shape[0], -1)
+            delta_rot[mask] = torch_utils.quat_mul(tensor90[mask], delta_rot[mask])
+            
+            #delta_rot[mask] = obj_rot[mask]
+            #(0.7071, 0, 0.7071, 0)
+            now_pos[:,2][mask1] += 0.1
+
             #记录初始状态
             now_rot = torch_utils.quat_mul(delta_rot, state_info['rigid_body_rot'][:,0,0,:])
             now_vel = torch_utils.quat_apply(delta_rot, state_info['rigid_body_vel'][:,0,0,:])
@@ -482,7 +518,8 @@ class SitNewEnv(HumanoidEnv):
             ## reset sim state
             self._root_states[self.robot2root[env_ids], 0:3] = now_pos
             self._root_states[self.robot2root[env_ids], 3:7] = now_rot
-            self._root_states[self.robot2root[env_ids], 7:10] = now_vel
+            self._root_states[self.robot2root[env_ids[~mask2]], 7:10] = now_vel[~mask2]
+            self._root_states[self.robot2root[env_ids[mask2]], 7:10] = 0.
             self._root_states[self.robot2root[env_ids], 10:13] = now_anv
             self._robot_dof_pos[env_ids,:] = state_info['dof_pos'].view(n, self.num_ref_obs_frames, self.num_dof)[:, 0, :]
             self._robot_dof_vel[env_ids,:] = state_info['dof_vel'].view(n, self.num_ref_obs_frames, self.num_dof)[:, 0, :]
@@ -569,8 +606,9 @@ class SitNewEnv(HumanoidEnv):
 
     def compute_success_steps(self):
         dist = torch.norm(
-            self._root_states[self.task_rootid,0:3] - self.goal_trans[self.task_rootid], #goal_trans即目标位置
+            self._root_states[self.robot2root,0:3] - self.goal_trans[self.task_rootid], #goal_trans即目标位置
             p=2, dim=-1)
+        #print( "dist:",dist[0])
         success_mask = dist < self.eval_success_thresh
         self.success_steps[success_mask] = torch.min(
             self.progress_buf[success_mask],
@@ -699,7 +737,9 @@ class SitNewEnv(HumanoidEnv):
             force       = self._contact_force_state[self.robot2rb].view(self.num_envs, self.num_body, 3)
             fall_force  = torch.any(torch.abs(force) > 0.1, dim = -1)
             height      = self._rigid_body_state[self.robot2rb].view(self.num_envs, self.num_body, 13)[:,:,2]
-            fall        = torch.logical_and(fall_force, height < self.fall_thresh)
+            #fall        = torch.logical_and(fall_force, height < self.fall_thresh)
+            #fall        = torch.logical_or(fall_force, height < self.fall_thresh)
+            fall        = height < self.fall_thresh
             fall[:, self.ignore_contact_idx] = False
             fall = torch.any(fall, dim= -1)
             terminate = fall

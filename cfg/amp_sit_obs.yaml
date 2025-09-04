@@ -20,7 +20,7 @@ epsilon_clip : 0.2
 truncate_grads : False
 grad_norm : 5.0
 
-save_epoch : 1000
+save_epoch : 250
 use_tqdm : False
 
 auto_mixed_precision : True
@@ -94,7 +94,8 @@ env:
   motion : './data/motions_simple/motion.yaml' #modified motion的yaml文件
 
   amp_body_name : ['left_hand', 'right_hand', 'left_foot', 'right_foot', 'head']
-  ignore_contact_name : ['left_foot', 'right_foot', 'left_hand', 'right_hand', 'right_lower_arm', 'left_lower_arm']
+  #ignore_contact_name : ['left_foot', 'right_foot', 'left_hand', 'right_hand', 'right_lower_arm', 'left_lower_arm']
+  ignore_contact_name : ['left_foot', 'right_foot']
 
   object:
     asset_root : './data/assets'

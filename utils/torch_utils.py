@@ -42,6 +42,7 @@ def quat_mul(a, b):
 
 @torch.jit.script
 def normalize(x, eps: float = 1e-9):
+    x = x.to(torch.float32)
     return x / x.norm(p=2, dim=-1).clamp(min=eps, max=None).unsqueeze(-1)
 
 
@@ -369,9 +370,10 @@ def calc_heading_quat_inv(q):
     # calculate heading rotation from quaternion
     # the heading is the direction on the xy plane
     # q must be normalized
-    heading = calc_heading(q)
+    q = q.to(dtype=torch.float32)
+    heading = calc_heading(q).to(dtype=torch.float32)
     axis = torch.zeros_like(q[..., 0:3])
-    axis[..., 2] = 1
+    axis[..., 2] = 1.0
 
     heading_q = quat_from_angle_axis(-heading, axis)
     return heading_q
