@@ -417,9 +417,9 @@ class SitNewEnv(HumanoidEnv):
         camera_properties.width = 1000
         camera_properties.height = 750
         # position the camera
-        for i in range(12, 16):
+        for i in range(6, 10):
             self.camera.append(self.gym.create_camera_sensor(self.env_handle[i], camera_properties))
-            self.gym.set_camera_location(self.camera[i-12], self.env_handle[i], cam_pos, cam_target)
+            self.gym.set_camera_location(self.camera[i-6], self.env_handle[i], cam_pos, cam_target)
 
         self.gym.viewer_camera_look_at(
             self.viewer, None, cam_pos, cam_target)
@@ -766,69 +766,152 @@ class SitNewEnv(HumanoidEnv):
         self.reset_timeout_buf[:] = timeout[:].float()
         self.reset_termination_buf[:] = terminate[:].float()
 
-    def compute_reward(self): #todo: 重新设计奖励函数
+    def compute_reward(self):
         robot_rb_state = self._rigid_body_state[self.robot2rb].view(self.num_envs, self.num_body, 13)
-        #root_pos = self._root_states[self.robot2root, 0:3]
-        #root_pos = root_pos[0] #打补丁
+        root_pos = robot_rb_state[:, 0, :3]
         root_rot = self._root_states[self.robot2root, 3:7]
-        object_state = self._root_states[self.task_rootid] #todo：object state是什么
+        object_state = self._root_states[self.task_rootid]
         object_pos = object_state[:,0:3]
         object_rot = object_state[:,3:7]
 
         goal_pos = self.goal_trans[self.task_rootid]
         goal_rot = self.goal_rot[self.task_rootid]   
 
-        # robot2guide_dir = self.movenow_guide[:, :2] - robot_rb_state[:, 0, :2]
-        # robot2guide_dist = torch.norm(robot2guide_dir, dim=-1)
-        robot2object_dir = object_pos[:,:2] - robot_rb_state[:, 0, :2]
-        robot2object_dist = torch.norm(robot2object_dir, dim=-1)
-
+        # 计算椅子的前向方向和目标引导位置
+        chair_forward_vec = torch.tensor([0.0, 1.0, 0.0], device=object_rot.device, dtype=object_rot.dtype)
+        chair_forward_vec = chair_forward_vec.unsqueeze(0).expand(object_rot.shape[0], -1)
+        chair_forward = torch_utils.quat_rotate(object_rot, chair_forward_vec)
+        
+        # 引导目标：椅子正面1米处（增加距离避免过于接近）
+        approach_distance = 1
+        approach_target = object_pos - chair_forward * approach_distance
+        approach_target[:, 2] = object_pos[:, 2]  # 保持相同高度
+        
+        # 距离计算
+        robot2approach_dist = torch.norm(root_pos - approach_target, dim=-1)
+        robot2chair_dist = torch.norm(root_pos[:,:2] - object_pos[:,:2], dim=-1)
+        
+        # 计算机器人相对于椅子的角度位置，检查是否在正面
+        chair_to_robot = root_pos - object_pos
+        chair_to_robot_normalized = torch.nn.functional.normalize(chair_to_robot[:, :2], dim=-1)
+        chair_forward_2d = torch.nn.functional.normalize(chair_forward[:, :2], dim=-1)
+        
+        # 计算机器人相对椅子正面的角度（cos值，-1到1）
+        front_alignment = torch.sum(chair_to_robot_normalized * (-chair_forward_2d), dim=-1)
+        # 正面时 front_alignment 接近 1，侧面时接近 0，背面时接近 -1
+        
+        # 强烈惩罚从侧面或背面接近椅子
+        side_penalty = torch.exp(-5.0 * torch.clamp(front_alignment, 0.0, 1.0))  # 不在正面时惩罚
+        
+        # 阶段判断：是否已经到达引导位置且在正面
+        near_approach_target = robot2approach_dist < 0.4
+        in_front_of_chair = front_alignment > 0.5  # 必须在椅子正面
+        ready_for_next_stage = torch.logical_and(near_approach_target, in_front_of_chair)
+        
+        ######## 第一阶段：引导到椅子正面
+        robot_vel_xy = robot_rb_state[:, 0, 7:9]
+        approach_dir = approach_target - root_pos
+        approach_dir_xy = torch.nn.functional.normalize(approach_dir[:, :2], dim=-1)
+        
+        # 计算是否已经越过引导点（机器人位置超过引导点朝椅子方向）
+        robot_to_chair = object_pos - root_pos
+        approach_to_chair = object_pos - approach_target
+        # 如果机器人到椅子的距离小于引导点到椅子的距离，说明越过了引导点
+        overshot = robot2chair_dist < torch.norm(approach_to_chair[:, :2], dim=-1)
+        
+        # 朝向引导点的速度奖励 - 但如果越过了引导点就不给速度奖励
+        approach_speed = torch.sum(approach_dir_xy * robot_vel_xy, dim=-1)
+        reward_approach_vel = torch.exp(-2.0 * torch.clamp(1.5 - approach_speed, 0.0, float('inf')))
+        reward_approach_vel = torch.where(overshot, 0.0, reward_approach_vel)  # 越过引导点时不奖励速度
+        
+        # 接近引导点的位置奖励（但只有在正面时才给予）
+        reward_approach_pos = torch.exp(-2.0 * robot2approach_dist) * side_penalty
+        
+        # 如果越过了引导点，给予回退到引导点的奖励
+        retreat_reward = torch.zeros_like(robot2approach_dist)
+        if torch.any(overshot):
+            # 越过引导点时，奖励朝引导点移动（后退）
+            retreat_dir = approach_target - root_pos
+            retreat_dir_xy = torch.nn.functional.normalize(retreat_dir[:, :2], dim=-1)
+            retreat_speed = torch.sum(retreat_dir_xy * robot_vel_xy, dim=-1)
+            retreat_reward[overshot] = torch.exp(-1.0 * torch.clamp(1.0 - retreat_speed[overshot], 0.0, float('inf')))
+        
+        # 停止奖励：当接近引导点时奖励低速度
+        stop_reward = torch.zeros_like(robot2approach_dist)
+        close_to_target = robot2approach_dist < 0.3
+        if torch.any(close_to_target):
+            speed_magnitude = torch.norm(robot_vel_xy, dim=-1)
+            # 接近目标时奖励慢速移动
+            stop_reward[close_to_target] = torch.exp(-2.0 * speed_magnitude[close_to_target])
+        
+        ######## 第二阶段：正确朝向并坐下
+        # 机器人朝向（前向）
+        robot_forward = torch_utils.quat_rotate(root_rot, torch.tensor([1.0, 0.0, 0.0], device=root_rot.device).unsqueeze(0).expand(root_rot.shape[0], -1))
+        robot_forward_2d = torch.nn.functional.normalize(robot_forward[:, :2], dim=-1)
+        
+        # 背对椅子的朝向奖励（机器人前向应该与椅子前向相反）
+        facing_chair_dot = torch.sum(robot_forward_2d * (-chair_forward_2d), dim=-1)  # 背对椅子时为正
+        facing_reward = torch.clamp(facing_chair_dot, 0.0, 1.0)
+        
+        # 第二阶段的位置保持奖励：奖励在引导点附近不动
+        position_hold_reward = torch.exp(-2.0 * robot2approach_dist)
+        
+        # 第二阶段激活条件：接近引导点且在正面
+        stage2_active = (robot2approach_dist < 0.4) & in_front_of_chair
+        
+        # 坐下奖励：只在正确朝向且靠近引导点时激活
+        sit_reward = torch.zeros_like(robot2chair_dist)
+        
+        # 计算到椅子表面的距离用于坐下
         geom_object_pcd = self.asset_pcd[self.object2asset[self.task_objectid]] * self.object2scale[self.task_objectid].unsqueeze(-1).unsqueeze(-1)
         global_object_pcd = torch_utils.transform_pcd(geom_object_pcd, pos = object_pos, rot = object_rot)
-        # init_object_pcd = torch_utils.transform_pcd(geom_object_pcd, pos = init_pos, rot = init_rot)
-        # init_z_pt = init_object_pcd[..., -1].min(1)[0]
-        # goal_object_pcd = torch_utils.transform_pcd(geom_object_pcd, pos = goal_pos, rot = goal_rot)
-        # goal_z_pt = goal_object_pcd[..., -1].min(1)[0]
-        # object_z_pt = global_object_pcd[...,-1].min(1)[0]
+        root2object_surface = root_pos.unsqueeze(1) - global_object_pcd
+        root2object_surface = torch.norm(root2object_surface, p=2, dim = -1)
+        root2object_surface = torch.min(root2object_surface, dim=-1)[0]
         
-        root_pos = robot_rb_state[:, 0, :3]
-        #print(root_pos.shape, global_object_pcd.shape)
-        root2object_dist = root_pos.unsqueeze(1) - global_object_pcd
-        root2object_dist = torch.norm(root2object_dist, p=2, dim = -1)
-        root2object_dist = torch.min(root2object_dist, dim=-1)[0]
-
-        thresh_robot2object = 0.5
-
-        ######## approach object
-        robot_vel_xy = robot_rb_state[:, 0, 7:9]
-        robot2target_dir = robot2object_dir #torch_utils.normalize(torch.where(self.movenow_preguidecomplete.unsqueeze(-1).tile(2), robot2object_dir, robot2guide_dir))
-        robot2target_speed = 1.5
-        reward_robot2object_vel = torch.exp(-2 * torch.square(robot2target_speed - torch.sum(robot2target_dir * robot_vel_xy, dim=-1)))
-        reward_robot2object_pos = torch.exp(-0.5 * robot2object_dist)
-
-        reward_robot2object_vel[robot2object_dist < thresh_robot2object] = 1
-        reward_robot2object_pos[robot2object_dist < thresh_robot2object] = 1
-
-        ######## sit down
-        reward_root2object = torch.exp(- 5 *  root2object_dist)#.mean(-1)
-        reward_root2object[robot2object_dist > 0.5] = 0.
+        # 只有当机器人在正确位置、朝向正确时才给坐下奖励
+        ready_to_sit = stage2_active & (facing_chair_dot > 0.7)
+        sit_reward[ready_to_sit] = torch.exp(-3.0 * root2object_surface[ready_to_sit])
         
-        # reward_vel = 1 - (torch.clamp(torch.norm(object_vel, dim=-1),0,1) / 1 - 1) ** 2
-        # reward_vel[reward_height_pt > 0.3] = 1.
-
-        reward_items = [
-            [0.4,   reward_robot2object_vel],
-            [0.3,   reward_robot2object_pos],
-            [0.3,   reward_root2object],
-        ]
-
-        reward = sum([a * b for a,b in reward_items])
+        ######## 稳定性奖励
+        root_height = robot_rb_state[:, 0, 2]
+        reward_height = torch.exp(-5.0 * torch.clamp(0.8 - root_height, 0.0, float('inf')))
+        
+        root_up = torch_utils.quat_rotate(root_rot, torch.tensor([0.0, 0.0, 1.0], device=root_rot.device).unsqueeze(0).repeat(root_rot.shape[0], 1))
+        up_reward = torch.clamp(root_up[:, 2], 0.0, 1.0) ** 2
+        
+        root_ang_vel = robot_rb_state[:, 0, 10:13]
+        ang_vel_penalty = torch.exp(-0.5 * torch.sum(root_ang_vel ** 2, dim=-1))
+        
+        ######## 组合奖励：根据阶段调整权重
+        ######## 组合奖励：根据阶段调整权重
+        # 第一阶段权重（远离目标时）- 调整权重切换点
+        stage1_weight = torch.clamp(1.0 - torch.exp(-1.5 * robot2approach_dist), 0.0, 1.0)
+        # 第二阶段权重（接近目标时）  
+        stage2_weight = 1.0 - stage1_weight
+        
+        # 强制要求在正面接近，否则大幅惩罚
+        front_requirement_weight = torch.where(in_front_of_chair, 1.0, 0.1)
+        
+        reward = (
+            stage1_weight * (0.2 * reward_approach_vel + 0.3 * reward_approach_pos + 
+                           0.2 * retreat_reward + 0.3 * stop_reward) * front_requirement_weight +
+            stage2_weight * (0.4 * facing_reward + 0.3 * position_hold_reward + 0.3 * sit_reward) +
+            0.1 * reward_height + 0.1 * up_reward + 0.1 * ang_vel_penalty
+        )
+        
         self.reward_buf[:] = reward
 
-        self.stats_step['robot2object_dist'] = robot2object_dist
-        self.stats_step['reward_robot2object_vel'] = reward_robot2object_vel
-        self.stats_step['reward_robot2object_pos'] = reward_robot2object_pos
-        self.stats_step['reward_hand2object'] = reward_root2object
+        # 更新统计信息
+        self.stats_step['robot2approach_dist'] = robot2approach_dist
+        self.stats_step['robot2chair_dist'] = robot2chair_dist
+        self.stats_step['front_alignment'] = front_alignment
+        self.stats_step['reward_approach_vel'] = reward_approach_vel
+        self.stats_step['reward_approach_pos'] = reward_approach_pos
+        self.stats_step['facing_reward'] = facing_reward
+        self.stats_step['sit_reward'] = sit_reward
+        self.stats_step['in_front_of_chair'] = in_front_of_chair.float()
+        self.stats_step['ready_for_next_stage'] = ready_for_next_stage.float()
 
 
         # location_reward = self.compute_location_reward(root_pos, self.prev_root_pos, root_rot, self.prev_root_rot, object_pos, goal_pos, 1.5, self.dt,
@@ -841,6 +924,82 @@ class SitNewEnv(HumanoidEnv):
         #     self.reward_buf[:] = location_reward + power_reward
         # else:
         #     self.reward_buf[:] = location_reward
+
+    # def compute_reward(self): #todo: 重新设计奖励函数
+    #     robot_rb_state = self._rigid_body_state[self.robot2rb].view(self.num_envs, self.num_body, 13)
+    #     #root_pos = self._root_states[self.robot2root, 0:3]
+    #     #root_pos = root_pos[0] #打补丁
+    #     root_rot = self._root_states[self.robot2root, 3:7]
+    #     object_state = self._root_states[self.task_rootid] #todo：object state是什么
+    #     object_pos = object_state[:,0:3]
+    #     object_rot = object_state[:,3:7]
+
+    #     goal_pos = self.goal_trans[self.task_rootid]
+    #     goal_rot = self.goal_rot[self.task_rootid]   
+
+    #     # robot2guide_dir = self.movenow_guide[:, :2] - robot_rb_state[:, 0, :2]
+    #     # robot2guide_dist = torch.norm(robot2guide_dir, dim=-1)
+    #     robot2object_dir = object_pos[:,:2] - robot_rb_state[:, 0, :2]
+    #     robot2object_dist = torch.norm(robot2object_dir, dim=-1)
+
+    #     geom_object_pcd = self.asset_pcd[self.object2asset[self.task_objectid]] * self.object2scale[self.task_objectid].unsqueeze(-1).unsqueeze(-1)
+    #     global_object_pcd = torch_utils.transform_pcd(geom_object_pcd, pos = object_pos, rot = object_rot)
+    #     # init_object_pcd = torch_utils.transform_pcd(geom_object_pcd, pos = init_pos, rot = init_rot)
+    #     # init_z_pt = init_object_pcd[..., -1].min(1)[0]
+    #     # goal_object_pcd = torch_utils.transform_pcd(geom_object_pcd, pos = goal_pos, rot = goal_rot)
+    #     # goal_z_pt = goal_object_pcd[..., -1].min(1)[0]
+    #     # object_z_pt = global_object_pcd[...,-1].min(1)[0]
+        
+    #     root_pos = robot_rb_state[:, 0, :3]
+    #     #print(root_pos.shape, global_object_pcd.shape)
+    #     root2object_dist = root_pos.unsqueeze(1) - global_object_pcd
+    #     root2object_dist = torch.norm(root2object_dist, p=2, dim = -1)
+    #     root2object_dist = torch.min(root2object_dist, dim=-1)[0]
+
+    #     thresh_robot2object = 0.5
+
+    #     ######## approach object
+    #     robot_vel_xy = robot_rb_state[:, 0, 7:9]
+    #     robot2target_dir = robot2object_dir #torch_utils.normalize(torch.where(self.movenow_preguidecomplete.unsqueeze(-1).tile(2), robot2object_dir, robot2guide_dir))
+    #     robot2target_speed = 1.5
+    #     reward_robot2object_vel = torch.exp(-2 * torch.square(robot2target_speed - torch.sum(robot2target_dir * robot_vel_xy, dim=-1)))
+    #     reward_robot2object_pos = torch.exp(-0.5 * robot2object_dist)
+
+    #     reward_robot2object_vel[robot2object_dist < thresh_robot2object] = 1
+    #     reward_robot2object_pos[robot2object_dist < thresh_robot2object] = 1
+
+    #     ######## sit down
+    #     reward_root2object = torch.exp(- 5 *  root2object_dist)#.mean(-1)
+    #     reward_root2object[robot2object_dist > 0.5] = 0.
+        
+    #     # reward_vel = 1 - (torch.clamp(torch.norm(object_vel, dim=-1),0,1) / 1 - 1) ** 2
+    #     # reward_vel[reward_height_pt > 0.3] = 1.
+
+    #     reward_items = [
+    #         [0.4,   reward_robot2object_vel],
+    #         [0.3,   reward_robot2object_pos],
+    #         [0.3,   reward_root2object],
+    #     ]
+
+    #     reward = sum([a * b for a,b in reward_items])
+    #     self.reward_buf[:] = reward
+
+    #     self.stats_step['robot2object_dist'] = robot2object_dist
+    #     self.stats_step['reward_robot2object_vel'] = reward_robot2object_vel
+    #     self.stats_step['reward_robot2object_pos'] = reward_robot2object_pos
+    #     self.stats_step['reward_hand2object'] = reward_root2object
+
+
+    #     # location_reward = self.compute_location_reward(root_pos, self.prev_root_pos, root_rot, self.prev_root_rot, object_pos, goal_pos, 1.5, self.dt,
+    #     #                                     self.sit_vel_penalty, self.sit_vel_pen_coeff, self.sit_vel_pen_thre, self.sit_ang_vel_pen_coeff, self.sit_ang_vel_pen_thre)
+
+    #     # power = torch.abs(torch.multiply(self.dof_force_tensor, self._robot_dof_vel)).sum(dim = -1)
+    #     # power_reward = -self._power_coefficient * power
+
+    #     # if self._power_reward:
+    #     #     self.reward_buf[:] = location_reward + power_reward
+    #     # else:
+    #     #     self.reward_buf[:] = location_reward
 
 
     def export_stats(self):
