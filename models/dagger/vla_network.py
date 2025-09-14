@@ -25,13 +25,13 @@ class VLANetwork(BaseNetwork):
         super().__init__()
         self.cfg = cfg
         self.prop_dim = cfg.prop_dim
-        self.text_dim = cfg.text_dim
+        #self.text_dim = cfg.text_dim
         self.image_backbone = torchvision.models.efficientnet_b0()
         self.image_backbone.classifier = nn.Sequential()
         image_feat_dim = 1280
         self.image_pre = self.build_mlp(image_feat_dim, self.cfg.image_pre.hidden)
-        self.text_pre = self.build_mlp(cfg.text_dim, self.cfg.text_pre.hidden)
-        vl_dim = self.cfg.image_pre.hidden[-1] + self.cfg.text_pre.hidden[-1]
+        #self.text_pre = self.build_mlp(cfg.text_dim, self.cfg.text_pre.hidden)
+        vl_dim = self.cfg.image_pre.hidden[-1] #+ self.cfg.text_pre.hidden[-1]
         self.prop_normalizer   = RunningMeanStd(self.prop_dim) if self.cfg.normalize_prop else nn.Identity()
         
         self.num_action = 28
@@ -47,15 +47,15 @@ class VLANetwork(BaseNetwork):
         return self.forward(
             prop    = self.prop_normalizer(obs['prop']),
             img     = obs['image'],
-            text    = obs['text'],
+            #text    = obs['text'],
             last_action=obs['last_action']
         )
 
-    def forward(self, prop, img, text, last_action):
-        text = self.text_pre(text)
+    def forward(self, prop, img, last_action):
+        #text = self.text_pre(text)
         img = self.image_pre(self.image_backbone(img))
         
-        obs = torch.cat([prop, last_action, img, text], dim=1)
+        obs = torch.cat([prop, last_action, img], dim=1)
         
         action = self.actor_mlp(obs)
         return action

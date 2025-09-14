@@ -46,7 +46,7 @@ class DaggerTrainer:
         self.teacher_network.load_state_dict(teacher_ckpt['weight'])
 
         self.prop_dim = cfg.student_network.prop_dim = self.env.num_prop_obs
-        self.text_dim = cfg.student_network.text_dim = self.env.num_text_obs
+        #self.text_dim = cfg.student_network.text_dim = self.env.num_text_obs
         self.student_network = VLANetwork(cfg.student_network).to(self.device)
         if self.cfg.ddp:    
             self.student_network = torch.nn.SyncBatchNorm.convert_sync_batchnorm(self.student_network)
@@ -71,7 +71,7 @@ class DaggerTrainer:
         buffer_info_dict = {
             'image'     :   dict(shape = (self.buffer_size, self.img_h, self.img_w, 3), dtype = torch.uint8), 
             'prop'      :   dict(shape = (self.buffer_size, self.prop_dim)), 
-            'text'      :   dict(shape = (self.buffer_size, self.text_dim)), 
+            #'text'      :   dict(shape = (self.buffer_size, self.text_dim)), 
             'teacher_action'    :   dict(shape = (self.buffer_size, self.num_action)), 
             'last_action'    :   dict(shape = (self.buffer_size, self.num_action)), 
         }
@@ -81,9 +81,6 @@ class DaggerTrainer:
 
         self.optimizer = build_optimizer(cfg.optimizer, self.ddp_network.parameters())
         self.scaler = torch.cuda.amp.GradScaler(enabled=self.auto_mixed_precision)
-
-
-
 
     def env_reset(self):
         obs = self.env.reset()        
@@ -147,13 +144,13 @@ class DaggerTrainer:
                 obs['image'] = transform_images
                 
                 student_action = self.get_student_action(obs)
-                texts = obs['text']
+                #texts = obs['text']
                 step_action = curr_beta * teacher_action + (1 - curr_beta) * student_action
                 last_action = obs['last_action']
 
                 self.data_buffer.store({
                     'image'     : raw_images,
-                    'text'      : texts,
+                    #'text'      : texts,
                     'prop'      : prop,
                     'last_action'    : last_action,
                     'teacher_action' : teacher_action.detach()
@@ -173,7 +170,7 @@ class DaggerTrainer:
                 prop = data['prop']
                 image = data['image']
                 image = self.image_transform(image.permute(0,3,1,2)/255.)
-                text = data['text']
+                #text = data['text']
                 last_action = data['last_action']
                 teacher_action = data['teacher_action']
                 prop = self.student_network.normalize_prop(prop)
@@ -181,7 +178,7 @@ class DaggerTrainer:
                     self.student_network.sync_stats()
 
                 with torch.cuda.amp.autocast(enabled=self.auto_mixed_precision):
-                    action = self.ddp_network(prop, image, text, last_action)
+                    action = self.ddp_network(prop, image, last_action)
                     loss = torch.nn.functional.mse_loss(action, teacher_action)
 
                 self.optimizer.zero_grad()

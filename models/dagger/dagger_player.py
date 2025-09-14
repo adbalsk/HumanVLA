@@ -44,7 +44,7 @@ class DaggerPlayer(DaggerTrainer):
         )
         
         self.prop_dim = cfg.student_network.prop_dim = self.env.num_prop_obs
-        self.text_dim = cfg.student_network.text_dim = self.env.num_text_obs
+        #self.text_dim = cfg.student_network.text_dim = self.env.num_text_obs
         self.student_network = VLANetwork(cfg.student_network).to(self.device).eval()
         self.img_h, self.img_w, self.image_transform = self.student_network.build_transform()
         

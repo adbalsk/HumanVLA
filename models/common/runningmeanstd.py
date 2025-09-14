@@ -32,6 +32,7 @@ class RunningMeanStd(nn.Module):
 
     def forward(self, input, unnorm=False):
         input_shape = input.shape
+        #print("obs['obs'].shape:", input.shape(4096,237), "self.insize:", self.insize(234))
         input = input.view((-1,) + self.insize)
 
         if self.training and self.trainable:

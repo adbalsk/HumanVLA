@@ -9,7 +9,7 @@ import open3d as o3d
 import trimesh
 import imageio
 
-class SitNewEnv(HumanoidEnv):
+class SitEnv(HumanoidEnv):
     def __init__(self, cfg) -> None:
         self.num_pcd = cfg.num_pcd
 
