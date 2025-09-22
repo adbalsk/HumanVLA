@@ -10,7 +10,10 @@ class BaseNetwork(nn.Module):
         for i, h in enumerate(hiddens):
             bias = not ( i == len(hiddens) - 1 and (not last_bias))
             net.append(nn.Linear(in_dim, h ,bias=bias))
-            net.append(self.build_activation(activation))
+            if self is BaseNetwork:
+                net.append(self.build_activation(self, activation))
+            else:
+                net.append(self.build_activation(activation))
             in_dim = h 
         if not last_activation:
             net.pop(-1)

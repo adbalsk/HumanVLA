@@ -8,15 +8,24 @@ from collections import OrderedDict
 import open3d as o3d
 import trimesh
 import imageio
+import torchvision
+import torch.nn as nn
+from models.common.base_network import BaseNetwork
 
 class SitVisionEnv(SitEnv):
     def __init__(self, cfg) -> None:
+        self.step_cnt = [0 for _ in range(cfg.num_envs)]
         super().__init__(cfg)
+        self.image_backbone = torchvision.models.efficientnet_b0().to(self.device)
+        self.image_backbone.classifier = nn.Sequential().to(self.device)
+        print(self.cfg.image_pre.hidden)
+        self.image_pre = BaseNetwork.build_mlp(BaseNetwork, 1280, self.cfg.image_pre.hidden).to(self.device)
     
     def create_buffer(self):
         super().create_buffer()
         self.image_buf = torch.zeros((self.num_envs, self.cfg.camera_height, self.cfg.camera_width, 3), device=self.device, dtype=torch.uint8)
-        
+        self.last_imgs = torch.zeros((self.num_envs, self.cfg.num_last_imgs, 128), device=self.device, dtype=torch.uint8)
+
     def render_camera_image(self, env_ids = None):
         if env_ids is None:
             env_ids = torch.arange(self.num_envs, device=self.device)
@@ -38,6 +47,24 @@ class SitVisionEnv(SitEnv):
                     cam_img = self.gym.get_camera_image(self.sim, self.env_handle[env_id], self.camera_handle[env_id], gymapi.IMAGE_COLOR)
                     cam_img = cam_img.reshape(self.cfg.camera_height, self.cfg.camera_width, 4)
                     self.image_buf[env_id] = torch.from_numpy(cam_img).to(self.device)[:,:,:3]
+            
+            for env_id in env_ids:
+                if self.step_cnt[env_id] % 30 == 0:
+                    raw_img = self.image_buf[env_id].unsqueeze(0)
+                    new_img = raw_img.float().permute(0,3,1,2)/255.
+                    transform = torchvision.transforms.Compose([
+                        torchvision.transforms.Resize((self.cfg.camera_height, self.cfg.camera_width)),
+                        torchvision.transforms.Normalize(
+                            mean = (0.5, 0.5, 0.5),
+                            std  = (0.5, 0.5, 0.5),
+                        )
+                    ])
+                    new_img = (transform(new_img))
+                    new_img = self.image_pre(self.image_backbone(new_img))
+                    self.last_imgs[env_id] = torch.cat([
+                            self.last_imgs[env_id][:-1], new_img], dim=0)
+                self.step_cnt[env_id] = (self.step_cnt[env_id] + 1) % 30
+
     
     @property
     def obs_space(self):
@@ -45,6 +72,8 @@ class SitVisionEnv(SitEnv):
             'obs' : self.num_prop_obs + self.num_goal_obs,
             'bps' : (self.num_bps, 3),
             'last_action' : self.num_action,
+            #'last_imgs' : self.cfg.image_pre.hidden[-1] * self.cfg.num_last_imgs,
+            'last_imgs' : (self.cfg.num_last_imgs, 128),
             'prop' : self.num_prop_obs,
             'image': (self.cfg.camera_height, self.cfg.camera_width, 3)
         }
@@ -59,6 +88,7 @@ class SitVisionEnv(SitEnv):
             'obs' : obs,
             'bps' : bps,
             'last_action' : self.last_action,
+            'last_imgs': self.last_imgs,
         }
         return obs_buf
      

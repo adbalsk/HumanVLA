@@ -1,9 +1,10 @@
-import isaacgym
+os.environ['MESA_VK_DEVICE_SELECT'] = '10de:2206'
 import torch
 import time, os, random
 import numpy as np
 import pickle as pkl
 from tqdm import tqdm
+import isaacgym
 
 def sample_sphere_uniform(n_points=1000, n_dims=3, radius=1.0, random_seed=13):
     """Sample uniformly from d-dimensional unit ball

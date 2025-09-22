@@ -7,10 +7,10 @@ num_train_iters : 5
 buffer_size : 10000 #100000
 active_rendering_weight : 0.2
 
-max_epoch : 50000
+max_epoch : 200000 #50000
 action_clip : 1
 obs_clip : 5.
-bz : 300 #600
+bz : 400 #600
 test_bz : 100 #200
 
 report_epoch : 20
@@ -61,7 +61,7 @@ teacher_network:
   normalize_amp       : True
 
 student_network:
-  image_pre :
+  image_pre:
     hidden : [128]
   normalize_prop : True
 
@@ -76,6 +76,7 @@ env:
   num_bps : 200
 
   num_action : 28
+  num_last_imgs : 20
   max_episode_length: 300
 
   guide_proceed_dist : 0.5
@@ -97,8 +98,8 @@ env:
   enable_camera : True
   enable_camera_tensor : True
   horizontal_fov  : 90
-  camera_height   : 256
-  camera_width    : 256
+  camera_height   : 128
+  camera_width    : 128
   camera_pos      : [0.103, 0, 0.175]
   camera_rot      : [0,0,0,1]
 

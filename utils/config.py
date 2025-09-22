@@ -101,4 +101,11 @@ def build_config(args):
     cfg.eval = cfg.env.eval = args.eval
     cfg.test = cfg.env.test = args.test
     cfg.record = cfg.env.record = args.record
+
+    #print(cfg.student_network)
+    #if "student_network" in cfg:
+    cfg.env.image_pre = cfg.student_network.image_pre
+    #if "num_last_imgs" in cfg.student_network:
+    cfg.student_network.num_last_imgs = cfg.env.num_last_imgs
+
     return cfg

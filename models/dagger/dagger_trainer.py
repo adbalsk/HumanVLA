@@ -25,6 +25,7 @@ class DaggerTrainer:
         cfg.teacher_network.num_amp_obs = cfg.env.num_ref_obs_frames * cfg.env.num_ref_obs_per_frame
         cfg.teacher_network.obs_space = env.obs_space
         self.num_action = cfg.student_network.num_action = cfg.teacher_network.num_action = cfg.env.num_action
+        self.num_last_imgs = cfg.student_network.num_last_imgs = cfg.teacher_network.num_last_imgs = cfg.env.num_last_imgs
 
         self.num_envs = cfg.env.num_envs
         self.action_clip = cfg.action_clip
@@ -74,6 +75,7 @@ class DaggerTrainer:
             #'text'      :   dict(shape = (self.buffer_size, self.text_dim)), 
             'teacher_action'    :   dict(shape = (self.buffer_size, self.num_action)), 
             'last_action'    :   dict(shape = (self.buffer_size, self.num_action)), 
+            'last_imgs'     : dict(shape = (self.buffer_size, self.num_last_imgs, 128), dtype = torch.uint8)
         }
         self.data_buffer = ReplayBuffer(buffer_info_dict, self.device)
         self.logger.info('===============ReplayBuffer=================')
@@ -147,12 +149,14 @@ class DaggerTrainer:
                 #texts = obs['text']
                 step_action = curr_beta * teacher_action + (1 - curr_beta) * student_action
                 last_action = obs['last_action']
+                last_imgs = obs['last_imgs']
 
                 self.data_buffer.store({
                     'image'     : raw_images,
                     #'text'      : texts,
                     'prop'      : prop,
                     'last_action'    : last_action,
+                    'last_imgs' : last_imgs,
                     'teacher_action' : teacher_action.detach()
                 })
                 next_obs, reward, _, _ ,_ = self.env_step(step_action)
@@ -172,13 +176,15 @@ class DaggerTrainer:
                 image = self.image_transform(image.permute(0,3,1,2)/255.)
                 #text = data['text']
                 last_action = data['last_action']
+                last_imgs = data['last_imgs']
+                #last_imgs[-1] = self.image_transform(image.permute(0,3,1,2)/255.)
                 teacher_action = data['teacher_action']
                 prop = self.student_network.normalize_prop(prop)
                 if self.cfg.ddp:
                     self.student_network.sync_stats()
 
                 with torch.cuda.amp.autocast(enabled=self.auto_mixed_precision):
-                    action = self.ddp_network(prop, image, last_action)
+                    action = self.ddp_network(prop, image, last_action, last_imgs)
                     loss = torch.nn.functional.mse_loss(action, teacher_action)
 
                 self.optimizer.zero_grad()

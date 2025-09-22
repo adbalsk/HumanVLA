@@ -35,9 +35,10 @@ class VLANetwork(BaseNetwork):
         self.prop_normalizer   = RunningMeanStd(self.prop_dim) if self.cfg.normalize_prop else nn.Identity()
         
         self.num_action = 28
+        self.last_imgs_dim = self.cfg.image_pre.hidden[-1] * self.cfg.num_last_imgs
 
         self.actor_mlp  = nn.Sequential(
-            nn.Linear(vl_dim + self.prop_dim + self.num_action, 1024),
+            nn.Linear(vl_dim + self.prop_dim + self.num_action + self.last_imgs_dim, 1024),
             ResBlock(1024),
             ResBlock(1024),
             nn.Linear(1024,28)
@@ -48,23 +49,28 @@ class VLANetwork(BaseNetwork):
             prop    = self.prop_normalizer(obs['prop']),
             img     = obs['image'],
             #text    = obs['text'],
-            last_action=obs['last_action']
+            last_action=obs['last_action'],
+            last_imgs = obs['last_imgs']
         )
 
-    def forward(self, prop, img, last_action):
+    def forward(self, prop, img, last_action, last_imgs):
         #text = self.text_pre(text)
+        #print(img.shape, last_imgs.shape)
         img = self.image_pre(self.image_backbone(img))
-        
-        obs = torch.cat([prop, last_action, img], dim=1)
+        last_imgs = last_imgs.flatten(1, 2)
+
+        obs = torch.cat([prop, last_action, last_imgs, img], dim=1)
         
         action = self.actor_mlp(obs)
         return action
     
 
     def build_transform(self):
-        height, width = 256, 256
+        #height, width = 111, 133
+        height, width = 128, 128
+        #height, width = 256, 256
         transform = torchvision.transforms.Compose([
-            torchvision.transforms.Resize((256,256)),
+            torchvision.transforms.Resize((height, width)),
             torchvision.transforms.Normalize(
                 mean = (0.5, 0.5, 0.5),
                 std  = (0.5, 0.5, 0.5),
