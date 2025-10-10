@@ -417,9 +417,9 @@ class SitEnv(HumanoidEnv):
         camera_properties.width = 1000
         camera_properties.height = 750
         # position the camera
-        for i in range(6, 10):
+        for i in range(2, self.num_envs):
             self.camera.append(self.gym.create_camera_sensor(self.env_handle[i], camera_properties))
-            self.gym.set_camera_location(self.camera[i-6], self.env_handle[i], cam_pos, cam_target)
+            self.gym.set_camera_location(self.camera[i-2], self.env_handle[i], cam_pos, cam_target)
 
         self.gym.viewer_camera_look_at(
             self.viewer, None, cam_pos, cam_target)

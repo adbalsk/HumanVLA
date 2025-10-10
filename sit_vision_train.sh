@@ -6,11 +6,13 @@ export CUDA_VISIBLE_DEVICES=3
 #         --num_envs 4096
 
 python main.py --name sit_vision \
-        --force --num_envs 512 \
+        --force --num_envs 256 \
         --cfg cfg/student_sit.yaml \
         --device 0 --headless \
-        #--ckpt logs/sit_vision0915/epoch_28000.pth
+        # --ckpt logs/sit_vision0925/epoch_66000.pth \
+        # --record
 
+#num_envs: 512
 # python main.py --name sit \
 #         --force --num_envs 4 \
 #         --cfg cfg/amp_sit.yaml \

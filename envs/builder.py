@@ -6,6 +6,7 @@ from .HITR_VLA              import HITRRearrangementVLAEnv
 #from .sit_simple            import SitSimpleEnv
 from .sit_obs               import SitEnv
 from .sit_vision            import SitVisionEnv
+from .sit_vision_test       import SitVisionTestEnv
 
 def build_env(cfg):
     return eval(cfg.name)(cfg)

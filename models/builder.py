@@ -2,6 +2,8 @@ from .amp.amp_trainer import AMPTrainer
 from .amp.amp_player import AMPPlayer
 from .dagger.dagger_trainer import DaggerTrainer
 from .dagger.dagger_player  import DaggerPlayer
+from .dagger_test.dagger_player import DaggerTestPlayer
+from .dagger_test.dagger_trainer import DaggerTestTrainer
 
 
 def build_model(cfg, env):

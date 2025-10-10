@@ -1,0 +1,1831 @@
+2025-09-25 12:32:34,630 - Time [ENV 0.132. TR 0.311]. Epoch 65680. Beta 0.0014. progress 139.
+859. success 0.291. Reward 0.3442. Loss [0.0062, 0.0066, 0.0069, 0.0062, 0.0059]
+2025-09-25 12:32:43,681 - Time [ENV 0.139. TR 0.324]. Epoch 65700. Beta 0.0014. progress 145.
+420. success 0.285. Reward 0.3439. Loss [0.0059, 0.0061, 0.0063, 0.006, 0.0061]
+2025-09-25 12:32:59,260 - Time [ENV 0.125. TR 0.352]. Epoch 65720. Beta 0.0014. progress 143.
+512. success 0.279. Reward 0.3431. Loss [0.0064, 0.0059, 0.0064, 0.0058, 0.0057]
+2025-09-25 12:33:14,576 - Time [ENV 0.126. TR 0.324]. Epoch 65740. Beta 0.0014. progress 145.
+152. success 0.287. Reward 0.3473. Loss [0.0057, 0.006, 0.0067, 0.0051, 0.0057]
+2025-09-25 12:33:24,302 - Time [ENV 0.132. TR 0.315]. Epoch 65760. Beta 0.0014. progress 150.
+578. success 0.289. Reward 0.3462. Loss [0.0068, 0.0067, 0.0058, 0.0055, 0.0052]
+2025-09-25 12:33:39,973 - Time [ENV 0.136. TR 0.457]. Epoch 65780. Beta 0.0014. progress 150.
+143. success 0.289. Reward 0.3477. Loss [0.0064, 0.0066, 0.0059, 0.0057, 0.0058]
+2025-09-25 12:33:56,053 - Time [ENV 0.132. TR 0.323]. Epoch 65800. Beta 0.0014. progress 150.
+072. success 0.299. Reward 0.3437. Loss [0.0067, 0.0071, 0.0058, 0.0056, 0.0055]
+2025-09-25 12:34:06,055 - Time [ENV 0.130. TR 0.309]. Epoch 65820. Beta 0.0014. progress 144.
+145. success 0.301. Reward 0.3429. Loss [0.0053, 0.0061, 0.0069, 0.0057, 0.0058]
+2025-09-25 12:34:21,688 - Time [ENV 0.135. TR 0.318]. Epoch 65840. Beta 0.0014. progress 134.
+076. success 0.312. Reward 0.3442. Loss [0.0059, 0.0057, 0.0061, 0.0059, 0.0057]
+2025-09-25 12:34:37,263 - Time [ENV 0.182. TR 0.311]. Epoch 65860. Beta 0.0014. progress 123.
+732. success 0.312. Reward 0.3449. Loss [0.0054, 0.0055, 0.0059, 0.0057, 0.0049]
+2025-09-25 12:34:46,894 - Time [ENV 0.169. TR 0.475]. Epoch 65880. Beta 0.0014. progress 126.
+955. success 0.312. Reward 0.3436. Loss [0.0057, 0.0052, 0.0068, 0.0061, 0.0057]
+2025-09-25 12:35:01,962 - Time [ENV 0.133. TR 0.324]. Epoch 65900. Beta 0.0014. progress 132.
+447. success 0.314. Reward 0.3488. Loss [0.0065, 0.0062, 0.0073, 0.0053, 0.0056]
+2025-09-25 12:35:17,734 - Time [ENV 0.135. TR 0.343]. Epoch 65920. Beta 0.0014. progress 133.
+146. success 0.316. Reward 0.3489. Loss [0.0056, 0.0051, 0.0056, 0.006, 0.0051]
+2025-09-25 12:35:27,355 - Time [ENV 0.124. TR 0.342]. Epoch 65940. Beta 0.0014. progress 135.
+480. success 0.311. Reward 0.3478. Loss [0.0066, 0.0064, 0.0063, 0.0051, 0.0058]
+2025-09-25 12:35:43,361 - Time [ENV 0.130. TR 0.309]. Epoch 65960. Beta 0.0014. progress 138.
+408. success 0.307. Reward 0.3500. Loss [0.006, 0.0058, 0.0065, 0.0055, 0.0059]
+2025-09-25 12:35:59,489 - Time [ENV 0.133. TR 0.337]. Epoch 65980. Beta 0.0014. progress 142.
+061. success 0.314. Reward 0.3463. Loss [0.0056, 0.0064, 0.0054, 0.0061, 0.0058]
+2025-09-25 12:36:09,119 - Time [ENV 0.128. TR 0.351]. Epoch 66000. Beta 0.0014. progress 148.
+383. success 0.312. Reward 0.3470. Loss [0.0059, 0.0056, 0.0054, 0.0067, 0.0062]
+2025-09-25 12:36:09,120 - Save ckpt to === > ./logs/sit_vision/epoch_66000.pth
+2025-09-25 12:36:24,977 - Time [ENV 0.126. TR 0.405]. Epoch 66020. Beta 0.0014. progress 148.
+551. success 0.314. Reward 0.3442. Loss [0.0058, 0.0052, 0.005, 0.0052, 0.005]
+2025-09-25 12:36:40,356 - Time [ENV 0.128. TR 0.334]. Epoch 66040. Beta 0.0014. progress 148.
+756. success 0.307. Reward 0.3473. Loss [0.0065, 0.0059, 0.0062, 0.0058, 0.0068]
+2025-09-25 12:36:50,455 - Time [ENV 0.141. TR 0.334]. Epoch 66060. Beta 0.0014. progress 155.
+277. success 0.307. Reward 0.3472. Loss [0.0063, 0.0062, 0.0069, 0.0064, 0.0068]
+2025-09-25 12:37:06,445 - Time [ENV 0.161. TR 0.517]. Epoch 66080. Beta 0.0013. progress 153.
+254. success 0.307. Reward 0.3425. Loss [0.0067, 0.0064, 0.0065, 0.0061, 0.0052]
+2025-09-25 12:37:22,664 - Time [ENV 0.131. TR 0.341]. Epoch 66100. Beta 0.0013. progress 150.
+145. success 0.307. Reward 0.3414. Loss [0.0064, 0.0064, 0.0072, 0.007, 0.0052]
+2025-09-25 12:37:32,448 - Time [ENV 0.133. TR 0.320]. Epoch 66120. Beta 0.0013. progress 140.
+707. success 0.309. Reward 0.3399. Loss [0.0071, 0.0069, 0.0066, 0.0073, 0.007]
+2025-09-25 12:37:47,796 - Time [ENV 0.133. TR 0.349]. Epoch 66140. Beta 0.0013. progress 131.
+777. success 0.309. Reward 0.3396. Loss [0.0069, 0.0066, 0.0066, 0.0062, 0.0063]
+2025-09-25 12:38:04,310 - Time [ENV 0.134. TR 0.499]. Epoch 66160. Beta 0.0013. progress 123.
+527. success 0.307. Reward 0.3407. Loss [0.0061, 0.0079, 0.0074, 0.0062, 0.0066]
+2025-09-25 12:38:14,598 - Time [ENV 0.154. TR 0.537]. Epoch 66180. Beta 0.0013. progress 125.
+539. success 0.311. Reward 0.3410. Loss [0.0071, 0.0072, 0.0072, 0.0073, 0.0075]
+2025-09-25 12:38:31,584 - Time [ENV 0.128. TR 0.334]. Epoch 66200. Beta 0.0013. progress 130.
+807. success 0.309. Reward 0.3413. Loss [0.0058, 0.0072, 0.0071, 0.0057, 0.0069]
+2025-09-25 12:38:47,508 - Time [ENV 0.160. TR 0.350]. Epoch 66220. Beta 0.0013. progress 132.
+326. success 0.307. Reward 0.3452. Loss [0.0072, 0.0063, 0.0057, 0.0066, 0.0063]
+2025-09-25 12:38:56,856 - Time [ENV 0.135. TR 0.333]. Epoch 66240. Beta 0.0013. progress 134.
+797. success 0.320. Reward 0.3434. Loss [0.0059, 0.0057, 0.0067, 0.0062, 0.0065]
+2025-09-25 12:39:12,398 - Time [ENV 0.127. TR 0.332]. Epoch 66260. Beta 0.0013. progress 138.
+260. success 0.322. Reward 0.3439. Loss [0.0064, 0.0065, 0.0065, 0.0055, 0.006]
+2025-09-25 12:39:28,565 - Time [ENV 0.138. TR 0.323]. Epoch 66280. Beta 0.0013. progress 143.
+086. success 0.312. Reward 0.3446. Loss [0.0057, 0.0053, 0.006, 0.0057, 0.0055]
+2025-09-25 12:39:37,861 - Time [ENV 0.135. TR 0.317]. Epoch 66300. Beta 0.0013. progress 145.
+357. success 0.311. Reward 0.3460. Loss [0.0071, 0.0066, 0.0073, 0.0077, 0.0053]
+2025-09-25 12:39:53,509 - Time [ENV 0.130. TR 0.347]. Epoch 66320. Beta 0.0013. progress 146.
+248. success 0.312. Reward 0.3424. Loss [0.008, 0.0057, 0.0064, 0.0069, 0.0072]
+2025-09-25 12:40:09,021 - Time [ENV 0.124. TR 0.372]. Epoch 66340. Beta 0.0013. progress 148.
+463. success 0.318. Reward 0.3443. Loss [0.007, 0.007, 0.0066, 0.0065, 0.0066]
+2025-09-25 12:40:18,385 - Time [ENV 0.133. TR 0.316]. Epoch 66360. Beta 0.0013. progress 154.
+676. success 0.314. Reward 0.3471. Loss [0.0067, 0.0066, 0.0068, 0.0057, 0.0058]
+2025-09-25 12:40:34,250 - Time [ENV 0.131. TR 0.333]. Epoch 66380. Beta 0.0013. progress 154.
+150. success 0.311. Reward 0.3438. Loss [0.007, 0.0059, 0.0063, 0.0064, 0.0052]
+2025-09-25 12:40:49,692 - Time [ENV 0.131. TR 0.342]. Epoch 66400. Beta 0.0013. progress 150.
+676. success 0.311. Reward 0.3420. Loss [0.0061, 0.0065, 0.0057, 0.0067, 0.0057]
+2025-09-25 12:40:59,246 - Time [ENV 0.132. TR 0.338]. Epoch 66420. Beta 0.0013. progress 140.
+986. success 0.320. Reward 0.3366. Loss [0.0073, 0.0072, 0.0072, 0.0059, 0.0064]
+2025-09-25 12:41:14,796 - Time [ENV 0.133. TR 0.319]. Epoch 66440. Beta 0.0013. progress 133.
+197. success 0.316. Reward 0.3378. Loss [0.0078, 0.0073, 0.0074, 0.007, 0.0069]
+2025-09-25 12:41:30,489 - Time [ENV 0.127. TR 0.309]. Epoch 66460. Beta 0.0013. progress 127.
+008. success 0.312. Reward 0.3402. Loss [0.0069, 0.0067, 0.0068, 0.0067, 0.0066]
+2025-09-25 12:41:40,163 - Time [ENV 0.130. TR 0.440]. Epoch 66480. Beta 0.0013. progress 125.
+713. success 0.311. Reward 0.3398. Loss [0.0073, 0.0074, 0.0062, 0.0068, 0.0077]
+2025-09-25 12:41:56,051 - Time [ENV 0.131. TR 0.303]. Epoch 66500. Beta 0.0013. progress 130.
+246. success 0.307. Reward 0.3466. Loss [0.0066, 0.0073, 0.0061, 0.0081, 0.0077]
+2025-09-25 12:42:11,849 - Time [ENV 0.135. TR 0.311]. Epoch 66520. Beta 0.0013. progress 130.
+861. success 0.305. Reward 0.3424. Loss [0.0066, 0.007, 0.0071, 0.0061, 0.0062]
+2025-09-25 12:42:21,777 - Time [ENV 0.145. TR 0.330]. Epoch 66540. Beta 0.0013. progress 135.
+725. success 0.297. Reward 0.3441. Loss [0.0064, 0.0073, 0.0067, 0.007, 0.0067]
+2025-09-25 12:42:37,491 - Time [ENV 0.137. TR 0.350]. Epoch 66560. Beta 0.0013. progress 139.
+590. success 0.295. Reward 0.3467. Loss [0.0059, 0.0066, 0.0066, 0.0068, 0.0059]
+2025-09-25 12:42:52,933 - Time [ENV 0.136. TR 0.335]. Epoch 66580. Beta 0.0013. progress 143.
+295. success 0.303. Reward 0.3419. Loss [0.007, 0.0065, 0.0059, 0.0064, 0.0058]
+2025-09-25 12:43:02,117 - Time [ENV 0.126. TR 0.318]. Epoch 66600. Beta 0.0013. progress 140.
+434. success 0.307. Reward 0.3451. Loss [0.0065, 0.0062, 0.0055, 0.0066, 0.0056]
+2025-09-25 12:43:17,896 - Time [ENV 0.131. TR 0.320]. Epoch 66620. Beta 0.0013. progress 141.
+100. success 0.305. Reward 0.3449. Loss [0.0062, 0.0061, 0.0063, 0.0059, 0.0058]
+2025-09-25 12:43:33,286 - Time [ENV 0.132. TR 0.335]. Epoch 66640. Beta 0.0013. progress 143.
+998. success 0.307. Reward 0.3419. Loss [0.0057, 0.0057, 0.0057, 0.006, 0.0061]
+2025-09-25 12:43:42,697 - Time [ENV 0.137. TR 0.323]. Epoch 66660. Beta 0.0013. progress 150.
+184. success 0.309. Reward 0.3460. Loss [0.0058, 0.0053, 0.0054, 0.0057, 0.0057]
+2025-09-25 12:43:58,826 - Time [ENV 0.132. TR 0.343]. Epoch 66680. Beta 0.0013. progress 151.
+342. success 0.314. Reward 0.3440. Loss [0.0069, 0.006, 0.0058, 0.0054, 0.0059]
+2025-09-25 12:44:14,418 - Time [ENV 0.134. TR 0.333]. Epoch 66700. Beta 0.0013. progress 149.
+398. success 0.316. Reward 0.3456. Loss [0.0054, 0.0055, 0.0056, 0.0058, 0.0065]
+2025-09-25 12:44:24,314 - Time [ENV 0.131. TR 0.379]. Epoch 66720. Beta 0.0013. progress 138.
+178. success 0.318. Reward 0.3403. Loss [0.0081, 0.0058, 0.0071, 0.0066, 0.0069]
+2025-09-25 12:44:40,757 - Time [ENV 0.134. TR 0.356]. Epoch 66740. Beta 0.0013. progress 131.
+057. success 0.318. Reward 0.3423. Loss [0.0074, 0.0073, 0.0065, 0.007, 0.0066]
+2025-09-25 12:44:56,469 - Time [ENV 0.126. TR 0.335]. Epoch 66760. Beta 0.0013. progress 123.
+979. success 0.318. Reward 0.3434. Loss [0.007, 0.0074, 0.0071, 0.0062, 0.0068]
+2025-09-25 12:45:06,435 - Time [ENV 0.133. TR 0.376]. Epoch 66780. Beta 0.0013. progress 121.
+980. success 0.322. Reward 0.3459. Loss [0.0067, 0.0055, 0.0069, 0.0064, 0.0069]
+2025-09-25 12:45:23,539 - Time [ENV 0.145. TR 0.328]. Epoch 66800. Beta 0.0013. progress 127.
+283. success 0.322. Reward 0.3427. Loss [0.0069, 0.007, 0.0072, 0.0067, 0.0067]
+2025-09-25 12:45:39,399 - Time [ENV 0.131. TR 0.398]. Epoch 66820. Beta 0.0013. progress 132.
+158. success 0.322. Reward 0.3455. Loss [0.0085, 0.0082, 0.0072, 0.0062, 0.0062]
+2025-09-25 12:45:48,743 - Time [ENV 0.141. TR 0.320]. Epoch 66840. Beta 0.0013. progress 137.
+988. success 0.326. Reward 0.3405. Loss [0.0073, 0.0075, 0.0076, 0.0074, 0.0074]
+2025-09-25 12:46:04,690 - Time [ENV 0.150. TR 0.455]. Epoch 66860. Beta 0.0012. progress 137.
+996. success 0.330. Reward 0.3448. Loss [0.0077, 0.0085, 0.0071, 0.0078, 0.0071]
+2025-09-25 12:46:20,441 - Time [ENV 0.138. TR 0.352]. Epoch 66880. Beta 0.0012. progress 142.
+176. success 0.322. Reward 0.3441. Loss [0.0076, 0.007, 0.007, 0.0068, 0.0069]
+2025-09-25 12:46:29,949 - Time [ENV 0.133. TR 0.432]. Epoch 66900. Beta 0.0012. progress 146.
+047. success 0.326. Reward 0.3405. Loss [0.0072, 0.0064, 0.0064, 0.0066, 0.0068]
+2025-09-25 12:46:45,667 - Time [ENV 0.141. TR 0.338]. Epoch 66920. Beta 0.0012. progress 147.
+436. success 0.322. Reward 0.3413. Loss [0.0072, 0.0065, 0.0064, 0.0062, 0.0064]
+2025-09-25 12:47:01,937 - Time [ENV 0.142. TR 0.317]. Epoch 66940. Beta 0.0012. progress 149.
+215. success 0.316. Reward 0.3413. Loss [0.0071, 0.0069, 0.0067, 0.0068, 0.0063]
+2025-09-25 12:47:11,899 - Time [ENV 0.130. TR 0.336]. Epoch 66960. Beta 0.0012. progress 150.
+938. success 0.314. Reward 0.3431. Loss [0.0065, 0.0068, 0.0072, 0.0072, 0.0075]
+2025-09-25 12:47:27,840 - Time [ENV 0.136. TR 0.364]. Epoch 66980. Beta 0.0012. progress 152.
+363. success 0.307. Reward 0.3471. Loss [0.0072, 0.0063, 0.0067, 0.0071, 0.0066]
+2025-09-25 12:47:43,606 - Time [ENV 0.138. TR 0.375]. Epoch 67000. Beta 0.0012. progress 151.
+426. success 0.297. Reward 0.3406. Loss [0.0068, 0.0065, 0.0062, 0.007, 0.0066]
+2025-09-25 12:47:54,081 - Time [ENV 0.132. TR 0.396]. Epoch 67020. Beta 0.0012. progress 135.
+238. success 0.303. Reward 0.3361. Loss [0.0071, 0.0073, 0.0066, 0.0064, 0.0063]
+2025-09-25 12:48:10,348 - Time [ENV 0.136. TR 0.325]. Epoch 67040. Beta 0.0012. progress 129.
+162. success 0.303. Reward 0.3379. Loss [0.0063, 0.0069, 0.0074, 0.0073, 0.0067]
+2025-09-25 12:48:26,490 - Time [ENV 0.121. TR 0.320]. Epoch 67060. Beta 0.0012. progress 120.
+699. success 0.311. Reward 0.3400. Loss [0.0061, 0.0064, 0.0064, 0.0054, 0.0056]
+2025-09-25 12:48:36,360 - Time [ENV 0.169. TR 0.318]. Epoch 67080. Beta 0.0012. progress 122.
+986. success 0.309. Reward 0.3412. Loss [0.0064, 0.0077, 0.0071, 0.0075, 0.007]
+2025-09-25 12:48:52,925 - Time [ENV 0.131. TR 0.344]. Epoch 67100. Beta 0.0012. progress 127.
+211. success 0.309. Reward 0.3450. Loss [0.0073, 0.0068, 0.0062, 0.0067, 0.0068]
+2025-09-25 12:49:08,751 - Time [ENV 0.130. TR 0.312]. Epoch 67120. Beta 0.0012. progress 133.
+963. success 0.314. Reward 0.3426. Loss [0.0068, 0.0059, 0.0062, 0.0057, 0.0067]
+2025-09-25 12:49:18,725 - Time [ENV 0.133. TR 0.308]. Epoch 67140. Beta 0.0012. progress 141.
+025. success 0.316. Reward 0.3450. Loss [0.0065, 0.0068, 0.0069, 0.0071, 0.0069]
+2025-09-25 12:49:34,017 - Time [ENV 0.143. TR 0.329]. Epoch 67160. Beta 0.0012. progress 144.
+607. success 0.312. Reward 0.3457. Loss [0.0065, 0.0063, 0.0062, 0.0068, 0.006]
+2025-09-25 12:49:49,284 - Time [ENV 0.138. TR 0.314]. Epoch 67180. Beta 0.0012. progress 148.
+369. success 0.305. Reward 0.3463. Loss [0.0054, 0.006, 0.0058, 0.0056, 0.0059]
+2025-09-25 12:49:58,595 - Time [ENV 0.167. TR 0.309]. Epoch 67200. Beta 0.0012. progress 148.
+436. success 0.303. Reward 0.3461. Loss [0.0071, 0.0064, 0.006, 0.0062, 0.0056]
+2025-09-25 12:50:14,116 - Time [ENV 0.140. TR 0.309]. Epoch 67220. Beta 0.0012. progress 145.
+781. success 0.305. Reward 0.3476. Loss [0.0068, 0.0069, 0.0077, 0.0064, 0.0061]
+2025-09-25 12:50:29,494 - Time [ENV 0.144. TR 0.337]. Epoch 67240. Beta 0.0012. progress 145.
+385. success 0.301. Reward 0.3488. Loss [0.0063, 0.0064, 0.0068, 0.0065, 0.0063]
+2025-09-25 12:50:39,026 - Time [ENV 0.139. TR 0.329]. Epoch 67260. Beta 0.0012. progress 146.
+615. success 0.297. Reward 0.3492. Loss [0.0069, 0.0076, 0.0057, 0.0068, 0.0057]
+2025-09-25 12:50:55,053 - Time [ENV 0.143. TR 0.353]. Epoch 67280. Beta 0.0012. progress 148.
+812. success 0.297. Reward 0.3458. Loss [0.0053, 0.0054, 0.0059, 0.0076, 0.0062]
+2025-09-25 12:51:11,139 - Time [ENV 0.133. TR 0.296]. Epoch 67300. Beta 0.0012. progress 148.
+887. success 0.311. Reward 0.3430. Loss [0.0063, 0.0057, 0.0068, 0.0069, 0.0065]
+2025-09-25 12:51:20,258 - Time [ENV 0.138. TR 0.319]. Epoch 67320. Beta 0.0012. progress 136.
+500. success 0.307. Reward 0.3393. Loss [0.0065, 0.0051, 0.0065, 0.0057, 0.0054]
+2025-09-25 12:51:36,427 - Time [ENV 0.141. TR 0.355]. Epoch 67340. Beta 0.0012. progress 131.
+133. success 0.311. Reward 0.3425. Loss [0.0075, 0.007, 0.0071, 0.007, 0.0062]
+2025-09-25 12:51:52,583 - Time [ENV 0.131. TR 0.425]. Epoch 67360. Beta 0.0012. progress 126.
+979. success 0.309. Reward 0.3410. Loss [0.007, 0.0076, 0.0071, 0.0058, 0.0065]
+2025-09-25 12:52:02,312 - Time [ENV 0.134. TR 0.347]. Epoch 67380. Beta 0.0012. progress 126.
+406. success 0.309. Reward 0.3417. Loss [0.0072, 0.0058, 0.0061, 0.0071, 0.0064]
+2025-09-25 12:52:17,909 - Time [ENV 0.131. TR 0.334]. Epoch 67400. Beta 0.0012. progress 129.
+465. success 0.307. Reward 0.3425. Loss [0.0068, 0.0054, 0.0064, 0.0065, 0.0068]
+2025-09-25 12:52:33,592 - Time [ENV 0.130. TR 0.330]. Epoch 67420. Beta 0.0012. progress 136.
+730. success 0.309. Reward 0.3442. Loss [0.0067, 0.0059, 0.0074, 0.0064, 0.007]
+2025-09-25 12:52:43,333 - Time [ENV 0.144. TR 0.370]. Epoch 67440. Beta 0.0012. progress 138.
+857. success 0.311. Reward 0.3414. Loss [0.0065, 0.0068, 0.0058, 0.0064, 0.0063]
+2025-09-25 12:52:59,762 - Time [ENV 0.129. TR 0.317]. Epoch 67460. Beta 0.0012. progress 142.
+738. success 0.307. Reward 0.3419. Loss [0.0067, 0.0075, 0.0061, 0.0062, 0.0054]
+2025-09-25 12:53:15,391 - Time [ENV 0.132. TR 0.390]. Epoch 67480. Beta 0.0012. progress 144.
+443. success 0.305. Reward 0.3429. Loss [0.0074, 0.0065, 0.0066, 0.0064, 0.0057]
+2025-09-25 12:53:24,995 - Time [ENV 0.142. TR 0.321]. Epoch 67500. Beta 0.0012. progress 145.
+199. success 0.301. Reward 0.3418. Loss [0.0067, 0.0068, 0.0061, 0.0068, 0.0059]
+2025-09-25 12:53:40,385 - Time [ENV 0.133. TR 0.339]. Epoch 67520. Beta 0.0012. progress 140.
+227. success 0.295. Reward 0.3433. Loss [0.0066, 0.0064, 0.0068, 0.0062, 0.0073]
+2025-09-25 12:53:56,454 - Time [ENV 0.130. TR 0.330]. Epoch 67540. Beta 0.0012. progress 137.
+557. success 0.295. Reward 0.3453. Loss [0.0069, 0.0067, 0.0069, 0.0061, 0.0061]
+2025-09-25 12:54:06,737 - Time [ENV 0.174. TR 0.326]. Epoch 67560. Beta 0.0012. progress 144.
+662. success 0.297. Reward 0.3438. Loss [0.0064, 0.0061, 0.0059, 0.0072, 0.0064]
+2025-09-25 12:54:23,448 - Time [ENV 0.165. TR 0.497]. Epoch 67580. Beta 0.0012. progress 144.
+219. success 0.297. Reward 0.3395. Loss [0.0068, 0.0065, 0.0069, 0.0066, 0.0068]
+2025-09-25 12:54:39,514 - Time [ENV 0.135. TR 0.352]. Epoch 67600. Beta 0.0012. progress 148.
+275. success 0.293. Reward 0.3401. Loss [0.0076, 0.0065, 0.007, 0.0069, 0.0074]
+2025-09-25 12:54:49,474 - Time [ENV 0.136. TR 0.342]. Epoch 67620. Beta 0.0012. progress 137.
+578. success 0.295. Reward 0.3392. Loss [0.0071, 0.0065, 0.0072, 0.0072, 0.0059]
+2025-09-25 12:55:06,172 - Time [ENV 0.152. TR 0.531]. Epoch 67640. Beta 0.0012. progress 134.
+773. success 0.291. Reward 0.3433. Loss [0.0074, 0.0065, 0.0071, 0.0062, 0.007]
+2025-09-25 12:55:22,184 - Time [ENV 0.139. TR 0.335]. Epoch 67660. Beta 0.0012. progress 128.
+682. success 0.293. Reward 0.3433. Loss [0.0061, 0.006, 0.0052, 0.0069, 0.0061]
+2025-09-25 12:55:32,181 - Time [ENV 0.129. TR 0.319]. Epoch 67680. Beta 0.0011. progress 126.
+326. success 0.297. Reward 0.3422. Loss [0.0065, 0.0059, 0.0058, 0.0054, 0.0066]
+2025-09-25 12:55:49,222 - Time [ENV 0.122. TR 0.463]. Epoch 67700. Beta 0.0011. progress 130.
+971. success 0.297. Reward 0.3441. Loss [0.0052, 0.0058, 0.0054, 0.0062, 0.0051]
+2025-09-25 12:56:05,573 - Time [ENV 0.157. TR 0.554]. Epoch 67720. Beta 0.0011. progress 139.
+184. success 0.301. Reward 0.3430. Loss [0.0074, 0.0075, 0.007, 0.0064, 0.0061]
+2025-09-25 12:56:15,796 - Time [ENV 0.139. TR 0.336]. Epoch 67740. Beta 0.0011. progress 136.
+537. success 0.295. Reward 0.3474. Loss [0.0066, 0.0076, 0.0065, 0.0064, 0.007]
+2025-09-25 12:56:31,932 - Time [ENV 0.158. TR 0.456]. Epoch 67760. Beta 0.0011. progress 141.
+045. success 0.297. Reward 0.3465. Loss [0.0062, 0.0058, 0.0071, 0.0063, 0.0062]
+2025-09-25 12:56:47,609 - Time [ENV 0.136. TR 0.338]. Epoch 67780. Beta 0.0011. progress 146.
+105. success 0.299. Reward 0.3435. Loss [0.0066, 0.0075, 0.008, 0.0071, 0.0071]
+2025-09-25 12:56:57,514 - Time [ENV 0.152. TR 0.536]. Epoch 67800. Beta 0.0011. progress 148.
+658. success 0.305. Reward 0.3440. Loss [0.0062, 0.0071, 0.0071, 0.0069, 0.0063]
+2025-09-25 12:57:13,616 - Time [ENV 0.125. TR 0.347]. Epoch 67820. Beta 0.0011. progress 141.
+779. success 0.311. Reward 0.3455. Loss [0.0065, 0.006, 0.0054, 0.0052, 0.006]
+2025-09-25 12:57:29,290 - Time [ENV 0.128. TR 0.305]. Epoch 67840. Beta 0.0011. progress 143.
+730. success 0.305. Reward 0.3431. Loss [0.0066, 0.0066, 0.0057, 0.0052, 0.0062]
+2025-09-25 12:57:39,095 - Time [ENV 0.139. TR 0.333]. Epoch 67860. Beta 0.0011. progress 148.
+490. success 0.303. Reward 0.3491. Loss [0.0069, 0.0061, 0.0061, 0.0069, 0.0054]
+2025-09-25 12:57:55,021 - Time [ENV 0.130. TR 0.337]. Epoch 67880. Beta 0.0011. progress 148.
+066. success 0.307. Reward 0.3486. Loss [0.0063, 0.0072, 0.0061, 0.0072, 0.0062]
+2025-09-25 12:58:10,730 - Time [ENV 0.136. TR 0.313]. Epoch 67900. Beta 0.0011. progress 150.
+418. success 0.303. Reward 0.3434. Loss [0.0071, 0.0074, 0.0073, 0.0068, 0.0065]
+2025-09-25 12:58:20,515 - Time [ENV 0.133. TR 0.309]. Epoch 67920. Beta 0.0011. progress 139.
+840. success 0.307. Reward 0.3391. Loss [0.0074, 0.0064, 0.0075, 0.007, 0.0066]
+2025-09-25 12:58:36,674 - Time [ENV 0.129. TR 0.343]. Epoch 67940. Beta 0.0011. progress 137.
+520. success 0.305. Reward 0.3409. Loss [0.0079, 0.0069, 0.0072, 0.0063, 0.0075]
+2025-09-25 12:58:52,322 - Time [ENV 0.132. TR 0.318]. Epoch 67960. Beta 0.0011. progress 124.
+553. success 0.309. Reward 0.3399. Loss [0.0064, 0.0063, 0.0068, 0.0066, 0.0057]
+2025-09-25 12:59:01,692 - Time [ENV 0.127. TR 0.318]. Epoch 67980. Beta 0.0011. progress 124.
+090. success 0.309. Reward 0.3415. Loss [0.0068, 0.0068, 0.0059, 0.0058, 0.0059]
+2025-09-25 12:59:16,948 - Time [ENV 0.136. TR 0.321]. Epoch 68000. Beta 0.0011. progress 131.
+971. success 0.312. Reward 0.3410. Loss [0.0071, 0.0075, 0.0072, 0.0075, 0.0069]
+2025-09-25 12:59:32,305 - Time [ENV 0.142. TR 0.443]. Epoch 68020. Beta 0.0011. progress 136.
+492. success 0.309. Reward 0.3403. Loss [0.0059, 0.0071, 0.0053, 0.0061, 0.0056]
+2025-09-25 12:59:41,453 - Time [ENV 0.127. TR 0.388]. Epoch 68040. Beta 0.0011. progress 137.
+660. success 0.305. Reward 0.3447. Loss [0.006, 0.0064, 0.006, 0.0059, 0.0062]
+2025-09-25 12:59:57,133 - Time [ENV 0.122. TR 0.311]. Epoch 68060. Beta 0.0011. progress 140.
+748. success 0.305. Reward 0.3445. Loss [0.0064, 0.0055, 0.0057, 0.0055, 0.0062]
+2025-09-25 13:00:12,636 - Time [ENV 0.133. TR 0.322]. Epoch 68080. Beta 0.0011. progress 146.
+842. success 0.305. Reward 0.3437. Loss [0.0056, 0.0056, 0.0054, 0.0061, 0.0063]
+2025-09-25 13:00:21,934 - Time [ENV 0.160. TR 0.356]. Epoch 68100. Beta 0.0011. progress 144.
+844. success 0.301. Reward 0.3470. Loss [0.0055, 0.0062, 0.0051, 0.0055, 0.005]
+2025-09-25 13:00:37,575 - Time [ENV 0.161. TR 0.330]. Epoch 68120. Beta 0.0011. progress 142.
+994. success 0.299. Reward 0.3444. Loss [0.0058, 0.006, 0.0059, 0.0058, 0.0048]
+2025-09-25 13:00:53,495 - Time [ENV 0.130. TR 0.323]. Epoch 68140. Beta 0.0011. progress 144.
+381. success 0.299. Reward 0.3456. Loss [0.0055, 0.0052, 0.0063, 0.0058, 0.0051]
+2025-09-25 13:01:03,017 - Time [ENV 0.137. TR 0.347]. Epoch 68160. Beta 0.0011. progress 147.
+441. success 0.299. Reward 0.3448. Loss [0.0055, 0.0061, 0.0059, 0.0053, 0.0054]
+2025-09-25 13:01:18,308 - Time [ENV 0.137. TR 0.326]. Epoch 68180. Beta 0.0011. progress 147.
+303. success 0.301. Reward 0.3442. Loss [0.0058, 0.0067, 0.006, 0.0058, 0.0059]
+2025-09-25 13:01:34,839 - Time [ENV 0.151. TR 0.546]. Epoch 68200. Beta 0.0011. progress 148.
+553. success 0.309. Reward 0.3397. Loss [0.0067, 0.0057, 0.0056, 0.0065, 0.0064]
+2025-09-25 13:01:45,475 - Time [ENV 0.138. TR 0.325]. Epoch 68220. Beta 0.0011. progress 137.
+553. success 0.307. Reward 0.3353. Loss [0.0074, 0.0068, 0.006, 0.0077, 0.007]
+2025-09-25 13:02:01,247 - Time [ENV 0.135. TR 0.348]. Epoch 68240. Beta 0.0011. progress 133.
+082. success 0.307. Reward 0.3370. Loss [0.0078, 0.0078, 0.0072, 0.0065, 0.0059]
+2025-09-25 13:02:16,720 - Time [ENV 0.132. TR 0.390]. Epoch 68260. Beta 0.0011. progress 123.
+848. success 0.312. Reward 0.3340. Loss [0.0075, 0.0063, 0.0083, 0.0071, 0.008]
+2025-09-25 13:02:26,759 - Time [ENV 0.126. TR 0.322]. Epoch 68280. Beta 0.0011. progress 124.
+160. success 0.311. Reward 0.3434. Loss [0.0073, 0.0068, 0.0069, 0.0063, 0.0071]
+2025-09-25 13:02:42,345 - Time [ENV 0.136. TR 0.314]. Epoch 68300. Beta 0.0011. progress 131.
+404. success 0.309. Reward 0.3441. Loss [0.0076, 0.0067, 0.0068, 0.0063, 0.0074]
+2025-09-25 13:02:57,754 - Time [ENV 0.162. TR 0.359]. Epoch 68320. Beta 0.0011. progress 136.
+432. success 0.307. Reward 0.3434. Loss [0.006, 0.0067, 0.0073, 0.0051, 0.0066]
+2025-09-25 13:03:07,768 - Time [ENV 0.139. TR 0.348]. Epoch 68340. Beta 0.0011. progress 132.
+625. success 0.303. Reward 0.3464. Loss [0.0069, 0.0059, 0.0063, 0.0065, 0.0055]
+2025-09-25 13:03:24,131 - Time [ENV 0.126. TR 0.317]. Epoch 68360. Beta 0.0011. progress 137.
+566. success 0.297. Reward 0.3449. Loss [0.0062, 0.0053, 0.0053, 0.0052, 0.0057]
+2025-09-25 13:03:40,155 - Time [ENV 0.131. TR 0.319]. Epoch 68380. Beta 0.0011. progress 144.
+676. success 0.303. Reward 0.3444. Loss [0.0073, 0.0067, 0.0076, 0.0069, 0.0064]
+2025-09-25 13:03:50,028 - Time [ENV 0.138. TR 0.318]. Epoch 68400. Beta 0.0011. progress 146.
+000. success 0.312. Reward 0.3435. Loss [0.0072, 0.0073, 0.0079, 0.0066, 0.0055]
+2025-09-25 13:04:05,693 - Time [ENV 0.133. TR 0.370]. Epoch 68420. Beta 0.0011. progress 148.
+158. success 0.309. Reward 0.3447. Loss [0.0069, 0.006, 0.0064, 0.0065, 0.0063]
+2025-09-25 13:04:21,443 - Time [ENV 0.135. TR 0.337]. Epoch 68440. Beta 0.0011. progress 147.
+555. success 0.314. Reward 0.3472. Loss [0.0066, 0.0062, 0.0065, 0.0062, 0.0071]
+2025-09-25 13:04:31,336 - Time [ENV 0.136. TR 0.348]. Epoch 68460. Beta 0.0011. progress 148.
+059. success 0.311. Reward 0.3452. Loss [0.0066, 0.0063, 0.0064, 0.0067, 0.0064]
+2025-09-25 13:04:48,123 - Time [ENV 0.139. TR 0.310]. Epoch 68480. Beta 0.0011. progress 148.
+906. success 0.312. Reward 0.3451. Loss [0.006, 0.0064, 0.0068, 0.0065, 0.0065]
+2025-09-25 13:05:04,254 - Time [ENV 0.124. TR 0.361]. Epoch 68500. Beta 0.0011. progress 152.
+703. success 0.318. Reward 0.3458. Loss [0.0072, 0.0071, 0.0056, 0.0064, 0.007]
+2025-09-25 13:05:13,601 - Time [ENV 0.133. TR 0.321]. Epoch 68520. Beta 0.0011. progress 144.
+127. success 0.314. Reward 0.3399. Loss [0.0073, 0.0069, 0.0058, 0.0062, 0.0064]
+2025-09-25 13:05:29,706 - Time [ENV 0.164. TR 0.578]. Epoch 68540. Beta 0.0011. progress 140.
+275. success 0.309. Reward 0.3377. Loss [0.0067, 0.0066, 0.0062, 0.0069, 0.0071]
+2025-09-25 13:05:45,764 - Time [ENV 0.141. TR 0.338]. Epoch 68560. Beta 0.0011. progress 132.
+092. success 0.312. Reward 0.3422. Loss [0.0063, 0.0064, 0.0059, 0.006, 0.0063]
+2025-09-25 13:05:55,445 - Time [ENV 0.135. TR 0.337]. Epoch 68580. Beta 0.0011. progress 126.
+455. success 0.314. Reward 0.3445. Loss [0.0062, 0.0061, 0.007, 0.0055, 0.0065]
+2025-09-25 13:06:12,159 - Time [ENV 0.164. TR 0.339]. Epoch 68600. Beta 0.0010. progress 133.
+857. success 0.314. Reward 0.3482. Loss [0.0061, 0.006, 0.0059, 0.0064, 0.0056]
+2025-09-25 13:06:28,341 - Time [ENV 0.169. TR 0.349]. Epoch 68620. Beta 0.0010. progress 138.
+967. success 0.316. Reward 0.3407. Loss [0.0058, 0.0073, 0.0056, 0.0056, 0.0073]
+2025-09-25 13:06:38,079 - Time [ENV 0.136. TR 0.446]. Epoch 68640. Beta 0.0010. progress 132.
+432. success 0.318. Reward 0.3416. Loss [0.0068, 0.0065, 0.0065, 0.007, 0.0061]
+2025-09-25 13:06:53,714 - Time [ENV 0.150. TR 0.362]. Epoch 68660. Beta 0.0010. progress 136.
+463. success 0.314. Reward 0.3441. Loss [0.0061, 0.0064, 0.0069, 0.0063, 0.0066]
+^CTraceback (most recent call last):
+  File "main.py", line 29, in <module>
+    main()
+  File "main.py", line 26, in main
+    model.run()
+  File "/data/chenzhanni/HumanVLA/models/dagger/dagger_trainer.py", line 187, in run
+    action = self.ddp_network(prop, image, last_action, last_imgs)
+  File "/data/chenzhanni/miniconda3/envs/humanvla/lib/python3.8/site-packages/torch/nn/module
+s/module.py", line 1518, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/data/chenzhanni/miniconda3/envs/humanvla/lib/python3.8/site-packages/torch/nn/module
+s/module.py", line 1527, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/data/chenzhanni/HumanVLA/models/dagger/vla_network.py", line 64, in forward
+    action = self.actor_mlp(obs)
+  File "/data/chenzhanni/miniconda3/envs/humanvla/lib/python3.8/site-packages/torch/nn/module
+s/module.py", line 1518, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/data/chenzhanni/miniconda3/envs/humanvla/lib/python3.8/site-packages/torch/nn/module
+s/module.py", line 1527, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/data/chenzhanni/miniconda3/envs/humanvla/lib/python3.8/site-packages/torch/nn/module
+s/container.py", line 215, in forward
+    input = module(input)
+  File "/data/chenzhanni/miniconda3/envs/humanvla/lib/python3.8/site-packages/torch/nn/module
+s/module.py", line 1518, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/data/chenzhanni/miniconda3/envs/humanvla/lib/python3.8/site-packages/torch/nn/module
+s/module.py", line 1527, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/data/chenzhanni/HumanVLA/models/dagger/vla_network.py", line 20, in forward
+    return self.layers(x) + x
+  File "/data/chenzhanni/miniconda3/envs/humanvla/lib/python3.8/site-packages/torch/nn/module
+s/module.py", line 1518, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/data/chenzhanni/miniconda3/envs/humanvla/lib/python3.8/site-packages/torch/nn/module
+s/module.py", line 1527, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/data/chenzhanni/miniconda3/envs/humanvla/lib/python3.8/site-packages/torch/nn/module
+s/container.py", line 215, in forward
+    input = module(input)
+  File "/data/chenzhanni/miniconda3/envs/humanvla/lib/python3.8/site-packages/torch/nn/module
+s/module.py", line 1518, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/data/chenzhanni/miniconda3/envs/humanvla/lib/python3.8/site-packages/torch/nn/module
+s/module.py", line 1527, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/data/chenzhanni/miniconda3/envs/humanvla/lib/python3.8/site-packages/torch/nn/module
+s/linear.py", line 114, in forward
+    return F.linear(input, self.weight, self.bias)
+KeyboardInterrupt
+
+(humanvla) chenzhanni@10-60-58-161:/data/chenzhanni/HumanVLA$ sh sit_vision_train.sh
+Importing module 'gym_38' (/data/chenzhanni/isaacgym/python/isaacgym/_bindings/linux-x86_64/g
+ym_38.so)
+Setting GYM_USD_PLUG_INFO_PATH to /data/chenzhanni/isaacgym/python/isaacgym/_bindings/linux-x
+86_64/usd/plugInfo.json
+PyTorch version 2.1.0+cu121
+Device count 1
+/data/chenzhanni/isaacgym/python/isaacgym/_bindings/src/gymtorch
+Using /home/chenzhanni/.cache/torch_extensions/py38_cu121 as PyTorch extensions root...
+Emitting ninja build file /home/chenzhanni/.cache/torch_extensions/py38_cu121/gymtorch/build.
+ninja...
+Building extension module gymtorch...
+Allowing ninja to set a default number of workers... (overridable by setting the environment
+variable MAX_JOBS=N)
+ninja: no work to do.
+Loading extension module gymtorch...
+>>>> Task root: ./logs/sit_vision. <<<<
+Not connected to PVD
++++ Using GPU PhysX
+Physics Engine: PhysX
+Physics Device: cuda:0
+GPU Pipeline: enabled
+[Error] [carb.windowing-glfw.plugin] GLFW initialization failed.
+[Error] [carb.windowing-glfw.plugin] GLFW window creation failed!
+[Error] [carb.gym.plugin] Failed to create Window in CreateGymViewerInternal
+======================================
+load huamanoid asset: ././data/humanoid_assets/amp_humanoid.xml
+28 DoFs: ['abdomen_x', 'abdomen_y', 'abdomen_z', 'neck_x', 'neck_y', 'neck_z', 'right_shoulde
+r_x', 'right_shoulder_y', 'right_shoulder_z', 'right_elbow', 'left_shoulder_x', 'left_shoulde
+r_y', 'left_shoulder_z', 'left_elbow', 'right_hip_x', 'right_hip_y', 'right_hip_z', 'right_kn
+ee', 'right_ankle_x', 'right_ankle_y', 'right_ankle_z', 'left_hip_x', 'left_hip_y', 'left_hip
+_z', 'left_knee', 'left_ankle_x', 'left_ankle_y', 'left_ankle_z']
+15 Bodies: ['pelvis', 'torso', 'head', 'right_upper_arm', 'right_lower_arm', 'right_hand', 'l
+eft_upper_arm', 'left_lower_arm', 'left_hand', 'right_thigh', 'right_shin', 'right_foot', 'le
+ft_thigh', 'left_shin', 'left_foot']
+30 Joints: ['abdomen_x', 'abdomen_y', 'abdomen_z', 'neck_x', 'neck_y', 'neck_z', 'right_shoul
+der_x', 'right_shoulder_y', 'right_shoulder_z', 'right_elbow', '', 'left_shoulder_x', 'left_s
+houlder_y', 'left_shoulder_z', 'left_elbow', '', 'right_hip_x', 'right_hip_y', 'right_hip_z',
+ 'right_knee', 'right_ankle_x', 'right_ankle_y', 'right_ankle_z', 'left_hip_x', 'left_hip_y',
+ 'left_hip_z', 'left_knee', 'left_ankle_x', 'left_ankle_y', 'left_ankle_z']
+Using VHACD cache directory '/home/chenzhanni/.isaacgym/vhacd'
+Found existing convex decomposition for mesh '././data/assets/0070649630e7b2262ec0427c0e20352
+32240fb4d/0070649630e7b2262ec0427c0e2035232240fb4d.collider.glb'
+Revolute ['right_elbow', 'left_elbow', 'right_knee', 'left_knee']
+Sphere ['abdomen_x', 'abdomen_y', 'abdomen_z', 'neck_x', 'neck_y', 'neck_z', 'right_shoulder_
+x', 'right_shoulder_y', 'right_shoulder_z', 'left_shoulder_x', 'left_shoulder_y', 'left_shoul
+der_z', 'right_hip_x', 'right_hip_y', 'right_hip_z', 'right_ankle_x', 'right_ankle_y', 'right
+_ankle_z', 'left_hip_x', 'left_hip_y', 'left_hip_z', 'left_ankle_x', 'left_ankle_y', 'left_an
+kle_z']
+pd_low tensor([-1.8850, -1.8850, -1.8850, -1.2566, -1.2566, -1.2566, -3.1416, -3.1416,
+        -3.1416, -3.3510, -3.1416, -3.1416, -3.1416, -3.3510, -2.9322, -2.9322,
+        -2.9322, -0.5585, -1.1519, -1.1519, -1.1519, -2.9322, -2.9322, -2.9322,
+        -0.5585, -1.1519, -1.1519, -1.1519], device='cuda:0')
+pd_high tensor([1.8850, 1.8850, 1.8850, 1.2566, 1.2566, 1.2566, 3.1416, 3.1416, 3.1416,
+        0.5585, 3.1416, 3.1416, 3.1416, 0.5585, 2.9322, 2.9322, 2.9322, 3.3510,
+        1.1519, 1.1519, 1.1519, 2.9322, 2.9322, 2.9322, 3.3510, 1.1519, 1.1519,
+        1.1519], device='cuda:0')
+# RefMotionFiles = 4
+# RefMotionFrames = 1150
+#Num Tasks 1000
+#Num Envs 12
+#Num Roots 24
+#Num Objects 12
+#Num RigidBodys 192
+[Warning] [carb.gym.plugin] Acquiring DOF force tensor, but no actors have DOF force sensors
+enabled.
+[Warning] [carb.gym.plugin] -> Enabled DOF force sensors for all eligible actors.
+[128]
+2025-09-25 14:22:35,794 - ===============Image Transform=================
+2025-09-25 14:22:35,794 - Compose(
+    Resize(size=(128, 128), interpolation=bilinear, max_size=None, antialias=warn)
+    Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))
+)
+2025-09-25 14:22:35,794 - ===============Teacher Network=================
+2025-09-25 14:22:35,794 - AMP_NETWORK(
+  (bps_pre): Sequential(
+    (0): Linear(in_features=600, out_features=512, bias=True)
+    (1): ReLU()
+    (2): Linear(in_features=512, out_features=512, bias=True)
+    (3): ReLU()
+    (4): Linear(in_features=512, out_features=128, bias=True)
+    (5): ReLU()
+  )
+  (actor_mlp): Sequential(
+    (0): Linear(in_features=362, out_features=1024, bias=True)
+    (1): ReLU()
+    (2): Linear(in_features=1024, out_features=1024, bias=True)
+    (3): ReLU()
+    (4): Linear(in_features=1024, out_features=512, bias=True)
+    (5): ReLU()
+    (6): Linear(in_features=512, out_features=28, bias=True)
+  )
+  (critic_mlp): Sequential(
+    (0): Linear(in_features=362, out_features=1024, bias=True)
+    (1): ReLU()
+    (2): Linear(in_features=1024, out_features=1024, bias=True)
+    (3): ReLU()
+    (4): Linear(in_features=1024, out_features=512, bias=True)
+    (5): ReLU()
+    (6): Linear(in_features=512, out_features=1, bias=True)
+  )
+  (disc_mlp): Sequential(
+    (0): Linear(in_features=1330, out_features=1024, bias=True)
+    (1): ReLU()
+    (2): Linear(in_features=1024, out_features=1024, bias=True)
+    (3): ReLU()
+    (4): Linear(in_features=1024, out_features=512, bias=True)
+    (5): ReLU()
+    (6): Linear(in_features=512, out_features=1, bias=False)
+  )
+  (prop_normalizer): RunningMeanStd()
+  (bps_normalizer): RunningMeanStd()
+  (val_normalizer): RunningMeanStd()
+  (disc_normalizer): RunningMeanStd()
+)
+2025-09-25 14:22:35,794 - ===============Student Network=================
+2025-09-25 14:22:35,794 - VLANetwork(
+  (image_backbone): EfficientNet(
+    (features): Sequential(
+      (0): Conv2dNormActivation(
+        (0): Conv2d(3, 32, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False)
+        (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (2): SiLU(inplace=True)
+      )
+      (1): Sequential(
+        (0): MBConv(
+          (block): Sequential(
+            (0): Conv2dNormActivation(
+              (0): Conv2d(32, 32, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=3
+2, bias=False)
+              (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=
+True)
+              (2): SiLU(inplace=True)
+            )
+            (1): SqueezeExcitation(
+              (avgpool): AdaptiveAvgPool2d(output_size=1)
+              (fc1): Conv2d(32, 8, kernel_size=(1, 1), stride=(1, 1))
+              (fc2): Conv2d(8, 32, kernel_size=(1, 1), stride=(1, 1))
+              (activation): SiLU(inplace=True)
+              (scale_activation): Sigmoid()
+            )
+            (2): Conv2dNormActivation(
+              (0): Conv2d(32, 16, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=
+True)
+            )
+          )
+          (stochastic_depth): StochasticDepth(p=0.0, mode=row)
+        )
+      )
+      (2): Sequential(
+        (0): MBConv(
+          (block): Sequential(
+            (0): Conv2dNormActivation(
+              (0): Conv2d(16, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(96, eps=1e-05, momentum=0.1, affine=True, track_running_stats=
+True)
+              (2): SiLU(inplace=True)
+            )
+            (1): Conv2dNormActivation(
+              (0): Conv2d(96, 96, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), groups=9
+6, bias=False)
+              (1): BatchNorm2d(96, eps=1e-05, momentum=0.1, affine=True, track_running_stats=
+True)
+              (2): SiLU(inplace=True)
+            )
+            (2): SqueezeExcitation(
+              (avgpool): AdaptiveAvgPool2d(output_size=1)
+              (fc1): Conv2d(96, 4, kernel_size=(1, 1), stride=(1, 1))
+              (fc2): Conv2d(4, 96, kernel_size=(1, 1), stride=(1, 1))
+              (activation): SiLU(inplace=True)
+              (scale_activation): Sigmoid()
+            )
+            (3): Conv2dNormActivation(
+              (0): Conv2d(96, 24, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(24, eps=1e-05, momentum=0.1, affine=True, track_running_stats=
+True)
+            )
+          )
+          (stochastic_depth): StochasticDepth(p=0.0125, mode=row)
+        )
+        (1): MBConv(
+          (block): Sequential(
+            (0): Conv2dNormActivation(
+              (0): Conv2d(24, 144, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(144, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+              (2): SiLU(inplace=True)
+            )
+            (1): Conv2dNormActivation(
+              (0): Conv2d(144, 144, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups
+=144, bias=False)
+              (1): BatchNorm2d(144, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+              (2): SiLU(inplace=True)
+            )
+            (2): SqueezeExcitation(
+              (avgpool): AdaptiveAvgPool2d(output_size=1)
+              (fc1): Conv2d(144, 6, kernel_size=(1, 1), stride=(1, 1))
+              (fc2): Conv2d(6, 144, kernel_size=(1, 1), stride=(1, 1))
+              (activation): SiLU(inplace=True)
+              (scale_activation): Sigmoid()
+            )
+            (3): Conv2dNormActivation(
+              (0): Conv2d(144, 24, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(24, eps=1e-05, momentum=0.1, affine=True, track_running_stats=
+True)
+            )
+          )
+          (stochastic_depth): StochasticDepth(p=0.025, mode=row)
+        )
+      )
+      (3): Sequential(
+        (0): MBConv(
+          (block): Sequential(
+            (0): Conv2dNormActivation(
+              (0): Conv2d(24, 144, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(144, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+              (2): SiLU(inplace=True)
+            )
+            (1): Conv2dNormActivation(
+              (0): Conv2d(144, 144, kernel_size=(5, 5), stride=(2, 2), padding=(2, 2), groups
+=144, bias=False)
+              (1): BatchNorm2d(144, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+              (2): SiLU(inplace=True)
+            )
+            (2): SqueezeExcitation(
+              (avgpool): AdaptiveAvgPool2d(output_size=1)
+              (fc1): Conv2d(144, 6, kernel_size=(1, 1), stride=(1, 1))
+              (fc2): Conv2d(6, 144, kernel_size=(1, 1), stride=(1, 1))
+              (activation): SiLU(inplace=True)
+              (scale_activation): Sigmoid()
+            )
+            (3): Conv2dNormActivation(
+              (0): Conv2d(144, 40, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(40, eps=1e-05, momentum=0.1, affine=True, track_running_stats=
+True)
+            )
+          )
+          (stochastic_depth): StochasticDepth(p=0.037500000000000006, mode=row)
+        )
+        (1): MBConv(
+          (block): Sequential(
+            (0): Conv2dNormActivation(
+              (0): Conv2d(40, 240, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(240, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+              (2): SiLU(inplace=True)
+            )
+            (1): Conv2dNormActivation(
+              (0): Conv2d(240, 240, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), groups
+=240, bias=False)
+              (1): BatchNorm2d(240, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+              (2): SiLU(inplace=True)
+            )
+            (2): SqueezeExcitation(
+              (avgpool): AdaptiveAvgPool2d(output_size=1)
+              (fc1): Conv2d(240, 10, kernel_size=(1, 1), stride=(1, 1))
+              (fc2): Conv2d(10, 240, kernel_size=(1, 1), stride=(1, 1))
+              (activation): SiLU(inplace=True)
+              (scale_activation): Sigmoid()
+            )
+            (3): Conv2dNormActivation(
+              (0): Conv2d(240, 40, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(40, eps=1e-05, momentum=0.1, affine=True, track_running_stats=
+True)
+            )
+          )
+          (stochastic_depth): StochasticDepth(p=0.05, mode=row)
+        )
+      )
+      (4): Sequential(
+        (0): MBConv(
+          (block): Sequential(
+            (0): Conv2dNormActivation(
+              (0): Conv2d(40, 240, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(240, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+              (2): SiLU(inplace=True)
+            )
+            (1): Conv2dNormActivation(
+              (0): Conv2d(240, 240, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), groups
+=240, bias=False)
+              (1): BatchNorm2d(240, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+              (2): SiLU(inplace=True)
+            )
+            (2): SqueezeExcitation(
+              (avgpool): AdaptiveAvgPool2d(output_size=1)
+              (fc1): Conv2d(240, 10, kernel_size=(1, 1), stride=(1, 1))
+              (fc2): Conv2d(10, 240, kernel_size=(1, 1), stride=(1, 1))
+              (activation): SiLU(inplace=True)
+              (scale_activation): Sigmoid()
+            )
+            (3): Conv2dNormActivation(
+              (0): Conv2d(240, 80, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(80, eps=1e-05, momentum=0.1, affine=True, track_running_stats=
+True)
+            )
+          )
+          (stochastic_depth): StochasticDepth(p=0.0625, mode=row)
+        )
+        (1): MBConv(
+          (block): Sequential(
+            (0): Conv2dNormActivation(
+              (0): Conv2d(80, 480, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(480, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+              (2): SiLU(inplace=True)
+            )
+            (1): Conv2dNormActivation(
+              (0): Conv2d(480, 480, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups
+=480, bias=False)
+              (1): BatchNorm2d(480, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+              (2): SiLU(inplace=True)
+            )
+            (2): SqueezeExcitation(
+              (avgpool): AdaptiveAvgPool2d(output_size=1)
+              (fc1): Conv2d(480, 20, kernel_size=(1, 1), stride=(1, 1))
+              (fc2): Conv2d(20, 480, kernel_size=(1, 1), stride=(1, 1))
+              (activation): SiLU(inplace=True)
+              (scale_activation): Sigmoid()
+            )
+            (3): Conv2dNormActivation(
+              (0): Conv2d(480, 80, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(80, eps=1e-05, momentum=0.1, affine=True, track_running_stats=
+True)
+            )
+          )
+          (stochastic_depth): StochasticDepth(p=0.07500000000000001, mode=row)
+        )
+        (2): MBConv(
+          (block): Sequential(
+            (0): Conv2dNormActivation(
+              (0): Conv2d(80, 480, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(480, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+              (2): SiLU(inplace=True)
+            )
+            (1): Conv2dNormActivation(
+              (0): Conv2d(480, 480, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups
+=480, bias=False)
+              (1): BatchNorm2d(480, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+              (2): SiLU(inplace=True)
+            )
+            (2): SqueezeExcitation(
+              (avgpool): AdaptiveAvgPool2d(output_size=1)
+              (fc1): Conv2d(480, 20, kernel_size=(1, 1), stride=(1, 1))
+              (fc2): Conv2d(20, 480, kernel_size=(1, 1), stride=(1, 1))
+              (activation): SiLU(inplace=True)
+              (scale_activation): Sigmoid()
+            )
+            (3): Conv2dNormActivation(
+              (0): Conv2d(480, 80, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(80, eps=1e-05, momentum=0.1, affine=True, track_running_stats=
+True)
+            )
+          )
+          (stochastic_depth): StochasticDepth(p=0.08750000000000001, mode=row)
+        )
+      )
+      (5): Sequential(
+        (0): MBConv(
+          (block): Sequential(
+            (0): Conv2dNormActivation(
+              (0): Conv2d(80, 480, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(480, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+              (2): SiLU(inplace=True)
+            )
+            (1): Conv2dNormActivation(
+              (0): Conv2d(480, 480, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), groups
+=480, bias=False)
+              (1): BatchNorm2d(480, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+              (2): SiLU(inplace=True)
+            )
+            (2): SqueezeExcitation(
+              (avgpool): AdaptiveAvgPool2d(output_size=1)
+              (fc1): Conv2d(480, 20, kernel_size=(1, 1), stride=(1, 1))
+              (fc2): Conv2d(20, 480, kernel_size=(1, 1), stride=(1, 1))
+              (activation): SiLU(inplace=True)
+              (scale_activation): Sigmoid()
+            )
+            (3): Conv2dNormActivation(
+              (0): Conv2d(480, 112, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(112, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+            )
+          )
+          (stochastic_depth): StochasticDepth(p=0.1, mode=row)
+        )
+        (1): MBConv(
+          (block): Sequential(
+            (0): Conv2dNormActivation(
+              (0): Conv2d(112, 672, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(672, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+              (2): SiLU(inplace=True)
+            )
+            (1): Conv2dNormActivation(
+              (0): Conv2d(672, 672, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), groups
+=672, bias=False)
+              (1): BatchNorm2d(672, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+              (2): SiLU(inplace=True)
+            )
+            (2): SqueezeExcitation(
+              (avgpool): AdaptiveAvgPool2d(output_size=1)
+              (fc1): Conv2d(672, 28, kernel_size=(1, 1), stride=(1, 1))
+              (fc2): Conv2d(28, 672, kernel_size=(1, 1), stride=(1, 1))
+              (activation): SiLU(inplace=True)
+              (scale_activation): Sigmoid()
+            )
+            (3): Conv2dNormActivation(
+              (0): Conv2d(672, 112, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(112, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+            )
+          )
+          (stochastic_depth): StochasticDepth(p=0.1125, mode=row)
+        )
+        (2): MBConv(
+          (block): Sequential(
+            (0): Conv2dNormActivation(
+              (0): Conv2d(112, 672, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(672, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+              (2): SiLU(inplace=True)
+            )
+            (1): Conv2dNormActivation(
+              (0): Conv2d(672, 672, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), groups
+=672, bias=False)
+              (1): BatchNorm2d(672, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+              (2): SiLU(inplace=True)
+            )
+            (2): SqueezeExcitation(
+              (avgpool): AdaptiveAvgPool2d(output_size=1)
+              (fc1): Conv2d(672, 28, kernel_size=(1, 1), stride=(1, 1))
+              (fc2): Conv2d(28, 672, kernel_size=(1, 1), stride=(1, 1))
+              (activation): SiLU(inplace=True)
+              (scale_activation): Sigmoid()
+            )
+            (3): Conv2dNormActivation(
+              (0): Conv2d(672, 112, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(112, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+            )
+          )
+          (stochastic_depth): StochasticDepth(p=0.125, mode=row)
+        )
+      )
+      (6): Sequential(
+        (0): MBConv(
+          (block): Sequential(
+            (0): Conv2dNormActivation(
+              (0): Conv2d(112, 672, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(672, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+              (2): SiLU(inplace=True)
+            )
+            (1): Conv2dNormActivation(
+              (0): Conv2d(672, 672, kernel_size=(5, 5), stride=(2, 2), padding=(2, 2), groups
+=672, bias=False)
+              (1): BatchNorm2d(672, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+              (2): SiLU(inplace=True)
+            )
+            (2): SqueezeExcitation(
+              (avgpool): AdaptiveAvgPool2d(output_size=1)
+              (fc1): Conv2d(672, 28, kernel_size=(1, 1), stride=(1, 1))
+              (fc2): Conv2d(28, 672, kernel_size=(1, 1), stride=(1, 1))
+              (activation): SiLU(inplace=True)
+              (scale_activation): Sigmoid()
+            )
+            (3): Conv2dNormActivation(
+              (0): Conv2d(672, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(192, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+            )
+          )
+          (stochastic_depth): StochasticDepth(p=0.1375, mode=row)
+        )
+        (1): MBConv(
+          (block): Sequential(
+            (0): Conv2dNormActivation(
+              (0): Conv2d(192, 1152, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(1152, eps=1e-05, momentum=0.1, affine=True, track_running_stat
+s=True)
+              (2): SiLU(inplace=True)
+            )
+            (1): Conv2dNormActivation(
+              (0): Conv2d(1152, 1152, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), grou
+ps=1152, bias=False)
+              (1): BatchNorm2d(1152, eps=1e-05, momentum=0.1, affine=True, track_running_stat
+s=True)
+              (2): SiLU(inplace=True)
+            )
+            (2): SqueezeExcitation(
+              (avgpool): AdaptiveAvgPool2d(output_size=1)
+              (fc1): Conv2d(1152, 48, kernel_size=(1, 1), stride=(1, 1))
+              (fc2): Conv2d(48, 1152, kernel_size=(1, 1), stride=(1, 1))
+              (activation): SiLU(inplace=True)
+              (scale_activation): Sigmoid()
+            )
+            (3): Conv2dNormActivation(
+              (0): Conv2d(1152, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(192, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+            )
+          )
+          (stochastic_depth): StochasticDepth(p=0.15000000000000002, mode=row)
+        )
+        (2): MBConv(
+          (block): Sequential(
+            (0): Conv2dNormActivation(
+              (0): Conv2d(192, 1152, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(1152, eps=1e-05, momentum=0.1, affine=True, track_running_stat
+s=True)
+              (2): SiLU(inplace=True)
+            )
+            (1): Conv2dNormActivation(
+              (0): Conv2d(1152, 1152, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), grou
+ps=1152, bias=False)
+              (1): BatchNorm2d(1152, eps=1e-05, momentum=0.1, affine=True, track_running_stat
+s=True)
+              (2): SiLU(inplace=True)
+            )
+            (2): SqueezeExcitation(
+              (avgpool): AdaptiveAvgPool2d(output_size=1)
+              (fc1): Conv2d(1152, 48, kernel_size=(1, 1), stride=(1, 1))
+              (fc2): Conv2d(48, 1152, kernel_size=(1, 1), stride=(1, 1))
+              (activation): SiLU(inplace=True)
+              (scale_activation): Sigmoid()
+            )
+            (3): Conv2dNormActivation(
+              (0): Conv2d(1152, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(192, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+            )
+          )
+          (stochastic_depth): StochasticDepth(p=0.1625, mode=row)
+        )
+        (3): MBConv(
+          (block): Sequential(
+            (0): Conv2dNormActivation(
+              (0): Conv2d(192, 1152, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(1152, eps=1e-05, momentum=0.1, affine=True, track_running_stat
+s=True)
+              (2): SiLU(inplace=True)
+            )
+            (1): Conv2dNormActivation(
+              (0): Conv2d(1152, 1152, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), grou
+ps=1152, bias=False)
+              (1): BatchNorm2d(1152, eps=1e-05, momentum=0.1, affine=True, track_running_stat
+s=True)
+              (2): SiLU(inplace=True)
+            )
+            (2): SqueezeExcitation(
+              (avgpool): AdaptiveAvgPool2d(output_size=1)
+              (fc1): Conv2d(1152, 48, kernel_size=(1, 1), stride=(1, 1))
+              (fc2): Conv2d(48, 1152, kernel_size=(1, 1), stride=(1, 1))
+              (activation): SiLU(inplace=True)
+              (scale_activation): Sigmoid()
+            )
+            (3): Conv2dNormActivation(
+              (0): Conv2d(1152, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(192, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+            )
+          )
+          (stochastic_depth): StochasticDepth(p=0.17500000000000002, mode=row)
+        )
+      )
+      (7): Sequential(
+        (0): MBConv(
+          (block): Sequential(
+            (0): Conv2dNormActivation(
+              (0): Conv2d(192, 1152, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(1152, eps=1e-05, momentum=0.1, affine=True, track_running_stat
+s=True)
+              (2): SiLU(inplace=True)
+            )
+            (1): Conv2dNormActivation(
+              (0): Conv2d(1152, 1152, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), grou
+ps=1152, bias=False)
+              (1): BatchNorm2d(1152, eps=1e-05, momentum=0.1, affine=True, track_running_stat
+s=True)
+              (2): SiLU(inplace=True)
+            )
+            (2): SqueezeExcitation(
+              (avgpool): AdaptiveAvgPool2d(output_size=1)
+              (fc1): Conv2d(1152, 48, kernel_size=(1, 1), stride=(1, 1))
+              (fc2): Conv2d(48, 1152, kernel_size=(1, 1), stride=(1, 1))
+              (activation): SiLU(inplace=True)
+              (scale_activation): Sigmoid()
+            )
+            (3): Conv2dNormActivation(
+              (0): Conv2d(1152, 320, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(320, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+            )
+          )
+          (stochastic_depth): StochasticDepth(p=0.1875, mode=row)
+        )
+      )
+      (8): Conv2dNormActivation(
+        (0): Conv2d(320, 1280, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (1): BatchNorm2d(1280, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True
+)
+        (2): SiLU(inplace=True)
+      )
+    )
+    (avgpool): AdaptiveAvgPool2d(output_size=1)
+    (classifier): Sequential()
+  )
+  (image_pre): Sequential(
+    (0): Linear(in_features=1280, out_features=128, bias=True)
+    (1): ReLU()
+  )
+  (prop_normalizer): RunningMeanStd()
+  (actor_mlp): Sequential(
+    (0): Linear(in_features=2939, out_features=1024, bias=True)
+    (1): ResBlock(
+      (layers): Sequential(
+        (0): Linear(in_features=1024, out_features=1024, bias=True)
+        (1): BatchNorm1d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True
+)
+        (2): ReLU()
+        (3): Linear(in_features=1024, out_features=1024, bias=True)
+        (4): BatchNorm1d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True
+)
+        (5): ReLU()
+      )
+    )
+    (2): ResBlock(
+      (layers): Sequential(
+        (0): Linear(in_features=1024, out_features=1024, bias=True)
+        (1): BatchNorm1d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True
+)
+        (2): ReLU()
+        (3): Linear(in_features=1024, out_features=1024, bias=True)
+        (4): BatchNorm1d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True
+)
+        (5): ReLU()
+      )
+    )
+    (3): Linear(in_features=1024, out_features=28, bias=True)
+  )
+)
+2025-09-25 14:22:35,832 - ===============ReplayBuffer=================
+2025-09-25 14:22:35,832 - Replay Buffer: store_device=cpu data_device=cuda:0 size=132070000.0
+@FP32
+        image                shape=torch.Size([10000, 128, 128, 3]) dtype=torch.uint8
+        prop                 shape=torch.Size([10000, 223])       dtype=torch.float32
+        teacher_action       shape=torch.Size([10000, 28])        dtype=torch.float32
+        last_action          shape=torch.Size([10000, 28])        dtype=torch.float32
+        last_imgs            shape=torch.Size([10000, 20, 128])   dtype=torch.uint8
+
+2025-09-25 14:22:35,834 - Load Ckpt from <== logs/sit_vision0925/epoch_66000.pth
+2025-09-25 14:23:10,745 - Time [ENV 0.932. TR 0.346]. Epoch 20. Beta 0.9980. progress 20.000.
+ success 0.000. Reward 0.3665. Loss [0.0015, 0.0016, 0.0015, 0.0015, 0.0014]
+2025-09-25 14:23:36,664 - Time [ENV 0.921. TR 0.320]. Epoch 40. Beta 0.9960. progress 38.250.
+ success 0.083. Reward 0.3895. Loss [0.0011, 0.0014, 0.0011, 0.0008, 0.0009]
+^CTraceback (most recent call last):
+  File "main.py", line 29, in <module>
+    main()
+  File "main.py", line 26, in main
+    model.run()
+  File "/data/chenzhanni/HumanVLA/models/dagger/dagger_trainer.py", line 162, in run
+    next_obs, reward, _, _ ,_ = self.env_step(step_action)
+  File "/data/chenzhanni/HumanVLA/models/dagger/dagger_trainer.py", line 98, in env_step
+    obs, reward, termination, timeout, info = self.env.step(action)
+  File "/data/chenzhanni/HumanVLA/envs/base.py", line 184, in step
+    self.save_imgs()
+  File "/data/chenzhanni/HumanVLA/envs/base.py", line 65, in save_imgs
+    self.gym.write_camera_image_to_file(self.sim, self.env_handle[i], self.camera[i-2], gymap
+i.IMAGE_COLOR, rgb_filename)
+KeyboardInterrupt
+
+(humanvla) chenzhanni@10-60-58-161:/data/chenzhanni/HumanVLA$ sh sit_vision_train.sh
+Importing module 'gym_38' (/data/chenzhanni/isaacgym/python/isaacgym/_bindings/linux-x86_64/g
+ym_38.so)
+Setting GYM_USD_PLUG_INFO_PATH to /data/chenzhanni/isaacgym/python/isaacgym/_bindings/linux-x
+86_64/usd/plugInfo.json
+PyTorch version 2.1.0+cu121
+Device count 1
+/data/chenzhanni/isaacgym/python/isaacgym/_bindings/src/gymtorch
+Using /home/chenzhanni/.cache/torch_extensions/py38_cu121 as PyTorch extensions root...
+Emitting ninja build file /home/chenzhanni/.cache/torch_extensions/py38_cu121/gymtorch/build.
+ninja...
+Building extension module gymtorch...
+Allowing ninja to set a default number of workers... (overridable by setting the environment
+variable MAX_JOBS=N)
+ninja: no work to do.
+Loading extension module gymtorch...
+>>>> Override ./logs/sit_vision. Clear All. <<<<
+Not connected to PVD
++++ Using GPU PhysX
+Physics Engine: PhysX
+Physics Device: cuda:0
+GPU Pipeline: enabled
+[Error] [carb.windowing-glfw.plugin] GLFW initialization failed.
+[Error] [carb.windowing-glfw.plugin] GLFW window creation failed!
+[Error] [carb.gym.plugin] Failed to create Window in CreateGymViewerInternal
+======================================
+load huamanoid asset: ././data/humanoid_assets/amp_humanoid.xml
+28 DoFs: ['abdomen_x', 'abdomen_y', 'abdomen_z', 'neck_x', 'neck_y', 'neck_z', 'right_shoulde
+r_x', 'right_shoulder_y', 'right_shoulder_z', 'right_elbow', 'left_shoulder_x', 'left_shoulde
+r_y', 'left_shoulder_z', 'left_elbow', 'right_hip_x', 'right_hip_y', 'right_hip_z', 'right_kn
+ee', 'right_ankle_x', 'right_ankle_y', 'right_ankle_z', 'left_hip_x', 'left_hip_y', 'left_hip
+_z', 'left_knee', 'left_ankle_x', 'left_ankle_y', 'left_ankle_z']
+15 Bodies: ['pelvis', 'torso', 'head', 'right_upper_arm', 'right_lower_arm', 'right_hand', 'l
+eft_upper_arm', 'left_lower_arm', 'left_hand', 'right_thigh', 'right_shin', 'right_foot', 'le
+ft_thigh', 'left_shin', 'left_foot']
+30 Joints: ['abdomen_x', 'abdomen_y', 'abdomen_z', 'neck_x', 'neck_y', 'neck_z', 'right_shoul
+der_x', 'right_shoulder_y', 'right_shoulder_z', 'right_elbow', '', 'left_shoulder_x', 'left_s
+houlder_y', 'left_shoulder_z', 'left_elbow', '', 'right_hip_x', 'right_hip_y', 'right_hip_z',
+ 'right_knee', 'right_ankle_x', 'right_ankle_y', 'right_ankle_z', 'left_hip_x', 'left_hip_y',
+ 'left_hip_z', 'left_knee', 'left_ankle_x', 'left_ankle_y', 'left_ankle_z']
+Using VHACD cache directory '/home/chenzhanni/.isaacgym/vhacd'
+Found existing convex decomposition for mesh '././data/assets/0070649630e7b2262ec0427c0e20352
+32240fb4d/0070649630e7b2262ec0427c0e2035232240fb4d.collider.glb'
+Revolute ['right_elbow', 'left_elbow', 'right_knee', 'left_knee']
+Sphere ['abdomen_x', 'abdomen_y', 'abdomen_z', 'neck_x', 'neck_y', 'neck_z', 'right_shoulder_
+x', 'right_shoulder_y', 'right_shoulder_z', 'left_shoulder_x', 'left_shoulder_y', 'left_shoul
+der_z', 'right_hip_x', 'right_hip_y', 'right_hip_z', 'right_ankle_x', 'right_ankle_y', 'right
+_ankle_z', 'left_hip_x', 'left_hip_y', 'left_hip_z', 'left_ankle_x', 'left_ankle_y', 'left_an
+kle_z']
+pd_low tensor([-1.8850, -1.8850, -1.8850, -1.2566, -1.2566, -1.2566, -3.1416, -3.1416,
+        -3.1416, -3.3510, -3.1416, -3.1416, -3.1416, -3.3510, -2.9322, -2.9322,
+        -2.9322, -0.5585, -1.1519, -1.1519, -1.1519, -2.9322, -2.9322, -2.9322,
+        -0.5585, -1.1519, -1.1519, -1.1519], device='cuda:0')
+pd_high tensor([1.8850, 1.8850, 1.8850, 1.2566, 1.2566, 1.2566, 3.1416, 3.1416, 3.1416,
+        0.5585, 3.1416, 3.1416, 3.1416, 0.5585, 2.9322, 2.9322, 2.9322, 3.3510,
+        1.1519, 1.1519, 1.1519, 2.9322, 2.9322, 2.9322, 3.3510, 1.1519, 1.1519,
+        1.1519], device='cuda:0')
+# RefMotionFiles = 4
+# RefMotionFrames = 1150
+#Num Tasks 1000
+#Num Envs 12
+#Num Roots 24
+#Num Objects 12
+#Num RigidBodys 192
+[Warning] [carb.gym.plugin] Acquiring DOF force tensor, but no actors have DOF force sensors
+enabled.
+[Warning] [carb.gym.plugin] -> Enabled DOF force sensors for all eligible actors.
+[128]
+2025-09-25 14:24:35,420 - ===============Image Transform=================
+2025-09-25 14:24:35,420 - Compose(
+    Resize(size=(128, 128), interpolation=bilinear, max_size=None, antialias=warn)
+    Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))
+)
+2025-09-25 14:24:35,421 - ===============Teacher Network=================
+2025-09-25 14:24:35,421 - AMP_NETWORK(
+  (bps_pre): Sequential(
+    (0): Linear(in_features=600, out_features=512, bias=True)
+    (1): ReLU()
+    (2): Linear(in_features=512, out_features=512, bias=True)
+    (3): ReLU()
+    (4): Linear(in_features=512, out_features=128, bias=True)
+    (5): ReLU()
+  )
+  (actor_mlp): Sequential(
+    (0): Linear(in_features=362, out_features=1024, bias=True)
+    (1): ReLU()
+    (2): Linear(in_features=1024, out_features=1024, bias=True)
+    (3): ReLU()
+    (4): Linear(in_features=1024, out_features=512, bias=True)
+    (5): ReLU()
+    (6): Linear(in_features=512, out_features=28, bias=True)
+  )
+  (critic_mlp): Sequential(
+    (0): Linear(in_features=362, out_features=1024, bias=True)
+    (1): ReLU()
+    (2): Linear(in_features=1024, out_features=1024, bias=True)
+    (3): ReLU()
+    (4): Linear(in_features=1024, out_features=512, bias=True)
+    (5): ReLU()
+    (6): Linear(in_features=512, out_features=1, bias=True)
+  )
+  (disc_mlp): Sequential(
+    (0): Linear(in_features=1330, out_features=1024, bias=True)
+    (1): ReLU()
+    (2): Linear(in_features=1024, out_features=1024, bias=True)
+    (3): ReLU()
+    (4): Linear(in_features=1024, out_features=512, bias=True)
+    (5): ReLU()
+    (6): Linear(in_features=512, out_features=1, bias=False)
+  )
+  (prop_normalizer): RunningMeanStd()
+  (bps_normalizer): RunningMeanStd()
+  (val_normalizer): RunningMeanStd()
+  (disc_normalizer): RunningMeanStd()
+)
+2025-09-25 14:24:35,421 - ===============Student Network=================
+2025-09-25 14:24:35,421 - VLANetwork(
+  (image_backbone): EfficientNet(
+    (features): Sequential(
+      (0): Conv2dNormActivation(
+        (0): Conv2d(3, 32, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False)
+        (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (2): SiLU(inplace=True)
+      )
+      (1): Sequential(
+        (0): MBConv(
+          (block): Sequential(
+            (0): Conv2dNormActivation(
+              (0): Conv2d(32, 32, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=3
+2, bias=False)
+              (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=
+True)
+              (2): SiLU(inplace=True)
+            )
+            (1): SqueezeExcitation(
+              (avgpool): AdaptiveAvgPool2d(output_size=1)
+              (fc1): Conv2d(32, 8, kernel_size=(1, 1), stride=(1, 1))
+              (fc2): Conv2d(8, 32, kernel_size=(1, 1), stride=(1, 1))
+              (activation): SiLU(inplace=True)
+              (scale_activation): Sigmoid()
+            )
+            (2): Conv2dNormActivation(
+              (0): Conv2d(32, 16, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=
+True)
+            )
+          )
+          (stochastic_depth): StochasticDepth(p=0.0, mode=row)
+        )
+      )
+      (2): Sequential(
+        (0): MBConv(
+          (block): Sequential(
+            (0): Conv2dNormActivation(
+              (0): Conv2d(16, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(96, eps=1e-05, momentum=0.1, affine=True, track_running_stats=
+True)
+              (2): SiLU(inplace=True)
+            )
+            (1): Conv2dNormActivation(
+              (0): Conv2d(96, 96, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), groups=9
+6, bias=False)
+              (1): BatchNorm2d(96, eps=1e-05, momentum=0.1, affine=True, track_running_stats=
+True)
+              (2): SiLU(inplace=True)
+            )
+            (2): SqueezeExcitation(
+              (avgpool): AdaptiveAvgPool2d(output_size=1)
+              (fc1): Conv2d(96, 4, kernel_size=(1, 1), stride=(1, 1))
+              (fc2): Conv2d(4, 96, kernel_size=(1, 1), stride=(1, 1))
+              (activation): SiLU(inplace=True)
+              (scale_activation): Sigmoid()
+            )
+            (3): Conv2dNormActivation(
+              (0): Conv2d(96, 24, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(24, eps=1e-05, momentum=0.1, affine=True, track_running_stats=
+True)
+            )
+          )
+          (stochastic_depth): StochasticDepth(p=0.0125, mode=row)
+        )
+        (1): MBConv(
+          (block): Sequential(
+            (0): Conv2dNormActivation(
+              (0): Conv2d(24, 144, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(144, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+              (2): SiLU(inplace=True)
+            )
+            (1): Conv2dNormActivation(
+              (0): Conv2d(144, 144, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups
+=144, bias=False)
+              (1): BatchNorm2d(144, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+              (2): SiLU(inplace=True)
+            )
+            (2): SqueezeExcitation(
+              (avgpool): AdaptiveAvgPool2d(output_size=1)
+              (fc1): Conv2d(144, 6, kernel_size=(1, 1), stride=(1, 1))
+              (fc2): Conv2d(6, 144, kernel_size=(1, 1), stride=(1, 1))
+              (activation): SiLU(inplace=True)
+              (scale_activation): Sigmoid()
+            )
+            (3): Conv2dNormActivation(
+              (0): Conv2d(144, 24, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(24, eps=1e-05, momentum=0.1, affine=True, track_running_stats=
+True)
+            )
+          )
+          (stochastic_depth): StochasticDepth(p=0.025, mode=row)
+        )
+      )
+      (3): Sequential(
+        (0): MBConv(
+          (block): Sequential(
+            (0): Conv2dNormActivation(
+              (0): Conv2d(24, 144, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(144, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+              (2): SiLU(inplace=True)
+            )
+            (1): Conv2dNormActivation(
+              (0): Conv2d(144, 144, kernel_size=(5, 5), stride=(2, 2), padding=(2, 2), groups
+=144, bias=False)
+              (1): BatchNorm2d(144, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+              (2): SiLU(inplace=True)
+            )
+            (2): SqueezeExcitation(
+              (avgpool): AdaptiveAvgPool2d(output_size=1)
+              (fc1): Conv2d(144, 6, kernel_size=(1, 1), stride=(1, 1))
+              (fc2): Conv2d(6, 144, kernel_size=(1, 1), stride=(1, 1))
+              (activation): SiLU(inplace=True)
+              (scale_activation): Sigmoid()
+            )
+            (3): Conv2dNormActivation(
+              (0): Conv2d(144, 40, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(40, eps=1e-05, momentum=0.1, affine=True, track_running_stats=
+True)
+            )
+          )
+          (stochastic_depth): StochasticDepth(p=0.037500000000000006, mode=row)
+        )
+        (1): MBConv(
+          (block): Sequential(
+            (0): Conv2dNormActivation(
+              (0): Conv2d(40, 240, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(240, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+              (2): SiLU(inplace=True)
+            )
+            (1): Conv2dNormActivation(
+              (0): Conv2d(240, 240, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), groups
+=240, bias=False)
+              (1): BatchNorm2d(240, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+              (2): SiLU(inplace=True)
+            )
+            (2): SqueezeExcitation(
+              (avgpool): AdaptiveAvgPool2d(output_size=1)
+              (fc1): Conv2d(240, 10, kernel_size=(1, 1), stride=(1, 1))
+              (fc2): Conv2d(10, 240, kernel_size=(1, 1), stride=(1, 1))
+              (activation): SiLU(inplace=True)
+              (scale_activation): Sigmoid()
+            )
+            (3): Conv2dNormActivation(
+              (0): Conv2d(240, 40, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(40, eps=1e-05, momentum=0.1, affine=True, track_running_stats=
+True)
+            )
+          )
+          (stochastic_depth): StochasticDepth(p=0.05, mode=row)
+        )
+      )
+      (4): Sequential(
+        (0): MBConv(
+          (block): Sequential(
+            (0): Conv2dNormActivation(
+              (0): Conv2d(40, 240, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(240, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+              (2): SiLU(inplace=True)
+            )
+            (1): Conv2dNormActivation(
+              (0): Conv2d(240, 240, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), groups
+=240, bias=False)
+              (1): BatchNorm2d(240, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+              (2): SiLU(inplace=True)
+            )
+            (2): SqueezeExcitation(
+              (avgpool): AdaptiveAvgPool2d(output_size=1)
+              (fc1): Conv2d(240, 10, kernel_size=(1, 1), stride=(1, 1))
+              (fc2): Conv2d(10, 240, kernel_size=(1, 1), stride=(1, 1))
+              (activation): SiLU(inplace=True)
+              (scale_activation): Sigmoid()
+            )
+            (3): Conv2dNormActivation(
+              (0): Conv2d(240, 80, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(80, eps=1e-05, momentum=0.1, affine=True, track_running_stats=
+True)
+            )
+          )
+          (stochastic_depth): StochasticDepth(p=0.0625, mode=row)
+        )
+        (1): MBConv(
+          (block): Sequential(
+            (0): Conv2dNormActivation(
+              (0): Conv2d(80, 480, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(480, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+              (2): SiLU(inplace=True)
+            )
+            (1): Conv2dNormActivation(
+              (0): Conv2d(480, 480, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups
+=480, bias=False)
+              (1): BatchNorm2d(480, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+              (2): SiLU(inplace=True)
+            )
+            (2): SqueezeExcitation(
+              (avgpool): AdaptiveAvgPool2d(output_size=1)
+              (fc1): Conv2d(480, 20, kernel_size=(1, 1), stride=(1, 1))
+              (fc2): Conv2d(20, 480, kernel_size=(1, 1), stride=(1, 1))
+              (activation): SiLU(inplace=True)
+              (scale_activation): Sigmoid()
+            )
+            (3): Conv2dNormActivation(
+              (0): Conv2d(480, 80, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(80, eps=1e-05, momentum=0.1, affine=True, track_running_stats=
+True)
+            )
+          )
+          (stochastic_depth): StochasticDepth(p=0.07500000000000001, mode=row)
+        )
+        (2): MBConv(
+          (block): Sequential(
+            (0): Conv2dNormActivation(
+              (0): Conv2d(80, 480, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(480, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+              (2): SiLU(inplace=True)
+            )
+            (1): Conv2dNormActivation(
+              (0): Conv2d(480, 480, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups
+=480, bias=False)
+              (1): BatchNorm2d(480, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+              (2): SiLU(inplace=True)
+            )
+            (2): SqueezeExcitation(
+              (avgpool): AdaptiveAvgPool2d(output_size=1)
+              (fc1): Conv2d(480, 20, kernel_size=(1, 1), stride=(1, 1))
+              (fc2): Conv2d(20, 480, kernel_size=(1, 1), stride=(1, 1))
+              (activation): SiLU(inplace=True)
+              (scale_activation): Sigmoid()
+            )
+            (3): Conv2dNormActivation(
+              (0): Conv2d(480, 80, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(80, eps=1e-05, momentum=0.1, affine=True, track_running_stats=
+True)
+            )
+          )
+          (stochastic_depth): StochasticDepth(p=0.08750000000000001, mode=row)
+        )
+      )
+      (5): Sequential(
+        (0): MBConv(
+          (block): Sequential(
+            (0): Conv2dNormActivation(
+              (0): Conv2d(80, 480, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(480, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+              (2): SiLU(inplace=True)
+            )
+            (1): Conv2dNormActivation(
+              (0): Conv2d(480, 480, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), groups
+=480, bias=False)
+              (1): BatchNorm2d(480, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+              (2): SiLU(inplace=True)
+            )
+            (2): SqueezeExcitation(
+              (avgpool): AdaptiveAvgPool2d(output_size=1)
+              (fc1): Conv2d(480, 20, kernel_size=(1, 1), stride=(1, 1))
+              (fc2): Conv2d(20, 480, kernel_size=(1, 1), stride=(1, 1))
+              (activation): SiLU(inplace=True)
+              (scale_activation): Sigmoid()
+            )
+            (3): Conv2dNormActivation(
+              (0): Conv2d(480, 112, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(112, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+            )
+          )
+          (stochastic_depth): StochasticDepth(p=0.1, mode=row)
+        )
+        (1): MBConv(
+          (block): Sequential(
+            (0): Conv2dNormActivation(
+              (0): Conv2d(112, 672, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(672, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+              (2): SiLU(inplace=True)
+            )
+            (1): Conv2dNormActivation(
+              (0): Conv2d(672, 672, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), groups
+=672, bias=False)
+              (1): BatchNorm2d(672, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+              (2): SiLU(inplace=True)
+            )
+            (2): SqueezeExcitation(
+              (avgpool): AdaptiveAvgPool2d(output_size=1)
+              (fc1): Conv2d(672, 28, kernel_size=(1, 1), stride=(1, 1))
+              (fc2): Conv2d(28, 672, kernel_size=(1, 1), stride=(1, 1))
+              (activation): SiLU(inplace=True)
+              (scale_activation): Sigmoid()
+            )
+            (3): Conv2dNormActivation(
+              (0): Conv2d(672, 112, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(112, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+            )
+          )
+          (stochastic_depth): StochasticDepth(p=0.1125, mode=row)
+        )
+        (2): MBConv(
+          (block): Sequential(
+            (0): Conv2dNormActivation(
+              (0): Conv2d(112, 672, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(672, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+              (2): SiLU(inplace=True)
+            )
+            (1): Conv2dNormActivation(
+              (0): Conv2d(672, 672, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), groups
+=672, bias=False)
+              (1): BatchNorm2d(672, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+              (2): SiLU(inplace=True)
+            )
+            (2): SqueezeExcitation(
+              (avgpool): AdaptiveAvgPool2d(output_size=1)
+              (fc1): Conv2d(672, 28, kernel_size=(1, 1), stride=(1, 1))
+              (fc2): Conv2d(28, 672, kernel_size=(1, 1), stride=(1, 1))
+              (activation): SiLU(inplace=True)
+              (scale_activation): Sigmoid()
+            )
+            (3): Conv2dNormActivation(
+              (0): Conv2d(672, 112, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(112, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+            )
+          )
+          (stochastic_depth): StochasticDepth(p=0.125, mode=row)
+        )
+      )
+      (6): Sequential(
+        (0): MBConv(
+          (block): Sequential(
+            (0): Conv2dNormActivation(
+              (0): Conv2d(112, 672, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(672, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+              (2): SiLU(inplace=True)
+            )
+            (1): Conv2dNormActivation(
+              (0): Conv2d(672, 672, kernel_size=(5, 5), stride=(2, 2), padding=(2, 2), groups
+=672, bias=False)
+              (1): BatchNorm2d(672, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+              (2): SiLU(inplace=True)
+            )
+            (2): SqueezeExcitation(
+              (avgpool): AdaptiveAvgPool2d(output_size=1)
+              (fc1): Conv2d(672, 28, kernel_size=(1, 1), stride=(1, 1))
+              (fc2): Conv2d(28, 672, kernel_size=(1, 1), stride=(1, 1))
+              (activation): SiLU(inplace=True)
+              (scale_activation): Sigmoid()
+            )
+            (3): Conv2dNormActivation(
+              (0): Conv2d(672, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(192, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+            )
+          )
+          (stochastic_depth): StochasticDepth(p=0.1375, mode=row)
+        )
+        (1): MBConv(
+          (block): Sequential(
+            (0): Conv2dNormActivation(
+              (0): Conv2d(192, 1152, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(1152, eps=1e-05, momentum=0.1, affine=True, track_running_stat
+s=True)
+              (2): SiLU(inplace=True)
+            )
+            (1): Conv2dNormActivation(
+              (0): Conv2d(1152, 1152, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), grou
+ps=1152, bias=False)
+              (1): BatchNorm2d(1152, eps=1e-05, momentum=0.1, affine=True, track_running_stat
+s=True)
+              (2): SiLU(inplace=True)
+            )
+            (2): SqueezeExcitation(
+              (avgpool): AdaptiveAvgPool2d(output_size=1)
+              (fc1): Conv2d(1152, 48, kernel_size=(1, 1), stride=(1, 1))
+              (fc2): Conv2d(48, 1152, kernel_size=(1, 1), stride=(1, 1))
+              (activation): SiLU(inplace=True)
+              (scale_activation): Sigmoid()
+            )
+            (3): Conv2dNormActivation(
+              (0): Conv2d(1152, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(192, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+            )
+          )
+          (stochastic_depth): StochasticDepth(p=0.15000000000000002, mode=row)
+        )
+        (2): MBConv(
+          (block): Sequential(
+            (0): Conv2dNormActivation(
+              (0): Conv2d(192, 1152, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(1152, eps=1e-05, momentum=0.1, affine=True, track_running_stat
+s=True)
+              (2): SiLU(inplace=True)
+            )
+            (1): Conv2dNormActivation(
+              (0): Conv2d(1152, 1152, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), grou
+ps=1152, bias=False)
+              (1): BatchNorm2d(1152, eps=1e-05, momentum=0.1, affine=True, track_running_stat
+s=True)
+              (2): SiLU(inplace=True)
+            )
+            (2): SqueezeExcitation(
+              (avgpool): AdaptiveAvgPool2d(output_size=1)
+              (fc1): Conv2d(1152, 48, kernel_size=(1, 1), stride=(1, 1))
+              (fc2): Conv2d(48, 1152, kernel_size=(1, 1), stride=(1, 1))
+              (activation): SiLU(inplace=True)
+              (scale_activation): Sigmoid()
+            )
+            (3): Conv2dNormActivation(
+              (0): Conv2d(1152, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(192, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+            )
+          )
+          (stochastic_depth): StochasticDepth(p=0.1625, mode=row)
+        )
+        (3): MBConv(
+          (block): Sequential(
+            (0): Conv2dNormActivation(
+              (0): Conv2d(192, 1152, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(1152, eps=1e-05, momentum=0.1, affine=True, track_running_stat
+s=True)
+              (2): SiLU(inplace=True)
+            )
+            (1): Conv2dNormActivation(
+              (0): Conv2d(1152, 1152, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), grou
+ps=1152, bias=False)
+              (1): BatchNorm2d(1152, eps=1e-05, momentum=0.1, affine=True, track_running_stat
+s=True)
+              (2): SiLU(inplace=True)
+            )
+            (2): SqueezeExcitation(
+              (avgpool): AdaptiveAvgPool2d(output_size=1)
+              (fc1): Conv2d(1152, 48, kernel_size=(1, 1), stride=(1, 1))
+              (fc2): Conv2d(48, 1152, kernel_size=(1, 1), stride=(1, 1))
+              (activation): SiLU(inplace=True)
+              (scale_activation): Sigmoid()
+            )
+            (3): Conv2dNormActivation(
+              (0): Conv2d(1152, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(192, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+            )
+          )
+          (stochastic_depth): StochasticDepth(p=0.17500000000000002, mode=row)
+        )
+      )
+      (7): Sequential(
+        (0): MBConv(
+          (block): Sequential(
+            (0): Conv2dNormActivation(
+              (0): Conv2d(192, 1152, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(1152, eps=1e-05, momentum=0.1, affine=True, track_running_stat
+s=True)
+              (2): SiLU(inplace=True)
+            )
+            (1): Conv2dNormActivation(
+              (0): Conv2d(1152, 1152, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), grou
+ps=1152, bias=False)
+              (1): BatchNorm2d(1152, eps=1e-05, momentum=0.1, affine=True, track_running_stat
+s=True)
+              (2): SiLU(inplace=True)
+            )
+            (2): SqueezeExcitation(
+              (avgpool): AdaptiveAvgPool2d(output_size=1)
+              (fc1): Conv2d(1152, 48, kernel_size=(1, 1), stride=(1, 1))
+              (fc2): Conv2d(48, 1152, kernel_size=(1, 1), stride=(1, 1))
+              (activation): SiLU(inplace=True)
+              (scale_activation): Sigmoid()
+            )
+            (3): Conv2dNormActivation(
+              (0): Conv2d(1152, 320, kernel_size=(1, 1), stride=(1, 1), bias=False)
+              (1): BatchNorm2d(320, eps=1e-05, momentum=0.1, affine=True, track_running_stats
+=True)
+            )
+          )
+          (stochastic_depth): StochasticDepth(p=0.1875, mode=row)
+        )
+      )
+      (8): Conv2dNormActivation(
+        (0): Conv2d(320, 1280, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (1): BatchNorm2d(1280, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True
+)
+        (2): SiLU(inplace=True)
+      )
+    )
+    (avgpool): AdaptiveAvgPool2d(output_size=1)
+    (classifier): Sequential()
+  )
+  (image_pre): Sequential(
+    (0): Linear(in_features=1280, out_features=128, bias=True)
+    (1): ReLU()
+  )
+  (prop_normalizer): RunningMeanStd()
+  (actor_mlp): Sequential(
+    (0): Linear(in_features=2939, out_features=1024, bias=True)
+    (1): ResBlock(
+      (layers): Sequential(
+        (0): Linear(in_features=1024, out_features=1024, bias=True)
+        (1): BatchNorm1d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True
+)
+        (2): ReLU()
+        (3): Linear(in_features=1024, out_features=1024, bias=True)
+        (4): BatchNorm1d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True
+)
+        (5): ReLU()
+      )
+    )
+    (2): ResBlock(
+      (layers): Sequential(
+        (0): Linear(in_features=1024, out_features=1024, bias=True)
+        (1): BatchNorm1d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True
+)
+        (2): ReLU()
+        (3): Linear(in_features=1024, out_features=1024, bias=True)
+        (4): BatchNorm1d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True
+)
+        (5): ReLU()
+      )
+    )
+    (3): Linear(in_features=1024, out_features=28, bias=True)
+  )
+)
+2025-09-25 14:24:35,455 - ===============ReplayBuffer=================
+2025-09-25 14:24:35,455 - Replay Buffer: store_device=cpu data_device=cuda:0 size=132070000.0
+@FP32
+        image                shape=torch.Size([10000, 128, 128, 3]) dtype=torch.uint8
+        prop                 shape=torch.Size([10000, 223])       dtype=torch.float32
+        teacher_action       shape=torch.Size([10000, 28])        dtype=torch.float32
+        last_action          shape=torch.Size([10000, 28])        dtype=torch.float32
+        last_imgs            shape=torch.Size([10000, 20, 128])   dtype=torch.uint8
+
+2025-09-25 14:24:35,456 - Load Ckpt from <== logs/sit_vision0925/epoch_66000.pth
+2025-09-25 14:25:10,207 - Time [ENV 0.916. TR 0.333]. Epoch 20. Beta 0.0000. progress 20.000.
+ success 0.000. Reward 0.2939. Loss [0.0017, 0.0017, 0.0016, 0.0015, 0.0013]
+2025-09-25 14:25:36,235 - Time [ENV 0.925. TR 0.332]. Epoch 40. Beta 0.0000. progress 35.667.
+ success 0.083. Reward 0.3294. Loss [0.0026, 0.0021, 0.0024, 0.0018, 0.002]
+2025-09-25 14:26:01,220 - Time [ENV 0.918. TR 0.327]. Epoch 60. Beta 0.0000. progress 53.917.
+ success 0.083. Reward 0.3140. Loss [0.0023, 0.0015, 0.0015, 0.0015, 0.0013]
+2025-09-25 14:26:26,943 - Time [ENV 0.920. TR 0.351]. Epoch 80. Beta 0.0000. progress 72.167.
+ success 0.083. Reward 0.3084. Loss [0.0013, 0.001, 0.0012, 0.0011, 0.0012]
+2025-09-25 14:26:52,548 - Time [ENV 0.920. TR 0.329]. Epoch 100. Beta 0.0000. progress 58.833
+. success 0.083. Reward 0.3369. Loss [0.0015, 0.0013, 0.0016, 0.0012, 0.0009]
+2025-09-25 14:27:17,631 - Time [ENV 0.913. TR 0.323]. Epoch 120. Beta 0.0000. progress 69.833
+. success 0.083. Reward 0.3282. Loss [0.0011, 0.0014, 0.0012, 0.0011, 0.0011]
+^[[A^[[A^[[A^[[A^[[A^[[A^B^[[A^[[A^B^B^B^B^[[A^[[A^B^[[A^[[A^[[A^[[A^[[A^B^[[A^[[A^[[A^B^[[A^
+[[A^B^[[A^[[A^[[A^[[A^B^[[A^[[A^[[A^[[A^B^[[A^B^[[A^B^B^B^B^B^B^B^B^B^B^B^[[A^B^[[A^[[A^B^[[A
+^[[A^[[A^[[A^[[A^[[A^[[A^B^[[A^[[A^[[A^[[A^[[A^B^[[A^B^B^B^B^[[B^[[B^B^[[B^[[B^[[B^[[B^B^[[B^
+[[B^[[B^[[B^B^[[B^[[B^[[B^[[B^[[B^[[B^[[B^B^[[B^[[B^[[B^[[B^B^[[B^[[B^[[B^B^[[B^B^[[B^B^[[B^B
+^B^B^B^B^B^B2025-09-25 14:27:42,614 - Time [ENV 0.928. TR 0.331]. Epoch 140. Beta 0.0000. pro
+gress 76.500. success 0.083. Reward 0.3181. Loss [0.001, 0.0012, 0.0011, 0.0015, 0.0014]
+^[[A2025-09-25 14:28:07,606 - Time [ENV 0.919. TR 0.341]. Epoch 160. Beta 0.0000. progress 94
+.750. success 0.083. Reward 0.3153. Loss [0.0013, 0.001, 0.0011, 0.0013, 0.0011]
+2025-09-25 14:28:32,513 - Time [ENV 0.914. TR 0.320]. Epoch 180. Beta 0.0000. progress 101.33
+3. success 0.083. Reward 0.3226. Loss [0.0011, 0.0009, 0.0012, 0.0011, 0.0009]
+2025-09-25 14:28:57,554 - Time [ENV 0.918. TR 0.325]. Epoch 200. Beta 0.0000. progress 103.83
+3. success 0.083. Reward 0.3270. Loss [0.0013, 0.0012, 0.0009, 0.001, 0.0013]
+2025-09-25 14:29:22,888 - Time [ENV 0.921. TR 0.348]. Epoch 220. Beta 0.0000. progress 113.41
+7. success 0.083. Reward 0.3418. Loss [0.001, 0.0009, 0.0009, 0.0008, 0.001]
+2025-09-25 14:29:48,324 - Time [ENV 0.924. TR 0.318]. Epoch 240. Beta 0.0000. progress 131.66
+7. success 0.083. Reward 0.3133. Loss [0.0011, 0.0012, 0.0008, 0.0009, 0.001]
+2025-09-25 14:30:13,693 - Time [ENV 0.920. TR 0.344]. Epoch 260. Beta 0.0000. progress 143.16
+7. success 0.083. Reward 0.3265. Loss [0.0009, 0.0008, 0.001, 0.001, 0.001]
+2025-09-25 14:30:39,149 - Time [ENV 0.929. TR 0.338]. Epoch 280. Beta 0.0000. progress 137.50
+0. success 0.083. Reward 0.3343. Loss [0.001, 0.001, 0.0009, 0.0013, 0.0012]
+2025-09-25 14:31:04,387 - Time [ENV 0.918. TR 0.331]. Epoch 300. Beta 0.0000. progress 155.75
+0. success 0.083. Reward 0.3346. Loss [0.0009, 0.0009, 0.001, 0.0008, 0.0009]
+^CTraceback (most recent call last):
+  File "main.py", line 29, in <module>
+    main()
+  File "main.py", line 26, in main
+    model.run()
+  File "/data/chenzhanni/HumanVLA/models/dagger/dagger_trainer.py", line 187, in run
+    action = self.ddp_network(prop, image, last_action, last_imgs)
+  File "/data/chenzhanni/miniconda3/envs/humanvla/lib/python3.8/site-packages/torch/nn/module
+s/module.py", line 1518, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/data/chenzhanni/miniconda3/envs/humanvla/lib/python3.8/site-packages/torch/nn/module
+s/module.py", line 1527, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/data/chenzhanni/HumanVLA/models/dagger/vla_network.py", line 59, in forward
+    img = self.image_pre(self.image_backbone(img))
+  File "/data/chenzhanni/miniconda3/envs/humanvla/lib/python3.8/site-packages/torch/nn/module
+s/module.py", line 1518, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/data/chenzhanni/miniconda3/envs/humanvla/lib/python3.8/site-packages/torch/nn/module
+s/module.py", line 1527, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/data/chenzhanni/miniconda3/envs/humanvla/lib/python3.8/site-packages/torchvision/mod
+els/efficientnet.py", line 343, in forward
+    return self._forward_impl(x)
+  File "/data/chenzhanni/miniconda3/envs/humanvla/lib/python3.8/site-packages/torchvision/mod
+els/efficientnet.py", line 333, in _forward_impl
+    x = self.features(x)
+  File "/data/chenzhanni/miniconda3/envs/humanvla/lib/python3.8/site-packages/torch/nn/module
+s/module.py", line 1518, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/data/chenzhanni/miniconda3/envs/humanvla/lib/python3.8/site-packages/torch/nn/module
+s/module.py", line 1527, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/data/chenzhanni/miniconda3/envs/humanvla/lib/python3.8/site-packages/torch/nn/module
+s/container.py", line 215, in forward
+    input = module(input)
+  File "/data/chenzhanni/miniconda3/envs/humanvla/lib/python3.8/site-packages/torch/nn/module
+s/module.py", line 1518, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/data/chenzhanni/miniconda3/envs/humanvla/lib/python3.8/site-packages/torch/nn/module
+s/module.py", line 1527, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/data/chenzhanni/miniconda3/envs/humanvla/lib/python3.8/site-packages/torch/nn/module
+s/container.py", line 215, in forward
+    input = module(input)
+  File "/data/chenzhanni/miniconda3/envs/humanvla/lib/python3.8/site-packages/torch/nn/module
+s/module.py", line 1518, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/data/chenzhanni/miniconda3/envs/humanvla/lib/python3.8/site-packages/torch/nn/module
+s/module.py", line 1527, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/data/chenzhanni/miniconda3/envs/humanvla/lib/python3.8/site-packages/torchvision/mod
+els/efficientnet.py", line 164, in forward
+    result = self.block(input)
+  File "/data/chenzhanni/miniconda3/envs/humanvla/lib/python3.8/site-packages/torch/nn/module
+s/module.py", line 1518, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/data/chenzhanni/miniconda3/envs/humanvla/lib/python3.8/site-packages/torch/nn/module
+s/module.py", line 1527, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/data/chenzhanni/miniconda3/envs/humanvla/lib/python3.8/site-packages/torch/nn/module
+s/container.py", line 215, in forward
+    input = module(input)
+  File "/data/chenzhanni/miniconda3/envs/humanvla/lib/python3.8/site-packages/torch/nn/module
+s/module.py", line 1518, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/data/chenzhanni/miniconda3/envs/humanvla/lib/python3.8/site-packages/torch/nn/module
+s/module.py", line 1527, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/data/chenzhanni/miniconda3/envs/humanvla/lib/python3.8/site-packages/torchvision/ops
+/misc.py", line 259, in forward
+    scale = self._scale(input)
+  File "/data/chenzhanni/miniconda3/envs/humanvla/lib/python3.8/site-packages/torchvision/ops
+/misc.py", line 252, in _scale
+    scale = self.avgpool(input)
+  File "/data/chenzhanni/miniconda3/envs/humanvla/lib/python3.8/site-packages/torch/nn/module
+s/module.py", line 1518, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/data/chenzhanni/miniconda3/envs/humanvla/lib/python3.8/site-packages/torch/nn/module
+s/module.py", line 1527, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/data/chenzhanni/miniconda3/envs/humanvla/lib/python3.8/site-packages/torch/nn/module
+s/pooling.py", line 1194, in forward
+    return F.adaptive_avg_pool2d(input, self.output_size)
+  File "/data/chenzhanni/miniconda3/envs/humanvla/lib/python3.8/site-packages/torch/nn/functi
+onal.py", line 1225, in adaptive_avg_pool2d
+    if has_torch_function_unary(input):
+KeyboardInterrupt
+
+(humanvla) chenzhanni@10-60-58-161:/data/chenzhanni/HumanVLA$ tmux capture-pane -S -10000 -p
+> output.txt
+

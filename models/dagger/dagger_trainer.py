@@ -127,7 +127,8 @@ class DaggerTrainer:
         beta_init = self.cfg.beta
         for ep in range(1, self.cfg.max_epoch + 1):
             ####### collect data
-            curr_beta = beta_init ** ep
+            #curr_beta = beta_init ** ep
+            curr_beta = beta_init
             self.set_eval()
             rewards = []
             env_step_start = time.time()

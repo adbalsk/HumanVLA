@@ -56,13 +56,13 @@ class BaseEnv():
         if self.save_img_count < 100000 and self.cfg.record == True: 
             num = str(self.save_img_count)
             num = '0' * (6 - len(num)) + num
-            for i in range(6,10):
+            for i in range(2,self.num_envs):
                 dir = os.path.join(self.imgs_dir, str(i))
                 if not os.path.exists(dir):
                     os.makedirs(dir)
                 rgb_filename = os.path.join(dir, f"frame{num}.png")
                 #优先使用头部第一人称相机(如果存在)，if hasattr(self,'camera handle')and len(self.camera handle)>(#使用第一头部相和
-                self.gym.write_camera_image_to_file(self.sim, self.env_handle[i], self.camera[i-6], gymapi.IMAGE_COLOR, rgb_filename)
+                self.gym.write_camera_image_to_file(self.sim, self.env_handle[i], self.camera[i-2], gymapi.IMAGE_COLOR, rgb_filename)
                 
                 #1st pov
                 if hasattr(self,'camera_handle')and len(self.camera_handle)>0:
@@ -70,7 +70,7 @@ class BaseEnv():
                     if not os.path.exists(dir):
                         os.makedirs(dir)
                     rgb_filename = os.path.join(dir, f"frame{num}.png")
-                    self.gym.write_camera_image_to_file(self.sim, self.env_handle[i], self.camera_handle[i-6], gymapi.IMAGE_COLOR, rgb_filename)
+                    self.gym.write_camera_image_to_file(self.sim, self.env_handle[i], self.camera_handle[i-2], gymapi.IMAGE_COLOR, rgb_filename)
             self.save_img_count += 1 
         return
     
