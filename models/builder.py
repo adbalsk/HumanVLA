@@ -4,7 +4,10 @@ from .dagger.dagger_trainer import DaggerTrainer
 from .dagger.dagger_player  import DaggerPlayer
 from .dagger_test.dagger_player import DaggerTestPlayer
 from .dagger_test.dagger_trainer import DaggerTestTrainer
-
+from .dagger_rl.dagger_player import DaggerRLPlayer
+from .dagger_rl.dagger_trainer import DaggerRLTrainer
+from .amp_stage2.amp_trainer import AMPStage2Trainer
+from .amp_stage2.amp_player import AMPStage2Player
 
 def build_model(cfg, env):
     model_name = cfg.model

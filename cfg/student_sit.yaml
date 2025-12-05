@@ -1,8 +1,8 @@
-model : DaggerTest
+model : Dagger
 num_game : 3
 
 beta : 0.9999 #0.9999
-num_step_iters : 1
+num_step_iters : 5 #1
 num_train_iters : 5
 buffer_size : 10000 #100000
 active_rendering_weight : 0.2
@@ -43,7 +43,8 @@ loss:
   disc_grad : 5.
   disc_wd   : 0.0001
 
-teacher_ckpt : './weights/sit_teacher.pth'
+#teacher_ckpt : './weights/sit_teacher.pth'
+teacher_ckpt : './logs/teachersit1113/best.pth'
 teacher_network:
   bps_pre :
     hidden : [512, 512, 128]
@@ -67,7 +68,7 @@ student_network:
 
 
 env:
-  name : 'SitVisionTestEnv'
+  name : 'SitVisionEnv'
   eval_success_thresh : 0.4
   consecutive_success_thresh : 20
 
@@ -80,6 +81,7 @@ env:
   num_last_imgs : 10
   num_obj_obs: 11
   max_episode_length: 300
+  last_img_interval : 10
 
   guide_proceed_dist : 0.5
 

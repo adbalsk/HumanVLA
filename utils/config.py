@@ -103,9 +103,17 @@ def build_config(args):
     cfg.record = cfg.env.record = args.record
 
     #print(cfg.student_network)
-    #if "student_network" in cfg:
-    cfg.env.image_pre = cfg.student_network.image_pre
-    #if "num_last_imgs" in cfg.student_network:
-    cfg.student_network.num_last_imgs = cfg.env.num_last_imgs
+    if "student_network" in cfg:
+        cfg.env.image_pre = cfg.student_network.image_pre
+        if "num_last_imgs" in cfg.student_network:
+            cfg.student_network.num_last_imgs = cfg.env.num_last_imgs
+    elif "network" in cfg:
+        if "image_pre" in cfg.network:
+            cfg.env.image_pre = cfg.network.image_pre
+        if "num_last_imgs" in cfg.env:
+            cfg.network.num_last_imgs = cfg.env.num_last_imgs
+        if "camera_height" in cfg.env:
+            cfg.network.camera_height = cfg.env.camera_height
+            cfg.network.camera_width = cfg.env.camera_width
 
     return cfg

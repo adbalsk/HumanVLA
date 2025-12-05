@@ -27,18 +27,18 @@ class VLANetwork(BaseNetwork):
         self.prop_dim = cfg.prop_dim
         #self.text_dim = cfg.text_dim
         self.image_backbone = torchvision.models.efficientnet_b0()
-        self.image_backbone.classifier = nn.Sequential()
+        self.image_backbone.classifier = nn.Sequential() #移除原有的classifier head，用空的Sequential使模型直接输出1280维特征
         image_feat_dim = 1280
         self.image_pre = self.build_mlp(image_feat_dim, self.cfg.image_pre.hidden)
         #self.text_pre = self.build_mlp(cfg.text_dim, self.cfg.text_pre.hidden)
-        vl_dim = self.cfg.image_pre.hidden[-1] #+ self.cfg.text_pre.hidden[-1]
+        self.vl_dim = self.cfg.image_pre.hidden[-1] #+ self.cfg.text_pre.hidden[-1]
         self.prop_normalizer   = RunningMeanStd(self.prop_dim) if self.cfg.normalize_prop else nn.Identity()
         
         self.num_action = 28
         self.last_imgs_dim = self.cfg.image_pre.hidden[-1] * self.cfg.num_last_imgs
 
         self.actor_mlp  = nn.Sequential(
-            nn.Linear(vl_dim + self.prop_dim + self.num_action + self.last_imgs_dim, 1024),
+            nn.Linear(self.vl_dim + self.prop_dim + self.num_action + self.last_imgs_dim, 1024),
             ResBlock(1024),
             ResBlock(1024),
             nn.Linear(1024,28)
@@ -57,8 +57,10 @@ class VLANetwork(BaseNetwork):
         #text = self.text_pre(text)
         #print(img.shape, last_imgs.shape)
         img = self.image_pre(self.image_backbone(img))
-        last_imgs = last_imgs.flatten(1, 2)
-
+        
+        last_imgs = last_imgs.to(img.device)
+        #print(prop.shape, last_imgs.shape)
+        last_imgs = last_imgs.view(last_imgs.shape[0], -1)
         obs = torch.cat([prop, last_action, last_imgs, img], dim=1)
         
         action = self.actor_mlp(obs)
@@ -70,7 +72,9 @@ class VLANetwork(BaseNetwork):
         height, width = 128, 128
         #height, width = 256, 256
         transform = torchvision.transforms.Compose([
+            # 步骤1：缩放图像到目标尺寸
             torchvision.transforms.Resize((height, width)),
+            # 步骤2：归一化图像像素值
             torchvision.transforms.Normalize(
                 mean = (0.5, 0.5, 0.5),
                 std  = (0.5, 0.5, 0.5),

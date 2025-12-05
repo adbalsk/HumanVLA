@@ -69,7 +69,6 @@ class AMPTrainer:
         self.optimizer = build_optimizer(cfg.optimizer, self.ddp_network.parameters())
         self.scaler = torch.cuda.amp.GradScaler(enabled=self.auto_mixed_precision)
 
-
         exp_buffer_info_dict = {
             'action'     : dict(shape = (self.horizon_length, self.num_envs, self.num_action), dtype = torch.float32),
             'neglogp'    : dict(shape = (self.horizon_length, self.num_envs), dtype = torch.float32),
@@ -162,15 +161,20 @@ class AMPTrainer:
         return obs
 
     def update_amp_buffer(self, batch_dict):
+        # 专家数据
         amp_demo_obs = self.env.fetch_amp_demo(self.amp_fetch_demo_bz)
         amp_demo_obs = torch.clamp(amp_demo_obs, - self.obs_clip, self.obs_clip)
         self.demo_buffer.store({
             'amp_demo_obs'   : amp_demo_obs,
         })
+        # 机器人数据
         amp_replay_obs = batch_dict['amp_obs']
         if self.replay_buffer.count >= self.replay_buffer.size:
             keep_mask = torch.bernoulli(torch.zeros(amp_replay_obs.shape[0], device=amp_replay_obs.device) + self.cfg.amp_replay_keep_prob)
             amp_replay_obs = amp_replay_obs[keep_mask == 1]
+            #如果数据更新太快，判别器和 Agent 容易陷入“猫捉老鼠”的死循环：Agent 变一点 -> 判别器变一点 -> Agent 又变回去。
+            #混合新旧数据可以平滑（Smooth）判别器的训练分布，减少这种震荡。
+            #通过概率性地丢弃新数据（或保留旧数据），缓冲区里的数据分布会更广泛，涵盖更多样的情况，这通常能让训练出来的模型更鲁棒。
         self.replay_buffer.store({
             'amp_replay_obs'   : amp_replay_obs,
         })
@@ -178,9 +182,10 @@ class AMPTrainer:
     def calc_adv(self, termination, timeout, values, rewards, next_values):
         lastgaelam = 0
         advs = torch.zeros_like(rewards)
+        #从最后一步往前倒推计算
         for t in reversed(range(self.horizon_length)):
-            delta = rewards[t] + self.gamma * (1.0 - termination[t]) * next_values[t] - values[t]
-            lastgaelam = delta + self.gamma * self.tau * (1.0 - timeout[t]) * lastgaelam
+            delta = rewards[t] + self.gamma * (1.0 - termination[t]) * next_values[t] - values[t] #TD误差
+            lastgaelam = delta + self.gamma * self.tau * (1.0 - timeout[t]) * lastgaelam #GAE
             advs[t] = lastgaelam
         return advs
 
@@ -198,9 +203,10 @@ class AMPTrainer:
     def play_steps(self):
         self.set_eval()
         for n in range(self.horizon_length):
-            obs = self.env_reset()
+            obs = self.env_reset() #只reset那些done的环境
             
             action = self.get_action(obs, self.rand_action_probs)
+
             for k, v in obs.items():
                 self.experience_buffer.update(k,        n,  v)
             self.experience_buffer.update('action',     n,  action['action'])
@@ -275,6 +281,8 @@ class AMPTrainer:
             c_loss = c_loss.mean()
             
             #################################################################################################### bound mu loss
+            #限制策略输出的动作均值（mu）不超过预设范围（mu_bound = self.action_clip），超出部分通过平方惩罚。
+            #作用：防止动作均值超出环境允许的范围，保证动作合法性。
             mu_bound = self.action_clip
             mu_loss_high = torch.clamp_min(train_meta['mu'] - mu_bound,    0) ** 2
             mu_loss_low  = torch.clamp_max(train_meta['mu'] + mu_bound,    0) ** 2
@@ -286,6 +294,7 @@ class AMPTrainer:
             amp_logit_neg = train_meta['amp_logit_neg']
             
             ############################### adv. prediction
+            #0.5 * (demo动作和1的交叉熵 + 机器人动作和0的交叉熵)
             disc_loss_pos = torch.nn.functional.binary_cross_entropy_with_logits(
                 amp_logit_pos, torch.ones_like(amp_logit_pos)
             )
@@ -295,17 +304,22 @@ class AMPTrainer:
             disc_prediction_loss = 0.5 * (disc_loss_pos + disc_loss_neg)
 
             # ############################### adv. logit reg
+            #对判别器最后一层线性层的权重做 L2 正则化（权重衰减）。
+            #作用：防止判别器最后一层权重过大，避免输出 logit 数值爆炸（导致梯度消失 / 爆炸）；
+            #     提升判别器的泛化能力，减少过拟合（尤其是对专家数据的过拟合）。
             last_linear = self.network.disc_mlp[-1]
             assert isinstance(last_linear, torch.nn.Linear)
             disc_logit_loss = last_linear.weight.square().sum()
             
             ############################### adv. grad penalty
+            #强制判别器的梯度范数接近 1（Lipschitz 约束），避免判别器输出随输入剧烈变化，让对抗训练更稳定.
             disc_pos_grad = torch.autograd.grad(
                 amp_logit_pos, amp_obs_pos, grad_outputs=torch.ones_like(amp_logit_pos), create_graph=True, retain_graph=True, only_inputs=True)
             disc_pos_grad = disc_pos_grad[0].square().sum(-1)
             disc_grad_penalty = disc_pos_grad.mean()
 
             ################################ adv. weight_decay
+            #对判别器所有线性层的权重做 L2 正则化（全局权重衰减）。
             disc_weights = []
             for m in self.network.disc_mlp.modules():
                 if isinstance(m, nn.Linear):
@@ -377,6 +391,8 @@ class AMPTrainer:
                 loss_info_step = self.compute_loss(batch_dict)
                 loss = loss_info_step['total_loss']
 
+                #scaler： 1.根据梯度的大小动态调整学习率，防止梯度过大或过小导致训练不稳定。
+                #         2.在混合精度训练中，防止数值下溢，提高训练的数值稳定性。
                 self.optimizer.zero_grad()
                 self.scaler.scale(loss).backward()
 
@@ -395,7 +411,8 @@ class AMPTrainer:
                     if isinstance(v, torch.Tensor):
                         v = v.item()
                     train_info[k].append(v)
-     
+
+        # 统计每个指标的平均值
         for k,v in train_info.items():
             if k in ['actor_clip', 'actor_loss']:
                 per_step_val = train_info[k]

@@ -9,12 +9,11 @@ class AMP_NETWORK(BaseNetwork):
         super().__init__()    
         self.cfg = cfg
 
-
         assert cfg.actor.hidden[-1] == cfg.num_action
         assert cfg.critic.hidden[-1] == 1
         assert cfg.disc.hidden[-1] == 1
 
-        prop_dim = cfg.obs_space['obs']
+        prop_dim = cfg.obs_space['obs'] #cfg.obs_space 来自 env obs_space
         self.bps_pts, self.bps_dim = cfg.obs_space['bps']
         assert self.bps_dim == 3
         self.bps_dim = self.bps_pts * self.bps_dim
@@ -72,6 +71,7 @@ class AMP_NETWORK(BaseNetwork):
         return obs
 
     def forward(self, obs, action, amp_obs_pos, amp_obs_neg):
+        #在self.ddp_network()时调用
         ### train
         obs = self.compute_obs(obs, need_normalize=False)
         mu = self.actor_mlp(obs)

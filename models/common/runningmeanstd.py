@@ -36,7 +36,7 @@ class RunningMeanStd(nn.Module):
         input = input.view((-1,) + self.insize)
 
         if self.training and self.trainable:
-            assert not unnorm
+            #assert not unnorm  #modified because of addition of rl
             bz = input.shape[0]
             delta_mean = input.mean(0) - self.running_mean
             new_count = self.running_count + bz

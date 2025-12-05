@@ -3,6 +3,7 @@ import torch,os,json
 import numpy as np
 from utils import torch_utils
 import pickle as pkl
+import logging
 from .humanoid import HumanoidEnv
 from collections import OrderedDict
 import open3d as o3d
@@ -15,9 +16,9 @@ class SitEnv(HumanoidEnv):
 
         # added：calculate obs size
         self.num_prop_obs = 15 * (3 + 6 + 3 + 3) - 2
-        self.num_goal_obs = 9 + 2  # target sit position + chair facing dir (2D)
+        self.num_goal_obs = 9 + 1  # target sit position (3) + goal rot tannorm (6) + chair facing angle (1)
         #self.num_guidance_obs = 3
-        self.num_obs = self.num_prop_obs + self.num_goal_obs  # simplified as num_obj_obs = 0
+        #self.num_obs = self.num_prop_obs + self.num_goal_obs
 
         self.num_ref_obs_frames = cfg.num_ref_obs_frames
         self.num_ref_obs_per_frame = cfg.num_ref_obs_per_frame
@@ -417,14 +418,14 @@ class SitEnv(HumanoidEnv):
         camera_properties.width = 1000
         camera_properties.height = 750
         # position the camera
-        for i in range(2, self.num_envs):
+        for i in range(2, 12):
             self.camera.append(self.gym.create_camera_sensor(self.env_handle[i], camera_properties))
             self.gym.set_camera_location(self.camera[i-2], self.env_handle[i], cam_pos, cam_target)
 
         self.gym.viewer_camera_look_at(
             self.viewer, None, cam_pos, cam_target)
         
-    def reset(self):
+    def reset(self): #只reset那些已经结束的env
         reset = torch.logical_or(self.reset_termination_buf == 1, self.reset_timeout_buf == 1)
         reset_env_ids = torch.where(reset)[0]
         self.eval_last_runs(reset_env_ids)
@@ -454,7 +455,7 @@ class SitEnv(HumanoidEnv):
             ref_motion_end_frame = torch.randint(90,size=env_ids.shape).to(self.device).float()
             
             # 对 env_id % 10 == 0 的环境，强制设为最后一帧
-            mask1 = (env_ids % 11 == 0)
+            mask1 = (env_ids % 10 == 0)
             mask2 = (env_ids % 5 == 1)
             mask = torch.logical_or(mask1, mask2)
             if mask.any() and not self.cfg.eval:
@@ -500,7 +501,8 @@ class SitEnv(HumanoidEnv):
             
             #delta_rot[mask] = obj_rot[mask]
             #(0.7071, 0, 0.7071, 0)
-            now_pos[:,2][mask1] += 0.1
+            # 从坐着的姿态起始：z轴要高一点防止重叠
+            now_pos[:,2][mask1] += 0.2
 
             #记录初始状态
             now_rot = torch_utils.quat_mul(delta_rot, state_info['rigid_body_rot'][:,0,0,:])
@@ -719,13 +721,25 @@ class SitEnv(HumanoidEnv):
             body_vel    =robot_rb_state[:, :, 7:10],
             body_ang_vel=robot_rb_state[:, :, 10:13],
         )
-        self.goal_buf[env_ids]=self.compute_goal_obs(
+
+        gobs = self.compute_goal_obs(
             root_pos    =robot_rb_state[:, 0, 0:3],
             root_rot    =robot_rb_state[:, 0, 3:7],
             goal_pos    =self.goal_trans[self.task_rootid[env_ids]],
             goal_rot    =self.goal_rot[self.task_rootid[env_ids]],
             obj_rot     =object_state[:, 3:7],
         )
+        expected_goal_dim = getattr(self, 'num_goal_obs', None)
+        if expected_goal_dim is not None and gobs.shape[1] != expected_goal_dim:
+            # logging.getLogger(__name__).warning(
+            #     f"[compute_observation] goal obs dim {gobs.shape[1]} != expected {expected_goal_dim}; adapting by trim/pad")
+            if gobs.shape[1] > expected_goal_dim:
+                gobs = gobs[:, :expected_goal_dim]
+            else:
+                pad = torch.zeros((gobs.shape[0], expected_goal_dim - gobs.shape[1]), device=gobs.device, dtype=gobs.dtype)
+                gobs = torch.cat([gobs, pad], dim=1)
+
+        self.goal_buf[env_ids] = gobs
         self.guide_buf[env_ids]=self.compute_guide_obs(
             root_pos    =robot_rb_state[:, 0, 0:3],
             root_rot    =robot_rb_state[:, 0, 3:7],
@@ -782,11 +796,16 @@ class SitEnv(HumanoidEnv):
         chair_forward_vec = chair_forward_vec.unsqueeze(0).expand(object_rot.shape[0], -1)
         chair_forward = torch_utils.quat_rotate(object_rot, chair_forward_vec)
         
-        # 引导目标：椅子正面1米处（增加距离避免过于接近）
-        approach_distance = 1
-        approach_target = object_pos - chair_forward * approach_distance
-        approach_target[:, 2] = object_pos[:, 2]  # 保持相同高度
-        
+        # # 引导目标：椅子正面1米处（增加距离避免过于接近）
+        # approach_distance = 1
+        # approach_target = object_pos - chair_forward * approach_distance
+        # approach_target[:, 2] = object_pos[:, 2]  # 保持相同高度
+        chair_circle_r = 1
+        chair_center = object_pos + chair_forward * 0.3
+        current_direction = root_pos - chair_center
+        current_direction[:, 2] = 0
+        approach_target = chair_center + torch.nn.functional.normalize(current_direction, dim=-1) * chair_circle_r
+        approach_target[:, 2] = object_pos[:, 2]  # 保持相同高度        
         # 距离计算
         robot2approach_dist = torch.norm(root_pos - approach_target, dim=-1)
         robot2chair_dist = torch.norm(root_pos[:,:2] - object_pos[:,:2], dim=-1)
@@ -1075,26 +1094,58 @@ class SitEnv(HumanoidEnv):
         
         dof_obs = self.dof_to_obs(dof_pos)
 
+        # compute local object pos (full 3D) and xy-only
         local_obj_pos = torch_utils.quat_rotate(heading_rot, obj_pos - root_pos)
-        local_obj_pos[:,2] = 0.
+        local_obj_pos_full = local_obj_pos            # shape (B, 3)
+
+        # chair forward vector: compute both 2D unit vector and scalar yaw
         chair_forward_vec = torch.tensor([0.0, 1.0, 0.0], device=obj_rot.device, dtype=obj_rot.dtype)
         chair_forward_vec = chair_forward_vec.unsqueeze(0).expand(obj_rot.shape[0], -1)
         chair_forward_global = torch_utils.quat_rotate(obj_rot, chair_forward_vec)
         chair_forward_local = torch_utils.quat_rotate(heading_rot, chair_forward_global)
+
+        # 2D unit-vector representation (x,y) - normalized
         chair_facing_2d = torch.nn.functional.normalize(chair_forward_local[:, :2], dim=-1)
-        # local_obj_rot = torch_utils.quat_mul(heading_rot, obj_rot)
-        # local_obj_forward[:, 2] = 0.0
-        obs = torch.cat(( #todo：我们需要什么obs
-            root_h_obs, 
-            root_rot_obs, 
-            local_root_vel, 
-            local_root_anv, 
-            dof_obs, 
-            dof_vel, 
-            local_key_body_pos,
-            local_obj_pos,
-            chair_facing_2d), dim=-1)
+
+        # choose representation based on expected per-frame dim (keep existing compact behavior by default)
+        expected = getattr(self, 'num_ref_obs_per_frame', None)
         
+        parts = [
+            ('root_h_obs', root_h_obs),
+            ('root_rot_obs', root_rot_obs),
+            ('local_root_vel', local_root_vel),
+            ('local_root_anv', local_root_anv),
+            ('dof_obs', dof_obs),
+            ('dof_vel', dof_vel),
+            ('local_key_body_pos', local_key_body_pos),
+            ('local_obj_pos_full', local_obj_pos_full),
+            ('chair_facing_2d', chair_facing_2d),
+        ]
+
+        obs = torch.cat([p[1] for p in parts], dim=-1)
+
+        # Ensure returned per-frame feature dim matches expected config
+        feat_dim = obs.shape[1]
+        expected = getattr(self, 'num_ref_obs_per_frame', None)
+        if expected is not None and feat_dim != expected:
+            # Log detailed breakdown to help debugging
+            try:
+                details = ', '.join([f"{name}:{tensor.shape[1]}" for name, tensor in parts])
+            except Exception:
+                details = str([(name, tensor.shape) for name, tensor in parts])
+            print(f"[compute_ref_frame_obs] warning: feat_dim {feat_dim} != expected {expected}. Breakdown: {details}")
+            # Also print some related config values
+            ndof = getattr(self, 'num_dof', None)
+            amp_idx_len = len(getattr(self, 'amp_body_idx', []))
+            print(f"[compute_ref_frame_obs] config: num_dof={ndof}, amp_body_idx_len={amp_idx_len}")
+
+            # Adapt by trimming or zero-padding
+            if feat_dim > expected:
+                obs = obs[:, :expected]
+            else:
+                pad = torch.zeros((obs.shape[0], expected - feat_dim), device=obs.device, dtype=obs.dtype)
+                obs = torch.cat([obs, pad], dim=1)
+
         return obs
     
     def compute_guide_obs(self, root_pos, root_rot, guide_pos):
@@ -1114,14 +1165,31 @@ class SitEnv(HumanoidEnv):
         chair_forward_vec = chair_forward_vec.unsqueeze(0).expand(obj_rot.shape[0], -1)
         chair_forward_global = torch_utils.quat_rotate(obj_rot, chair_forward_vec)
         chair_forward_local = torch_utils.quat_rotate(heading_rot, chair_forward_global)
+        # 1D angle representation
+        chair_facing_angle = torch.atan2(chair_forward_local[:, 1], chair_forward_local[:, 0]).unsqueeze(-1)
+        # 2D unit-vector representation (x,y)
         chair_facing_2d = torch.nn.functional.normalize(chair_forward_local[:, :2], dim=-1)
-        
-        obs = torch.cat((
-            local_goal_pos,
-            local_goal_rot_tannorm,
-            chair_facing_2d,  # 整合椅子朝向的2D方向向量
-            ),    
-        dim = -1)
+
+        parts = [local_goal_pos, local_goal_rot_tannorm]
+
+        expected = getattr(self, 'num_goal_obs', None)
+        # If expected is 11 (old code), use 2D; if 10 use angle; else choose angle and adapt
+        if expected == 11:
+            parts.append(chair_facing_2d)
+        else:
+            parts.append(chair_facing_angle)
+
+        obs = torch.cat(parts, dim=-1)
+
+        # Ensure obs matches configured size: trim or pad if necessary
+        if expected is not None and obs.shape[1] != expected:
+            feat_dim = obs.shape[1]
+            if feat_dim > expected:
+                obs = obs[:, :expected]
+            else:
+                pad = torch.zeros((obs.shape[0], expected - feat_dim), device=obs.device, dtype=obs.dtype)
+                obs = torch.cat([obs, pad], dim=1)
+
         return obs
         
     def compute_prop_obs(self, body_pos, body_rot, body_vel, body_ang_vel):
@@ -1174,18 +1242,30 @@ class SitEnv(HumanoidEnv):
 
         motion_times = self.sample_motion_time(motion_ids = motion_ids)
         motion_times = motion_times.unsqueeze(1).tile(self.num_ref_obs_frames)
-        motion_times -= torch.arange(self.num_ref_obs_frames).to(motion_times.device) * self.dt # 根据 num_ref_obs_frames（比如说 4 帧），往前/往后取一段动作片段
+        motion_times -= torch.arange(self.num_ref_obs_frames).to(motion_times.device) * self.dt # 根据 num_ref_obs_frames（比如说 4 帧），往前取一段动作片段
         motion_times = motion_times.flatten()
         motion_ids = torch.repeat_interleave(motion_ids, self.num_ref_obs_frames,)
         
         state_info = self.query_motion_state(motion_ids, motion_times)
 
         # 获取椅子状态用于计算朝向
+
         object_state = self._root_states[self.task_rootid]
-        obj_rot = object_state[self.task_objectid, 3:7]
-        obj_rot_extra = obj_rot[:state_info['rigid_body_pos'].shape[0]-obj_rot.shape[0],:]
-        obj_rot = torch.cat([obj_rot, obj_rot_extra], dim=0)
+        base_obj_rot = object_state[:, 3:7] # (num_envs, 4)
         
+        num_samples = state_info['rigid_body_pos'].shape[0] 
+
+        if num_samples > self.num_envs:
+            num_repeats = (num_samples + self.num_envs - 1) // self.num_envs
+            expanded_obj_rot = base_obj_rot.repeat(num_repeats, 1)
+            obj_rot = expanded_obj_rot[:num_samples]
+        else:
+            obj_rot = base_obj_rot[:num_samples]
+
+        obj_pos = state_info['object_pos']
+        if obj_pos.shape[0] != num_samples:
+            obj_pos = obj_pos.repeat_interleave(self.num_ref_obs_frames, dim=0)
+
         amp_demo_obs = self.compute_ref_frame_obs(
             root_pos=state_info['rigid_body_pos'][:,0,:],
             root_rot=state_info['rigid_body_rot'][:,0,:],
@@ -1194,11 +1274,22 @@ class SitEnv(HumanoidEnv):
             dof_pos=state_info['dof_pos'],
             dof_vel=state_info['dof_vel'],
             key_body_pos=state_info['rigid_body_pos'][:,self.amp_body_idx,:],
-            obj_pos=state_info['object_pos'],
+            obj_pos=obj_pos,
             obj_rot=obj_rot
         )
-        amp_demo_obs = amp_demo_obs.reshape((n, self.num_ref_obs_frames * self.num_ref_obs_per_frame))
-        return amp_demo_obs
+        num_samples = amp_demo_obs.shape[0]
+        # if num_samples != n * self.num_ref_obs_frames:
+        #     logging.getLogger(__name__).warning(
+        #         f"[fetch_amp_demo] num_samples ({num_samples}) != n * num_ref_obs_frames ({n * self.num_ref_obs_frames})")
+
+        feat_dim = amp_demo_obs.shape[1]
+        # if feat_dim != self.num_ref_obs_per_frame:
+        #     logging.getLogger(__name__).warning(
+        #         f"[fetch_amp_demo] computed per-frame feat dim {feat_dim} != expected {self.num_ref_obs_per_frame}. Using {feat_dim}.")
+
+        amp_demo_obs = amp_demo_obs.view(n, self.num_ref_obs_frames, feat_dim)
+
+        return amp_demo_obs.reshape(n, self.num_ref_obs_frames * feat_dim)
 
     ######################## added from tokenhsi
     

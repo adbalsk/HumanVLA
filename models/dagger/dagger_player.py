@@ -29,7 +29,7 @@ class DaggerPlayer(DaggerTrainer):
         self.num_envs    = cfg.env.num_envs
         self.action_clip = cfg.action_clip
         self.obs_clip    = cfg.obs_clip
-
+        self.num_last_imgs = cfg.student_network.num_last_imgs = cfg.teacher_network.num_last_imgs = cfg.env.num_last_imgs
 
         self.num_game   = cfg.num_game
     
@@ -53,20 +53,40 @@ class DaggerPlayer(DaggerTrainer):
         self.logger.info('===============Student Network=================')
         self.logger.info(self.student_network)
 
+        #增加一个buffer用来存储last imgs
+        self.buffer_size = self.cfg.env.max_episode_length * self.num_envs
+        buffer_info_dict = {
+            'image_feat' :   dict(shape = (self.buffer_size, self.student_network.vl_dim)),
+        }
+        self.data_buffer = ReplayBuffer(buffer_info_dict, self.device, default_dtype = torch.float32,
+                                        num_last_imgs=self.cfg.env.num_last_imgs,
+                                        last_img_interval=self.cfg.env.last_img_interval,
+                                        num_envs=self.cfg.env.num_envs)
+
     @torch.no_grad()
     def run_game(self, game_idx):
+        self.data_buffer.head = 0
+        self.data_buffer.count = 0
         for step in range(self.cfg.env.max_episode_length):
             obs = self.env_reset()
 
             actions = []
+            
             for index in range(0, obs['prop'].shape[0], self.cfg.test_bz):
                 obs_batch = {
                     k : v[index : index + self.cfg.test_bz]
                     for k,v in obs.items()
                 }
                 obs_batch['image'] = self.image_transform(obs_batch['image'].float().permute(0,3,1,2)/255.)
+                obs_batch['last_imgs'] = self.data_buffer.get_last_imgs()
                 action_batch = self.get_student_action(obs_batch)
                 actions.append(action_batch)
+                
+                # 存储image_feat
+                image_feat = self.student_network.image_pre(self.student_network.image_backbone(obs_batch['image']))
+                self.data_buffer.store({
+                    'image_feat' : image_feat.detach()
+                })
             actions = torch.cat(actions, 0)
             next_obs, task_reward, termination, timeout, next_info = self.env_step(actions) 
             

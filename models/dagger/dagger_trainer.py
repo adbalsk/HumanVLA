@@ -18,12 +18,13 @@ from .vla_network import VLANetwork
 import torchvision
 
 class DaggerTrainer:
-    def __init__(self, cfg,  env) -> None:
+    def __init__(self, cfg, env) -> None:
         self.cfg = cfg
         self.env = env
+        self.cfg.env = env.cfg
         
         cfg.teacher_network.num_amp_obs = cfg.env.num_ref_obs_frames * cfg.env.num_ref_obs_per_frame
-        cfg.teacher_network.obs_space = env.obs_space
+        cfg.teacher_network.obs_space = env.obs_space # teacher的obs_space是环境整个的obs_space，会使用'obs'部分
         self.num_action = cfg.student_network.num_action = cfg.teacher_network.num_action = cfg.env.num_action
         self.num_last_imgs = cfg.student_network.num_last_imgs = cfg.teacher_network.num_last_imgs = cfg.env.num_last_imgs
 
@@ -49,10 +50,13 @@ class DaggerTrainer:
         self.prop_dim = cfg.student_network.prop_dim = self.env.num_prop_obs
         #self.text_dim = cfg.student_network.text_dim = self.env.num_text_obs
         self.student_network = VLANetwork(cfg.student_network).to(self.device)
-        if self.cfg.ddp:    
+        if self.cfg.ddp: # 判断配置中是否启用分布式训练（DDP）
+            # 2.1 同步BatchNorm层（分布式训练必需） 
             self.student_network = torch.nn.SyncBatchNorm.convert_sync_batchnorm(self.student_network)
+            # 2.2 用DDP包装模型，开启分布式训练
             self.ddp_network = DDP(self.student_network,device_ids=[self.cfg.rank])
         else:
+            # 2.3 不启用分布式：直接用基础模型作为调用入口
             self.ddp_network = self.student_network
             
         self.img_h, self.img_w, self.image_transform = self.student_network.build_transform()
@@ -63,6 +67,7 @@ class DaggerTrainer:
         self.logger.info('===============Student Network=================')
         self.logger.info(self.student_network)
 
+        # 把全局缓冲区大小(cfg里设置的buffer_size)按进程数(world_size)均分
         self.buffer_size = int(np.ceil(self.cfg.buffer_size / self.cfg.world_size))
         self.bz = np.ceil(self.cfg.bz / self.cfg.world_size)
         
@@ -75,9 +80,12 @@ class DaggerTrainer:
             #'text'      :   dict(shape = (self.buffer_size, self.text_dim)), 
             'teacher_action'    :   dict(shape = (self.buffer_size, self.num_action)), 
             'last_action'    :   dict(shape = (self.buffer_size, self.num_action)), 
-            'last_imgs'     : dict(shape = (self.buffer_size, self.num_last_imgs, 128), dtype = torch.uint8)
+            'image_feat' :   dict(shape = (self.buffer_size, self.student_network.vl_dim)),
         }
-        self.data_buffer = ReplayBuffer(buffer_info_dict, self.device)
+        self.data_buffer = ReplayBuffer(buffer_info_dict, self.device, default_dtype = torch.float32,
+                                        num_last_imgs=self.cfg.env.num_last_imgs,
+                                        last_img_interval=self.cfg.env.last_img_interval,
+                                        num_envs=self.cfg.env.num_envs)
         self.logger.info('===============ReplayBuffer=================')
         self.logger.info(self.data_buffer)
 
@@ -85,7 +93,7 @@ class DaggerTrainer:
         self.scaler = torch.cuda.amp.GradScaler(enabled=self.auto_mixed_precision)
 
     def env_reset(self):
-        obs = self.env.reset()        
+        obs = self.env.reset()      
         assert obs['image'].dtype == torch.uint8
 
         for k in ['obs', 'bps', 'prop']:
@@ -110,6 +118,7 @@ class DaggerTrainer:
     
     def get_teacher_action(self,obs):
         with torch.no_grad():
+            #print("get teacher action: ", obs.keys())
             result = self.teacher_network.get_action(obs)
             result = result['mu']
             result = torch.clamp(result, -self.action_clip, self.action_clip)
@@ -127,14 +136,14 @@ class DaggerTrainer:
         beta_init = self.cfg.beta
         for ep in range(1, self.cfg.max_epoch + 1):
             ####### collect data
-            #curr_beta = beta_init ** ep
-            curr_beta = beta_init
+            curr_beta = beta_init ** ep
+            #curr_beta = beta_init
             self.set_eval()
             rewards = []
             env_step_start = time.time()
             for j in range(self.cfg.num_step_iters):
                 obs = self.env_reset()
-                teacher_action = self.get_teacher_action(obs)
+                teacher_action = self.get_teacher_action(obs) #根据amp网络输出的概率分布进行一个采样
                 
                 active_rendering_action, active_rendering_index = self.env.compute_active_rendering_action()
                 teacher_action[:, active_rendering_index] = \
@@ -145,19 +154,24 @@ class DaggerTrainer:
                 raw_images = obs['image']
                 transform_images = self.image_transform(raw_images.float().permute(0,3,1,2)/255.)
                 obs['image'] = transform_images
+                obs['last_imgs'] = self.data_buffer.get_last_imgs() # 获取上 num_last_imgs 帧视觉特征作为 obs 输入
                 
                 student_action = self.get_student_action(obs)
                 #texts = obs['text']
-                step_action = curr_beta * teacher_action + (1 - curr_beta) * student_action
+                if np.random.rand() < curr_beta:
+                    step_action = teacher_action
+                else:
+                    step_action = student_action
+                #step_action = curr_beta * teacher_action + (1 - curr_beta) * student_action
                 last_action = obs['last_action']
-                last_imgs = obs['last_imgs']
-
+                
+                image_feat = self.student_network.image_pre(self.student_network.image_backbone(obs['image']))
                 self.data_buffer.store({
                     'image'     : raw_images,
                     #'text'      : texts,
                     'prop'      : prop,
                     'last_action'    : last_action,
-                    'last_imgs' : last_imgs,
+                    'image_feat' : image_feat.detach(),
                     'teacher_action' : teacher_action.detach()
                 })
                 next_obs, reward, _, _ ,_ = self.env_step(step_action)
@@ -187,15 +201,17 @@ class DaggerTrainer:
                 with torch.cuda.amp.autocast(enabled=self.auto_mixed_precision):
                     action = self.ddp_network(prop, image, last_action, last_imgs)
                     loss = torch.nn.functional.mse_loss(action, teacher_action)
-
+                
+                for k, v in data.items(): # 防止梯度传递到数据采集环节
+                    assert data[k].requires_grad == False, f"{k} requires grad"
                 self.optimizer.zero_grad()
                 self.scaler.scale(loss).backward()
                 if self.cfg.truncate_grads:
                     nn.utils.clip_grad_norm_(self.ddp_network.parameters(), self.cfg.grad_norm)
                 self.scaler.step(self.optimizer)
                 self.scaler.update()
-                losses.append(np.round(loss.item(),4))
-            # losses = np.mean(losses)
+                losses.append(np.round(loss.item(),4)) #保留四位小数
+            losses = np.mean(losses)
             
             train_time = time.time() - train_start_time
 
@@ -213,7 +229,7 @@ class DaggerTrainer:
                     self.writer.add_scalar(f'info/lr',          self.optimizer.param_groups[0]['lr'], ep)
                     self.writer.add_scalar(f'time/env_time',    env_time, ep)
                     self.writer.add_scalar(f'time/train_time',  train_time, ep)
-                    self.writer.add_scalar(f'loss/toal_loss',   np.mean(losses), ep)
+                    self.writer.add_scalar(f'loss/total_loss',   np.mean(losses), ep)
             
             ########################### save weight
             if ep % self.cfg.save_epoch == 0:

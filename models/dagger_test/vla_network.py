@@ -31,7 +31,7 @@ class VLANetwork(BaseNetwork):
         image_feat_dim = 1280
         self.image_pre = self.build_mlp(image_feat_dim, self.cfg.image_pre.hidden)
         #self.text_pre = self.build_mlp(cfg.text_dim, self.cfg.text_pre.hidden)
-        vl_dim = self.cfg.image_pre.hidden[-1] #+ self.cfg.text_pre.hidden[-1]
+        self.vl_dim = self.cfg.image_pre.hidden[-1] #+ self.cfg.text_pre.hidden[-1]
         self.prop_normalizer   = RunningMeanStd(self.prop_dim) if self.cfg.normalize_prop else nn.Identity()
         
         self.num_action = 28
@@ -39,7 +39,7 @@ class VLANetwork(BaseNetwork):
         self.goal_dim = 11
 
         self.actor_mlp  = nn.Sequential(
-            nn.Linear(vl_dim + self.prop_dim + self.goal_dim + self.num_action + self.last_imgs_dim, 1024),
+            nn.Linear(self.vl_dim + self.prop_dim + self.goal_dim + self.num_action + self.last_imgs_dim, 1024),
             ResBlock(1024),
             ResBlock(1024),
             nn.Linear(1024,28)

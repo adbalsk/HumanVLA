@@ -419,7 +419,7 @@ class SitEnv(HumanoidEnv):
         self.gym.viewer_camera_look_at(
             self.viewer, None, cam_pos, cam_target)
         
-    def reset(self):
+    def reset(self): # 只reset那些已经结束的env
         reset = torch.logical_or(self.reset_termination_buf == 1, self.reset_timeout_buf == 1)
         reset_env_ids = torch.where(reset)[0]
         self.eval_last_runs(reset_env_ids)

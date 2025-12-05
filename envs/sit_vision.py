@@ -18,13 +18,10 @@ class SitVisionEnv(SitEnv):
         super().__init__(cfg)
         self.image_backbone = torchvision.models.efficientnet_b0().to(self.device)
         self.image_backbone.classifier = nn.Sequential().to(self.device)
-        print(self.cfg.image_pre.hidden)
-        self.image_pre = BaseNetwork.build_mlp(BaseNetwork, 1280, self.cfg.image_pre.hidden).to(self.device)
     
     def create_buffer(self):
         super().create_buffer()
         self.image_buf = torch.zeros((self.num_envs, self.cfg.camera_height, self.cfg.camera_width, 3), device=self.device, dtype=torch.uint8)
-        self.last_imgs = torch.zeros((self.num_envs, self.cfg.num_last_imgs, 128), device=self.device, dtype=torch.uint8)
 
     def render_camera_image(self, env_ids = None):
         if env_ids is None:
@@ -48,22 +45,24 @@ class SitVisionEnv(SitEnv):
                     cam_img = cam_img.reshape(self.cfg.camera_height, self.cfg.camera_width, 4)
                     self.image_buf[env_id] = torch.from_numpy(cam_img).to(self.device)[:,:,:3]
             
-            for env_id in env_ids:
-                if self.step_cnt[env_id] % 30 == 0:
-                    raw_img = self.image_buf[env_id].unsqueeze(0)
-                    new_img = raw_img.float().permute(0,3,1,2)/255.
-                    transform = torchvision.transforms.Compose([
-                        torchvision.transforms.Resize((self.cfg.camera_height, self.cfg.camera_width)),
-                        torchvision.transforms.Normalize(
-                            mean = (0.5, 0.5, 0.5),
-                            std  = (0.5, 0.5, 0.5),
-                        )
-                    ])
-                    new_img = (transform(new_img))
-                    new_img = self.image_pre(self.image_backbone(new_img))
-                    self.last_imgs[env_id] = torch.cat([
-                            self.last_imgs[env_id][:-1], new_img], dim=0)
-                self.step_cnt[env_id] = (self.step_cnt[env_id] + 1) % 30
+            # 之前的 试图update last_imgs buffer
+            # for env_id in env_ids:
+            #     if self.step_cnt[env_id] % 30 == 0:
+            #         raw_img = self.image_buf[env_id].unsqueeze(0)
+            #         new_img = raw_img.float().permute(0,3,1,2)/255.
+            #         transform = torchvision.transforms.Compose([
+            #             torchvision.transforms.Resize((self.cfg.camera_height, self.cfg.camera_width)),
+            #             torchvision.transforms.Normalize(
+            #                 mean = (0.5, 0.5, 0.5),
+            #                 std  = (0.5, 0.5, 0.5),
+            #             )
+            #         ])
+            #         new_img = (transform(new_img))
+            #         new_img = self.image_pre(self.image_backbone(new_img))
+            #         self.image[env_id] = new_img
+            #         self.last_imgs[env_id] = torch.cat([
+            #                 self.last_imgs[env_id][:-1], new_img], dim=0)
+            #     self.step_cnt[env_id] = (self.step_cnt[env_id] + 1) % self.cfg.last_img_interval
 
     
     @property
@@ -73,9 +72,9 @@ class SitVisionEnv(SitEnv):
             'bps' : (self.num_bps, 3),
             'last_action' : self.num_action,
             #'last_imgs' : self.cfg.image_pre.hidden[-1] * self.cfg.num_last_imgs,
-            'last_imgs' : (self.cfg.num_last_imgs, 128),
             'prop' : self.num_prop_obs,
-            'image': (self.cfg.camera_height, self.cfg.camera_width, 3)
+            'image': (self.cfg.camera_height, self.cfg.camera_width, 3),
+            'goal' : self.num_goal_obs,
         }
 
     def reset_output(self):
@@ -88,19 +87,36 @@ class SitVisionEnv(SitEnv):
             'obs' : obs,
             'bps' : bps,
             'last_action' : self.last_action,
-            'last_imgs': self.last_imgs,
+            #'last_imgs': self.last_imgs,
+            'goal' : self.goal_buf,
         }
         return obs_buf
      
     def step_output(self):
+        # obs = torch.cat([self.prop_buf, self.goal_buf], dim=-1)
+        # bps = self.asset_bps[self.object2asset[self.task_objectid]]
+        # obs_buf = {
+        #     'obs' : obs,
+        #     'bps' : bps
+        # }
+
         obs = torch.cat([self.prop_buf, self.goal_buf], dim=-1)
         bps = self.asset_bps[self.object2asset[self.task_objectid]]
         obs_buf = {
+            'image' : self.image_buf,
+            'prop': self.prop_buf,
             'obs' : obs,
-            'bps' : bps
+            'bps' : bps,
+            'last_action' : self.last_action,
+            #'last_imgs': self.last_imgs,
+            'goal' : self.goal_buf,
         }
 
-        return obs_buf, self.reward_buf, self.reset_termination_buf, self.reset_timeout_buf, {}
+        extra = {
+            'amp_obs' : self.amp_obs_buf.reshape(self.num_envs, self.num_ref_obs_frames * self.num_ref_obs_per_frame)
+        }
+
+        return obs_buf, self.reward_buf, self.reset_termination_buf, self.reset_timeout_buf, extra
 
     def reset_env(self, env_ids):
         if env_ids is not None and len(env_ids) > 0:
@@ -117,7 +133,7 @@ class SitVisionEnv(SitEnv):
             ref_motion_end_frame = torch.randint(90,size=env_ids.shape).to(self.device).float()
             
             # 对 env_id % 10 == 0 的环境，强制设为最后一帧
-            mask1 = (env_ids % 11 == 0)
+            mask1 = (env_ids % 10 == 0)
             mask2 = (env_ids % 5 == 1)
             mask = torch.logical_or(mask1, mask2)
             if mask.any() and not self.cfg.eval:
@@ -163,7 +179,8 @@ class SitVisionEnv(SitEnv):
             
             #delta_rot[mask] = obj_rot[mask]
             #(0.7071, 0, 0.7071, 0)
-            now_pos[:,2][mask1] += 0.1
+            #给z轴方向加高一点，防止重叠
+            now_pos[:,2][mask1] += 0.3
 
             #记录初始状态
             now_rot = torch_utils.quat_mul(delta_rot, state_info['rigid_body_rot'][:,0,0,:])

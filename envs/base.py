@@ -56,7 +56,7 @@ class BaseEnv():
         if self.save_img_count < 100000 and self.cfg.record == True: 
             num = str(self.save_img_count)
             num = '0' * (6 - len(num)) + num
-            for i in range(2,self.num_envs):
+            for i in range(2, 12):
                 dir = os.path.join(self.imgs_dir, str(i))
                 if not os.path.exists(dir):
                     os.makedirs(dir)
