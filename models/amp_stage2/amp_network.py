@@ -14,7 +14,7 @@ class AMP_NETWORK(BaseNetwork):
         assert cfg.critic.hidden[-1] == 1
         assert cfg.disc.hidden[-1] == 1
 
-        prop_dim = cfg.obs_space['obs']
+        prop_dim = cfg.obs_space['stage2_obs']
         self.bps_pts, self.bps_dim = cfg.obs_space['bps']
         assert self.bps_dim == 3
         self.bps_dim = self.bps_pts * self.bps_dim
@@ -24,7 +24,7 @@ class AMP_NETWORK(BaseNetwork):
             bps_feat_dim = cfg.bps_pre.hidden[-1]
         else:
             bps_feat_dim = self.bps_dim
-        num_obs  = prop_dim + bps_feat_dim
+        num_obs  = prop_dim + self.cfg.num_last_imgs * self.vl_dim
 
         self.actor_mlp  = self.build_mlp(num_obs, cfg.actor.hidden,  last_activation=False)
         self.critic_mlp = self.build_mlp(num_obs, cfg.critic.hidden, last_activation=False)
@@ -61,20 +61,19 @@ class AMP_NETWORK(BaseNetwork):
 
     def compute_obs(self, obs, need_normalize = True):
         if need_normalize:
-            prop = self.prop_normalizer(obs['obs'])
-            bps = self.bps_normalizer(obs['bps']).view(-1, self.bps_dim)
+            obs = self.prop_normalizer(obs['stage2_obs'])
+            last_imgs = self.normalizer(obs['last_imgs'])
         else:
-            prop = obs['obs']
-            bps = obs['bps'].view(-1, self.bps_dim)
-        bps = self.bps_pre(bps)
-        obs = torch.cat([prop, bps],dim=-1)
-
+            obs = obs['stage2_obs']
+            last_imgs = obs['last_imgs']
+        obs = torch.cat([obs, last_imgs],dim=-1)
         return obs
 
     def forward(self, obs, action, amp_obs_pos, amp_obs_neg):
         #在self.ddp_network()时调用
         ### train
         obs = self.compute_obs(obs, need_normalize=False)
+        
         mu = self.actor_mlp(obs)
         logstd = self.sigma.expand_as(mu)
         std = torch.exp(logstd)

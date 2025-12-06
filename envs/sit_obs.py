@@ -1249,18 +1249,23 @@ class SitEnv(HumanoidEnv):
         state_info = self.query_motion_state(motion_ids, motion_times)
 
         # 获取椅子状态用于计算朝向
-
-        object_state = self._root_states[self.task_rootid]
-        base_obj_rot = object_state[:, 3:7] # (num_envs, 4)
+        #第一个teacher跑通的版本
+        # object_state = self._root_states[self.task_rootid]
+        # base_obj_rot = object_state[:, 3:7] # (num_envs, 4)
         
-        num_samples = state_info['rigid_body_pos'].shape[0] 
+        # num_samples = state_info['rigid_body_pos'].shape[0] 
+        # if num_samples > self.num_envs:
+        #     num_repeats = (num_samples + self.num_envs - 1) // self.num_envs
+        #     expanded_obj_rot = base_obj_rot.repeat(num_repeats, 1)
+        #     obj_rot = expanded_obj_rot[:num_samples]
+        # else:
+        #     obj_rot = base_obj_rot[:num_samples]
 
-        if num_samples > self.num_envs:
-            num_repeats = (num_samples + self.num_envs - 1) // self.num_envs
-            expanded_obj_rot = base_obj_rot.repeat(num_repeats, 1)
-            obj_rot = expanded_obj_rot[:num_samples]
-        else:
-            obj_rot = base_obj_rot[:num_samples]
+        # 第二个teacher尝试的版本
+        num_samples = state_info['rigid_body_pos'].shape[0] 
+        obj_rot = torch.zeros((num_samples, 4), device=self.device)
+        obj_rot[:, 2] = -0.70710678 # 旋转90度，使椅子面向+Y方向
+        obj_rot[:, 3] = 0.70710678
 
         obj_pos = state_info['object_pos']
         if obj_pos.shape[0] != num_samples:
@@ -1314,6 +1319,7 @@ class SitEnv(HumanoidEnv):
         obj_rot = object_state[:, 3:7]
         
         # 计算椅子正面位置
+        # 第一个版本：[0.0, 1.0, 0.0]
         chair_forward_vec = torch.tensor([0.0, 1.0, 0.0], device=obj_rot.device, dtype=obj_rot.dtype)
         chair_forward_vec = chair_forward_vec.unsqueeze(0).expand(obj_rot.shape[0], -1)  # [num_envs, 3]
         chair_forward = torch_utils.quat_rotate(obj_rot, chair_forward_vec)

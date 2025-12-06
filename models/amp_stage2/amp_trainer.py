@@ -146,7 +146,7 @@ class AMPStage2Trainer:
             'timeout'    : dict(shape = (self.horizon_length, self.num_envs), dtype = torch.float32),
             'next_value' : dict(shape = (self.horizon_length, self.num_envs), dtype = torch.float32),
             'amp_obs'    : dict(shape = (self.horizon_length, self.num_envs, self.num_amp_obs), dtype = torch.float32),
-            'image_feat' : dict(shape = (self.horizon_length, self.num_envs, self.num_last_imgs, cfg.network.image_feat_dim), dtype = torch.float32),
+            'image_feat' : dict(shape = (self.horizon_length, self.num_envs, cfg.network.vl_dim), dtype = torch.float32),
         }
         for k, v in self.env.obs_space.items():
             assert k not in exp_buffer_info_dict
@@ -263,6 +263,9 @@ class AMPStage2Trainer:
         self.set_eval()
         for n in range(self.horizon_length):
             obs = self.env_reset()
+            obs['last_imgs'] = self.experience_buffer.get_last_imgs()
+            image = self.image_transform(obs['image'].float().permute(0,3,1,2)/255.)
+            image_feat = self.student_network.image_pre(self.student_network.image_backbone(image))
             
             action = self.get_action(obs, self.rand_action_probs)
             for k, v in obs.items():
@@ -272,7 +275,7 @@ class AMPStage2Trainer:
             self.experience_buffer.update('sigma',      n,  action['sigma'])
             self.experience_buffer.update('neglogp',    n,  action['neglogp'])
             self.experience_buffer.update('value',      n,  action['value'])
-            
+            self.experience_buffer.update('image_feat', n,  image_feat)
             next_obs, task_reward, termination, timeout, next_info = self.env_step(action['action'])
             
             next_val = self.network.eval_critic(next_obs)['value']
